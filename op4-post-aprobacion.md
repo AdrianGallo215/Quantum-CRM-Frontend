@@ -1,0 +1,207 @@
+- generic [ref=f2e14]:
+  - complementary [ref=f2e15]:
+    - generic [ref=f2e16]:
+      - img "Quantum Investment Logo" [ref=f2e17]
+      - button "menu_open" [ref=f2e18] [cursor=pointer]
+    - navigation [ref=f2e20]:
+      - link "dashboard Inicio" [ref=f2e21] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e22]: dashboard
+        - generic [ref=f2e23]: Inicio
+      - link "view_kanban Pipeline" [ref=f2e24] [cursor=pointer]:
+        - /url: /pipeline
+        - generic [ref=f2e25]: view_kanban
+        - generic [ref=f2e26]: Pipeline
+      - link "account_balance_wallet Cartera" [ref=f2e27] [cursor=pointer]:
+        - /url: /cartera
+        - generic [ref=f2e28]: account_balance_wallet
+        - generic [ref=f2e29]: Cartera
+      - link "contacts Contactos" [ref=f2e30] [cursor=pointer]:
+        - /url: /contactos
+        - generic [ref=f2e31]: contacts
+        - generic [ref=f2e32]: Contactos
+      - link "person_search Prospección" [ref=f2e33] [cursor=pointer]:
+        - /url: /prospeccion
+        - generic [ref=f2e34]: person_search
+        - generic [ref=f2e35]: Prospección
+      - link "calendar_today Actividades" [ref=f2e36] [cursor=pointer]:
+        - /url: /actividades
+        - generic [ref=f2e37]: calendar_today
+        - generic [ref=f2e38]: Actividades
+      - link "monitoring Reportes" [ref=f2e39] [cursor=pointer]:
+        - /url: /reportes
+        - generic [ref=f2e40]: monitoring
+        - generic [ref=f2e41]: Reportes
+      - link "approval Solicitudes" [ref=f2e42] [cursor=pointer]:
+        - /url: /solicitudes
+        - generic [ref=f2e43]: approval
+        - generic [ref=f2e44]: Solicitudes
+    - generic [ref=f2e45]:
+      - button "confirmation_number Levantar Ticket" [ref=f2e46] [cursor=pointer]:
+        - generic [ref=f2e47]: confirmation_number
+        - text: Levantar Ticket
+      - generic [ref=f2e49]:
+        - generic [ref=f2e50]: settings
+        - text: Configuración
+  - main [ref=f2e51]:
+    - generic [ref=f2e52]:
+      - generic [ref=f2e54]:
+        - generic [ref=f2e55]: search
+        - textbox "Buscar oportunidad, empresa o contacto..." [ref=f2e56]
+      - generic [ref=f2e57]:
+        - generic [ref=f2e58]:
+          - button "notifications" [ref=f2e59] [cursor=pointer]:
+            - generic [ref=f2e60]:
+              - generic [ref=f2e61]: notifications
+              - superscript [ref=f2e62]
+          - button "history" [ref=f2e63] [cursor=pointer]
+        - generic [ref=f2e66] [cursor=pointer]:
+          - generic [ref=f2e67]:
+            - paragraph [ref=f2e68]: Aldo
+            - paragraph [ref=f2e69]: Jefe de Ventas
+          - generic "Aldo Martínez" [ref=f2e70]: AM
+    - main [ref=f2e73]:
+      - generic [ref=f2e74]:
+        - generic [ref=f2e75]:
+          - link "Pipeline" [ref=f2e76] [cursor=pointer]:
+            - /url: /pipeline
+          - generic [ref=f2e77]: chevron_right
+          - generic [ref=f2e78]: "Oportunidad #4"
+        - generic [ref=f2e79]:
+          - heading "HTK6772YN5 × 1 — Transporte SAC" [level=1] [ref=f2e80]
+          - generic [ref=f2e81]:
+            - button "edit" [ref=f2e82] [cursor=pointer]
+            - button "share" [ref=f2e84] [cursor=pointer]
+      - generic [ref=f2e86]:
+        - generic [ref=f2e87]:
+          - button "1 Aprobación 1 días en este estado" [ref=f2e89] [cursor=pointer]:
+            - generic [ref=f2e90]: "1"
+            - generic [ref=f2e92]:
+              - text: Aprobación
+              - paragraph [ref=f2e93]: 1 días en este estado
+          - button "2 Doc. Legales" [ref=f2e94] [cursor=pointer]:
+            - generic [ref=f2e95]: "2"
+            - generic [ref=f2e97]: Doc. Legales
+          - button "3 Facturado" [disabled] [ref=f2e98]:
+            - generic [ref=f2e99]: "3"
+            - generic [ref=f2e101]: Facturado
+        - button "Cerrar oportunidad" [ref=f2e103] [cursor=pointer]
+      - generic [ref=f2e104]:
+        - generic [ref=f2e106]:
+          - generic [ref=f2e107]:
+            - generic [ref=f2e108]: TR
+            - generic [ref=f2e109]:
+              - paragraph [ref=f2e110]: Empresa
+              - link [ref=f2e111] [cursor=pointer]:
+                - /url: /empresas/3
+                - heading "Transporte SAC" [level=3] [ref=f2e112]
+              - paragraph [ref=f2e113]: Sin distrito
+          - generic [ref=f2e115]:
+            - paragraph [ref=f2e116]: Vendedor Asignado
+            - paragraph [ref=f2e117] [cursor=pointer]: Lionel Messi
+          - generic [ref=f2e119]:
+            - paragraph [ref=f2e120]: Fecha de Creación
+            - paragraph [ref=f2e121]: 10 jul 2026
+        - generic [ref=f2e122]:
+          - generic [ref=f2e123]:
+            - generic [ref=f2e124]:
+              - heading "info Información de la Oportunidad" [level=2] [ref=f2e125]:
+                - generic [ref=f2e126]: info
+                - text: Información de la Oportunidad
+              - button "edit Editar términos" [ref=f2e127] [cursor=pointer]:
+                - generic [ref=f2e128]: edit
+                - text: Editar términos
+            - generic [ref=f2e129]:
+              - generic [ref=f2e130]:
+                - generic [ref=f2e131]: MODELO
+                - text: HTK6772YN5
+              - generic [ref=f2e132]:
+                - generic [ref=f2e133]: CANTIDAD
+                - generic [ref=f2e134]: 1 unidades
+              - generic [ref=f2e135]:
+                - generic [ref=f2e136]: PRECIO UNIT.
+                - text: USD 98,500.00
+              - generic [ref=f2e137]:
+                - generic [ref=f2e138]: DESCUENTO
+                - text: "-USD 4,925.00 (5%)"
+              - generic [ref=f2e139]:
+                - generic [ref=f2e140]: SUBTOTAL
+                - text: USD 98,500.00
+            - generic [ref=f2e142]:
+              - generic [ref=f2e143]: Monto Total de Operación
+              - generic [ref=f2e144]:
+                - generic [ref=f2e145]: USD 93,575.00
+                - generic [ref=f2e146]: (calculado)
+            - generic [ref=f2e147]:
+              - generic [ref=f2e148]:
+                - generic [ref=f2e149]: Financiadora
+                - combobox [ref=f2e150]:
+                  - option "Calidda – Fraccionamiento GNV" [selected]
+                  - option "SIGMA SAFI"
+              - generic [ref=f2e151]:
+                - generic [ref=f2e152]: Aplica Garantía
+                - combobox [ref=f2e153]:
+                  - option "Sí, con garantía"
+                  - option "Sin garantía adicional" [selected]
+              - generic [ref=f2e154]:
+                - generic [ref=f2e155]: Fecha Cierre Estimado
+                - generic [ref=f2e156] [cursor=pointer]:
+                  - generic [ref=f2e157]: calendar_today
+                  - generic [ref=f2e158]: 31 jul 2026
+              - generic [ref=f2e159]:
+                - generic [ref=f2e160]: Financiamiento Paralelo
+                - combobox [ref=f2e161]:
+                  - option "Sí aplica"
+                  - option "No aplica" [selected]
+            - generic [ref=f2e162]:
+              - generic [ref=f2e163]: Notas de Seguimiento
+              - textbox "Registrar detalles de la última reunión o acuerdos específicos..." [ref=f2e164]
+          - generic [ref=f2e165]:
+            - generic [ref=f2e166]:
+              - generic [ref=f2e167]:
+                - generic [ref=f2e168]: hub
+                - heading "Eventos Operativos" [level=2] [ref=f2e169]
+              - button "add New Event" [ref=f2e171] [cursor=pointer]:
+                - generic [ref=f2e172]: add
+                - text: New Event
+            - generic [ref=f2e173]: Sin eventos pendientes
+          - generic [ref=f2e174]:
+            - generic [ref=f2e175]:
+              - generic [ref=f2e176]:
+                - generic [ref=f2e177]: assignment
+                - heading "Tareas" [level=2] [ref=f2e178]
+              - generic [ref=f2e179]: 0 Active
+            - generic [ref=f2e180]:
+              - paragraph [ref=f2e181]: Sin tareas pendientes
+              - group [ref=f2e182]:
+                - generic "Historial (1)" [ref=f2e183] [cursor=pointer]
+            - button "add_circle Quick Task" [ref=f2e185] [cursor=pointer]:
+              - generic [ref=f2e186]: add_circle
+              - text: Quick Task
+        - generic [ref=f2e188]:
+          - generic [ref=f2e189]:
+            - heading "group Contactos Relacionados" [level=2] [ref=f2e190]:
+              - generic [ref=f2e191]: group
+              - text: Contactos Relacionados
+            - button "person_add" [ref=f2e192] [cursor=pointer]
+          - generic [ref=f2e194]:
+            - generic [ref=f2e195] [cursor=pointer]:
+              - generic [ref=f2e196]:
+                - generic [ref=f2e197]:
+                  - heading "Contacto 2 Apellido" [level=4] [ref=f2e198]
+                  - paragraph [ref=f2e199]: Administrador
+                - generic [ref=f2e200]: Coordinador
+              - generic [ref=f2e201]:
+                - generic: call
+                - generic: mail
+                - button "link_off" [ref=f2e202]
+            - generic [ref=f2e204] [cursor=pointer]:
+              - generic [ref=f2e205]:
+                - generic [ref=f2e206]:
+                  - heading "Contacto 1 Apellido" [level=4] [ref=f2e207]
+                  - paragraph [ref=f2e208]: Gerente Comercial
+                - generic [ref=f2e209]: Coordinador
+              - generic [ref=f2e210]:
+                - generic: call
+                - generic: mail
+                - button "link_off" [ref=f2e211]

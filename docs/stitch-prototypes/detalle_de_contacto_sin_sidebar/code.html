@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quantum CRM - Detalle de Contacto</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#d4d8de",
+                    "secondary-fixed": "#92f3eb",
+                    "on-surface": "#0e193e",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#c3c7cd",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#fbf8ff",
+                    "secondary": "#006a64",
+                    "on-secondary-fixed": "#00201e",
+                    "on-tertiary-fixed-variant": "#43474d",
+                    "on-primary-fixed": "#001a43",
+                    "primary-fixed-dim": "#afc6ff",
+                    "secondary-container": "#8ff0e8",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#dfe2e9",
+                    "primary-fixed": "#d9e2ff",
+                    "on-tertiary-fixed": "#181c21",
+                    "error": "#ba1a1a",
+                    "primary-container": "#3e5c9a",
+                    "primary": "#244481",
+                    "on-primary-fixed-variant": "#254582",
+                    "secondary-fixed-dim": "#75d7ce",
+                    "surface-variant": "#dde1ff",
+                    "on-background": "#0e193e",
+                    "outline-variant": "#c4c6d1",
+                    "background": "#FEFFFA",
+                    "on-surface-variant": "#444750",
+                    "tertiary-container": "#5a5e64",
+                    "on-primary-container": "#c8d7ff",
+                    "surface-container": "#ecedff",
+                    "surface-tint": "#3f5d9b",
+                    "surface-container-low": "#f3f2ff",
+                    "outline": "#747781",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#006f69",
+                    "on-error": "#ffffff",
+                    "tertiary": "#42464c",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#fbf8ff",
+                    "on-secondary-fixed-variant": "#00504b",
+                    "inverse-primary": "#afc6ff",
+                    "surface-dim": "#d1d8ff",
+                    "inverse-on-surface": "#efefff",
+                    "inverse-surface": "#242e55",
+                    "surface-container-high": "#e4e7ff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#dde1ff",
+                    "brand-primary": "#0799b6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "4px",
+                    "lg": "4px",
+                    "xl": "4px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "container-padding": "20px",
+                    "gutter": "24px",
+                    "margin-page": "32px",
+                    "sidebar-width": "280px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "headline-sm": ["Manrope"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "body-lg": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #FEFFFA;
+            color: #0e193e;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .sidebar-bg {
+            background-color: #3E5C9A;
+        }
+        .btn-circular {
+            border-radius: 9999px !important;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- Sidebar Shell -->
+<!-- Main Content Shell -->
+<main class="min-h-screen">
+<!-- Top Navigation -->
+<header class="h-16 flex items-center justify-between px-8 bg-white border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-4 flex-grow max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded focus:ring-1 focus:ring-brand-primary focus:border-brand-primary text-sm" placeholder="Buscar prospectos, tratos o empresas..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant hover:text-brand-primary transition-colors font-label-md text-label-md" href="#">Pipeline</a>
+<a class="text-on-surface-variant hover:text-brand-primary transition-colors font-label-md text-label-md" href="#">Reportes</a>
+<a class="text-on-surface-variant hover:text-brand-primary transition-colors font-label-md text-label-md" href="#">Calendario</a>
+</nav>
+<div class="flex items-center gap-3 pl-6 border-l border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">history</span>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A formal professional headshot of a corporate executive for a CRM profile avatar, set against a clean studio background with soft directional lighting. The person is wearing a tailored navy blazer and has a confident, neutral expression. High-resolution photography style with corporate branding aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdd_XT7LQDpIvoVVhnFeYb2Im7v8pu5p2adftvgSv8lsxdbdYipRulVfzX1U_v6fQTt8jt7_N-hh3ceLetl25vlZarIQq_2i7Na0WIYxmAjf5E8HFRW8CPwvvtIpBcEwxAjYibfYystR0CKtGfJo0HMsFVsViUE2lTFV-SBRhNHFG6_XClUBngOr2BW5vKdyr56QU4zFLRa70rGcldVB3YRHWjvCQoytcoZkUhrKz0bRXHlFDKRGwmezYBisK9Zd3SF7XYIQU0bbQg"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-on-surface-variant text-xs mb-6">
+<a class="hover:text-brand-primary" href="#">Prospección</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-bold text-on-surface">Detalle de Contacto</span>
+</div>
+<!-- 2-Column Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Left Column (70%) -->
+<div class="col-span-12 lg:col-span-8 space-y-gutter">
+<!-- Contact Information Block -->
+<section class="bg-white p-container-padding custom-shadow rounded">
+<div class="flex justify-between items-start mb-6">
+<div class="flex gap-6">
+<div class="w-20 h-20 bg-surface-container rounded flex items-center justify-center border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional studio portrait of a business professional for a CRM contact profile. Neutral lighting, clean white background, high-end corporate photography. The subject is wearing business formal attire, representing a key stakeholder in a major enterprise investment firm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyoLPRbksWcQ8HdOm3wvJrlBWJnfQyqRVv_4YDSZmw414M0qDEoXnOw0nIk5x1GYjgjEkk2GbNlWuD-w28LK3_jxbrz2NZH0vplLTNxfayqgw8sVPiogCiaZGQO_qwyRgxI5t63a7_iskK5VvpVin2440M56_PwZj5z4HWR6KhRioi3u3NH6-FEYAB4HDJaJamraOsLifPRFgrRTaPuDWNtmauoAFgWJFXcT2fb0vwRuVaLFjeefbwk4Kzehq7rj7UAotsWfxbcm4H"/>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Alejandro Villarreal</h2>
+<p class="text-brand-primary font-semibold text-body-lg">Director de Operaciones Logísticas</p>
+<div class="flex gap-4 mt-4">
+<button class="btn-circular px-6 py-2 bg-brand-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
+                                            Editar Perfil
+                                        </button>
+<button class="btn-circular px-6 py-2 border border-brand-primary text-brand-primary font-bold text-sm hover:bg-brand-primary/5 transition-colors">
+                                            Enviar Correo
+                                        </button>
+</div>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Cliente Activo</span>
+</div>
+<div class="grid grid-cols-2 gap-8 pt-6 border-t border-outline-variant">
+<div>
+<label class="block text-[10px] uppercase tracking-widest text-outline mb-1 font-bold">Correo Electrónico</label>
+<p class="text-on-surface font-medium">a.villarreal@logistica-global.com</p>
+</div>
+<div>
+<label class="block text-[10px] uppercase tracking-widest text-outline mb-1 font-bold">Teléfono Directo</label>
+<p class="text-on-surface font-medium">+52 55 1234 5678</p>
+</div>
+<div>
+<label class="block text-[10px] uppercase tracking-widest text-outline mb-1 font-bold">Ubicación</label>
+<p class="text-on-surface font-medium">Ciudad de México, MX</p>
+</div>
+<div>
+<label class="block text-[10px] uppercase tracking-widest text-outline mb-1 font-bold">Último Contacto</label>
+<p class="text-on-surface font-medium">12 de Octubre, 2023</p>
+</div>
+</div>
+</section>
+<!-- Associated Opportunities Block -->
+<section class="bg-white custom-shadow rounded overflow-hidden">
+<div class="px-container-padding py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low/30">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Oportunidades Asociadas</h3>
+<button class="text-brand-primary text-sm font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                                Nueva Oportunidad
+                            </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-outline font-bold">Nombre del Trato</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-outline font-bold">Monto Esperado</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-outline font-bold">Etapa</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-outline font-bold">Fecha de Cierre</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low/20 transition-colors">
+<td class="px-6 py-4 font-semibold text-brand-primary">Renovación Flota 2024</td>
+<td class="px-6 py-4">$450,000 USD</td>
+<td class="px-6 py-4">
+<span class="bg-primary-container/10 text-primary px-3 py-1 rounded text-xs font-medium">Negociación</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">15/12/2023</td>
+</tr>
+<tr class="hover:bg-surface-container-low/20 transition-colors">
+<td class="px-6 py-4 font-semibold text-brand-primary">Expansión HUB Norte</td>
+<td class="px-6 py-4">$1,200,000 USD</td>
+<td class="px-6 py-4">
+<span class="bg-secondary-container/10 text-secondary px-3 py-1 rounded text-xs font-medium">Propuesta Enviada</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">28/01/2024</td>
+</tr>
+<tr class="hover:bg-surface-container-low/20 transition-colors">
+<td class="px-6 py-4 font-semibold text-brand-primary">Sistemas Automatizados</td>
+<td class="px-6 py-4">$85,000 USD</td>
+<td class="px-6 py-4">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded text-xs font-medium">Cualificación</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">05/11/2023</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Right Column (30%) -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Related Companies Block -->
+<section class="bg-white p-container-padding custom-shadow rounded">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-primary">domain</span>
+                            Empresas Relacionadas
+                        </h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-3 border border-outline-variant rounded hover:border-brand-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 bg-surface-dim rounded flex items-center justify-center text-primary font-bold">LG</div>
+<div>
+<p class="font-bold text-on-surface group-hover:text-brand-primary transition-colors">Logística Global S.A.</p>
+<p class="text-xs text-on-surface-variant">Sector: Transporte y Distribución</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-3 border border-outline-variant rounded hover:border-brand-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 bg-surface-dim rounded flex items-center justify-center text-primary font-bold">IN</div>
+<div>
+<p class="font-bold text-on-surface group-hover:text-brand-primary transition-colors">Inversiones Noroeste</p>
+<p class="text-xs text-on-surface-variant">Sector: Real Estate Industrial</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 text-brand-primary text-xs font-bold uppercase tracking-widest border-t border-outline-variant pt-4 hover:opacity-70 transition-opacity">
+                            Ver Todas las Relaciones
+                        </button>
+</section>
+<!-- Activities Block -->
+<section class="bg-white p-container-padding custom-shadow rounded">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Actividad Reciente</h3>
+<button class="material-symbols-outlined text-outline hover:text-brand-primary">add_box</button>
+</div>
+<div class="relative space-y-6 before:content-[''] before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-outline-variant">
+<!-- Task -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border border-brand-primary rounded-full flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-brand-primary">task_alt</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Llamada de seguimiento</p>
+<p class="text-xs text-on-surface-variant mt-1">Acordar términos para el contrato de expansión HUB Norte.</p>
+<span class="text-[10px] text-outline font-bold mt-2 inline-block">MAÑANA, 10:30 AM</span>
+</div>
+</div>
+<!-- Event -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border border-secondary rounded-full flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-secondary">calendar_today</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Cena de Negocios</p>
+<p class="text-xs text-on-surface-variant mt-1">Reunión presencial en Restaurante L'Etoile con el equipo directivo.</p>
+<span class="text-[10px] text-outline font-bold mt-2 inline-block">24 OCT, 08:00 PM</span>
+</div>
+</div>
+<!-- Note -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1 w-6 h-6 bg-white border border-tertiary rounded-full flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-tertiary">notes</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Nota Interna</p>
+<p class="text-xs text-on-surface-variant mt-1">El cliente está evaluando una oferta de la competencia. Priorizar el descuento por volumen.</p>
+<span class="text-[10px] text-outline font-bold mt-2 inline-block">AYER, 04:15 PM</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 btn-circular border border-outline-variant py-2 text-xs font-bold text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                            Ver Historial Completo
+                        </button>
+</section>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interactions for tables and buttons
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.add('opacity-70');
+                setTimeout(() => row.classList.remove('opacity-70'), 200);
+            });
+        });
+
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+    </script>
+</body></html>

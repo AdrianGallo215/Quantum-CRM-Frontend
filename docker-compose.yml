@@ -1,0 +1,30 @@
+# Construcción y ejecución del contenedor de producción en local, para validar
+# el artefacto real antes de publicarlo (el dev server de Vite NO ejerce el
+# fallback SPA de nginx, la CSP ni el cacheado de assets).
+#
+#   docker compose up --build
+#   → http://localhost:8080
+#
+# Recuerda: las VITE_* se incrustan en tiempo de BUILD. Cambiar VITE_API_BASE_URL
+# exige reconstruir la imagen (`--build`), no basta con reiniciar el contenedor.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Sobrescribe con la URL real de tu backend:
+        #   VITE_API_BASE_URL=https://api.tu-dominio.com/api/v1 docker compose up --build
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api/v1}
+        VITE_COTIZADOR_URL: ${VITE_COTIZADOR_URL:-}
+    image: quantum-crm-frontend:local
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

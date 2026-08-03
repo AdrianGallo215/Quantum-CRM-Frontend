@@ -1,0 +1,162 @@
+- generic [ref=f4e14]:
+  - complementary [ref=f4e15]:
+    - generic [ref=f4e16]:
+      - img "Quantum Investment Logo" [ref=f4e17]
+      - button "menu_open" [ref=f4e18] [cursor=pointer]
+    - navigation [ref=f4e20]:
+      - link "dashboard Inicio" [ref=f4e21] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f4e22]: dashboard
+        - generic [ref=f4e23]: Inicio
+      - link "view_kanban Pipeline" [ref=f4e24] [cursor=pointer]:
+        - /url: /pipeline
+        - generic [ref=f4e25]: view_kanban
+        - generic [ref=f4e26]: Pipeline
+      - link "account_balance_wallet Cartera" [ref=f4e27] [cursor=pointer]:
+        - /url: /cartera
+        - generic [ref=f4e28]: account_balance_wallet
+        - generic [ref=f4e29]: Cartera
+      - link "contacts Contactos" [ref=f4e30] [cursor=pointer]:
+        - /url: /contactos
+        - generic [ref=f4e31]: contacts
+        - generic [ref=f4e32]: Contactos
+      - link "person_search Prospección" [ref=f4e33] [cursor=pointer]:
+        - /url: /prospeccion
+        - generic [ref=f4e34]: person_search
+        - generic [ref=f4e35]: Prospección
+      - link "calendar_today Actividades" [ref=f4e36] [cursor=pointer]:
+        - /url: /actividades
+        - generic [ref=f4e37]: calendar_today
+        - generic [ref=f4e38]: Actividades
+      - link "monitoring Reportes" [ref=f4e39] [cursor=pointer]:
+        - /url: /reportes
+        - generic [ref=f4e40]: monitoring
+        - generic [ref=f4e41]: Reportes
+      - link "fact_check Gerencia" [ref=f4e42] [cursor=pointer]:
+        - /url: /gerencia
+        - generic [ref=f4e43]: fact_check
+        - generic [ref=f4e44]: Gerencia
+    - generic [ref=f4e45]:
+      - button "confirmation_number Levantar Ticket" [ref=f4e46] [cursor=pointer]:
+        - generic [ref=f4e47]: confirmation_number
+        - text: Levantar Ticket
+      - generic [ref=f4e49]:
+        - generic [ref=f4e50]: settings
+        - text: Configuración
+  - main [ref=f4e51]:
+    - generic [ref=f4e52]:
+      - generic [ref=f4e54]:
+        - generic [ref=f4e55]: search
+        - textbox "Buscar oportunidad, empresa o contacto..." [ref=f4e56]
+      - generic [ref=f4e57]:
+        - generic [ref=f4e58]:
+          - button "notifications" [ref=f4e59] [cursor=pointer]:
+            - generic [ref=f4e60]:
+              - generic [ref=f4e61]: notifications
+              - superscript [ref=f4e62]
+          - button "history" [ref=f4e63] [cursor=pointer]
+        - generic [ref=f4e66] [cursor=pointer]:
+          - generic [ref=f4e67]:
+            - paragraph [ref=f4e68]: Teolinda
+            - paragraph [ref=f4e69]: Gerencia
+          - generic "Teolinda Beingolea" [ref=f4e70]: TB
+    - main [ref=f4e72]:
+      - generic [ref=f4e73]:
+        - generic [ref=f4e74]:
+          - generic [ref=f4e75]:
+            - navigation [ref=f4e76]:
+              - link "Empresas" [ref=f4e77] [cursor=pointer]:
+                - /url: /cartera
+              - generic [ref=f4e78]: /
+              - generic [ref=f4e79]: Oportunidad activa
+            - heading "Transporte SAC" [level=2] [ref=f4e81]
+          - generic [ref=f4e82]:
+            - button "Editar Datos" [ref=f4e83] [cursor=pointer]
+            - button "Nueva Gestión" [ref=f4e84] [cursor=pointer]
+            - button "Mover a Cartera Maestra" [ref=f4e85] [cursor=pointer]
+        - generic [ref=f4e86]:
+          - generic [ref=f4e87]:
+            - generic [ref=f4e88]:
+              - generic [ref=f4e89]:
+                - generic [ref=f4e90]: info
+                - heading "Información Corporativa" [level=3] [ref=f4e91]
+              - generic [ref=f4e92]:
+                - generic [ref=f4e93]:
+                  - paragraph [ref=f4e94]: Razón Social
+                  - paragraph [ref=f4e95]: Transporte SAC
+                - generic [ref=f4e96]:
+                  - paragraph [ref=f4e97]: RUC / Identificación Fiscal
+                  - paragraph [ref=f4e98]: "20123456789"
+                - generic [ref=f4e99]:
+                  - paragraph [ref=f4e100]: Sector Económico
+                  - paragraph [ref=f4e101]: Colegios
+                - generic [ref=f4e102]:
+                  - paragraph [ref=f4e103]: Sitio Web
+                  - paragraph [ref=f4e104]: —
+                - generic [ref=f4e105]:
+                  - paragraph [ref=f4e106]: Dirección Fiscal
+                  - paragraph [ref=f4e107]: —
+                - generic [ref=f4e108]:
+                  - paragraph [ref=f4e109]: Segmentos
+                  - generic [ref=f4e110]: urbano
+                - generic [ref=f4e112]:
+                  - paragraph [ref=f4e113]: Estado de Cartera
+                  - generic [ref=f4e114]: Oportunidad activa (derivado)
+                - generic [ref=f4e115]:
+                  - paragraph [ref=f4e116]: Vendedor Asignado
+                  - combobox [ref=f4e117]:
+                    - option "Sin asignar" [disabled]
+                    - option "Aldo Martínez"
+                    - option "Carlos Alcántara" [selected]
+                    - option "Lionel Messi"
+            - generic [ref=f4e118]:
+              - generic [ref=f4e119]:
+                - generic [ref=f4e120]:
+                  - generic [ref=f4e121]: monetization_on
+                  - heading "Oportunidades de Negocio" [level=3] [ref=f4e122]
+                - generic [ref=f4e123]: 1 Activas
+              - table [ref=f4e125]:
+                - rowgroup [ref=f4e126]:
+                  - row [ref=f4e127]:
+                    - columnheader "Nombre del Proyecto" [ref=f4e128]
+                    - columnheader "Monto Estimado" [ref=f4e129]
+                    - columnheader "Etapa" [ref=f4e130]
+                - rowgroup [ref=f4e131]:
+                  - row [ref=f4e132] [cursor=pointer]:
+                    - cell [ref=f4e133]:
+                      - paragraph [ref=f4e134]: HTK6772YN5 × 1
+                      - paragraph [ref=f4e135]: "Ref: OP-4"
+                    - cell "USD 93,575.00" [ref=f4e136]
+                    - cell "Evaluación Calidda" [ref=f4e137]
+              - button "Ver todas las oportunidades" [ref=f4e138] [cursor=pointer]
+          - generic [ref=f4e139]:
+            - generic [ref=f4e140]:
+              - generic [ref=f4e141]:
+                - generic [ref=f4e142]:
+                  - generic [ref=f4e143]: groups
+                  - heading "Contactos Clave" [level=3] [ref=f4e144]
+                - button "person_add" [ref=f4e145] [cursor=pointer]
+              - generic [ref=f4e147]:
+                - generic [ref=f4e148]:
+                  - generic [ref=f4e149]: CA
+                  - generic [ref=f4e150]:
+                    - paragraph [ref=f4e151]: Contacto 2 ApellidoPrincipal
+                    - paragraph [ref=f4e152]: Administrador
+                  - button "link_off" [ref=f4e154] [cursor=pointer]
+                - generic [ref=f4e156]:
+                  - generic [ref=f4e157]: CA
+                  - generic [ref=f4e158]:
+                    - paragraph [ref=f4e159]: Contacto 1 Apellido
+                    - paragraph [ref=f4e160]: Gerente Comercial · Decide
+                  - button "link_off" [ref=f4e162] [cursor=pointer]
+            - generic [ref=f4e164]:
+              - generic [ref=f4e165]:
+                - generic [ref=f4e166]: assignment
+                - heading "Actividades Recientes" [level=3] [ref=f4e167]
+              - generic [ref=f4e168]:
+                - button "Tareas" [ref=f4e169] [cursor=pointer]
+                - button "Eventos" [ref=f4e170] [cursor=pointer]
+              - generic [ref=f4e174]:
+                - paragraph [ref=f4e175]: Reunión
+                - generic [ref=f4e176]: 11 jul, 02:00 PM
+              - button "Programar nueva actividad" [ref=f4e177] [cursor=pointer]

@@ -1,0 +1,103 @@
+# Despliegue automático: en cada push a `main` se construye la imagen Docker y
+# se publica en GitHub Container Registry (ghcr.io), etiquetada con el SHA del
+# commit y con `latest`.
+#
+# El SHA es lo que hace posible el rollback: para volver atrás basta con
+# redesplegar la etiqueta del commit anterior, sin reconstruir nada.
+#
+# Configuración necesaria en el repositorio (Settings → Secrets and variables):
+#   Variables:  VITE_API_BASE_URL   (p. ej. https://api.tu-dominio.com/api/v1)
+#               VITE_COTIZADOR_URL  (opcional; vacío = el FAB no aparece)
+# GITHUB_TOKEN es automático — no hay que crearlo.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permite lanzarlo a mano desde la pestaña Actions
+
+concurrency:
+  # Dos despliegues simultáneos podrían publicar `latest` en orden invertido.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  verificar:
+    name: Verificaciones
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # `ci` y no `install`: respeta el lockfile exacto y falla si está desincronizado.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobación de tipos
+        run: npm run type-check
+
+      - name: Auditoría de dependencias
+        # No bloquea el despliegue: muchas alertas vienen de dependencias de
+        # desarrollo que nunca llegan al bundle. Queda registrada en el log para
+        # revisarla. Cambia a `--audit-level=high` sin `|| true` para convertirlo
+        # en un gate real cuando el equipo pueda atender los hallazgos.
+        run: npm audit --audit-level=high || true
+
+  publicar:
+    name: Construir y publicar imagen
+    needs: verificar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Autenticarse en ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular etiquetas
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - name: Construir y publicar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Caché en el propio registro: sin esto, cada despliegue reinstala
+          # node_modules desde cero.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
+            VITE_COTIZADOR_URL=${{ vars.VITE_COTIZADOR_URL }}
+
+      - name: Resumen
+        run: |
+          echo "### Imagen publicada" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Quantum CRM - Activities</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "text-muted": "#6b6b6b",
+                    "surface-container-high": "#eae7e7",
+                    "on-tertiary-fixed-variant": "#124d60",
+                    "on-primary-container": "#f9fdff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f6f3f2",
+                    "inverse-on-surface": "#f3f0ef",
+                    "tertiary": "#2e6276",
+                    "outline": "#6e797d",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#bbeaff",
+                    "on-background": "#1c1b1b",
+                    "primary-fixed": "#b1ecff",
+                    "on-tertiary-fixed": "#001f29",
+                    "inverse-primary": "#66d5f3",
+                    "on-surface-variant": "#3d494c",
+                    "on-surface": "#1c1b1b",
+                    "secondary-container": "#b3eaeb",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#fafdff",
+                    "primary": "#006579",
+                    "on-secondary-fixed-variant": "#144e50",
+                    "on-primary-fixed": "#001f27",
+                    "on-secondary-container": "#356b6c",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "outline-variant": "#bdc8cd",
+                    "surface-tint": "#00677c",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#313030",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#008098",
+                    "text-main": "#1a1a1a",
+                    "tertiary-fixed-dim": "#9bcee5",
+                    "border-subtle": "#EBE9E6",
+                    "secondary-fixed-dim": "#9ad0d1",
+                    "secondary-fixed": "#b6eced",
+                    "surface-container": "#f0eded",
+                    "primary-fixed-dim": "#66d5f3",
+                    "on-error": "#ffffff",
+                    "secondary": "#316768",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e5e2e1",
+                    "surface-dim": "#dcd9d9",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface-bright": "#fcf9f8",
+                    "background": "#fcf9f8",
+                    "surface-muted": "#F6F5F4",
+                    "on-secondary-fixed": "#002021",
+                    "tertiary-container": "#487b90",
+                    "on-primary-fixed-variant": "#004e5e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "unit": "4px",
+                    "gutter": "24px",
+                    "container-max": "1200px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "button": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "button": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+      }
+      body {
+        background-color: #fcf9f8;
+        color: #1c1b1b;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #bdc8cd;
+        border-radius: 10px;
+      }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-hidden">
+<!-- SideNavBar -->
+<aside class="w-60 h-screen fixed left-0 top-0 bg-surface-container-low border-r border-border-subtle flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-8">
+<div class="flex items-center gap-3 px-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[20px]">track_changes</span>
+</div>
+<div>
+<div class="text-headline-md font-headline-md font-bold text-primary">CRM Enterprise</div>
+<div class="text-label-md font-label-md text-text-muted">Global Operations</div>
+</div>
+</div>
+</div>
+<button class="mb-8 w-full bg-primary text-on-primary py-3 rounded-full font-button text-button flex items-center justify-center gap-2 hover:opacity-90 transition-all scale-[0.98] active:scale-95">
+<span class="material-symbols-outlined">add</span>
+            New Activity
+        </button>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<!-- Active State: Activities -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-secondary-container text-on-secondary-container font-bold border-l-4 border-primary transition-all duration-150" href="#">
+<span class="material-symbols-outlined">event_note</span>
+                Activities
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+                Contacts
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">monetization_on</span>
+                Deals
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">assessment</span>
+                Reports
+            </a>
+</nav>
+<div class="pt-6 mt-6 border-t border-border-subtle space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-60 min-h-screen flex flex-col bg-surface">
+<!-- TopNavBar -->
+<header class="h-16 bg-surface border-b border-border-subtle sticky top-0 z-40">
+<div class="flex justify-between items-center h-full px-margin-desktop w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary w-64 outline-none transition-all" placeholder="Search activities..." type="text">
+</div>
+<nav class="flex items-center gap-6 h-full">
+<a class="text-primary font-bold border-b-2 border-primary py-5 px-1 flex items-center gap-2" href="#">
+                            Tasks
+                        </a>
+<a class="text-text-muted font-medium py-5 px-1 hover:text-primary transition-colors" href="#">
+                            Events
+                        </a>
+<a class="text-text-muted font-medium py-5 px-1 hover:text-primary transition-colors" href="#">
+                            Calendar
+                        </a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined">apps</span>
+</button>
+</div>
+<div class="h-8 w-px bg-border-subtle mx-2"></div>
+<button class="flex items-center gap-3 pl-2 py-1 pr-1 hover:bg-surface-container rounded-full transition-colors group">
+<div class="text-right hidden sm:block">
+<div class="text-label-md font-bold text-on-surface">Alex Rivera</div>
+<div class="text-[10px] text-text-muted uppercase tracking-wider">Sr. Account Executive</div>
+</div>
+<img class="w-8 h-8 rounded-full border border-border-subtle" data-alt="Professional studio portrait of a modern executive in a clean-cut corporate environment, soft directional lighting, neutral background, high definition photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWvb5mDPqxz3xq_7FFJ_izaYI8Ujg1Z13MBrq7xi0f24QSGtZU7XAWCzKb5uMTXiKxiFk8EXAw4aHBuUEnTapKgMhje2frHwfZ-MnXAHtlvON7tngdvAtTdSj7vvu16QSe7kQBheGhg8yqLf_0rA6kd3bVf9xPM7tSUz5TFaKoZZZUpyYkkuaRu9YAyrJGLOH_oSth301xCiD_S25IFjOw3-aSkIr6myj9-u6gdrC5wItKdgdkmE3nMMtlNc87q3FWYnb7P1CFty8M">
+</button>
+</div>
+</div>
+</header>
+<!-- Activities Dashboard Body -->
+<div class="flex-grow p-8 max-w-container-max mx-auto w-full">
+<div class="mb-8">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Activities Management</h1>
+<p class="text-text-muted">Track and manage seller-driven tasks and external enterprise events.</p>
+</div>
+<!-- Dashboard Layout: Two Columns -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Tareas Section (Atomic, seller-driven) - 4 cols -->
+<section class="lg:col-span-4 bg-surface-container-low rounded-lg border border-border-subtle flex flex-col h-[calc(100vh-280px)]">
+<div class="p-4 border-b border-border-subtle flex justify-between items-center bg-surface-container-lowest rounded-t-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<h2 class="font-headline-md text-headline-md">Tareas</h2>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-md font-bold">12 Active</span>
+</div>
+<div class="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar">
+<!-- Task Item -->
+<div class="bg-white p-3 border border-border-subtle rounded-lg hover:border-primary transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-md font-label-md text-text-muted">ID-2849</span>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary">more_vert</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Agendar llamada</h3>
+<p class="text-body-md text-text-muted line-clamp-1">Continuar negociación con Grupo Innova.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-label-md text-primary">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                    Today, 2:00 PM
+                                </div>
+<div class="w-6 h-6 rounded-full bg-surface-container border border-border-subtle flex items-center justify-center text-[10px] font-bold">AR</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="bg-white p-3 border border-border-subtle rounded-lg hover:border-primary transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-md font-label-md text-text-muted">ID-2850</span>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary">more_vert</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Rellenar file</h3>
+<p class="text-body-md text-text-muted line-clamp-1">Expediente técnico para licitación pública.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-label-md text-text-muted">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                    Tomorrow
+                                </div>
+<div class="w-6 h-6 rounded-full bg-surface-container border border-border-subtle flex items-center justify-center text-[10px] font-bold">AR</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="bg-white p-3 border border-border-subtle rounded-lg hover:border-primary transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-md font-label-md text-text-muted">ID-2855</span>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary">more_vert</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Visita en campo</h3>
+<p class="text-body-md text-text-muted line-clamp-1">Revisión de almacenes en Callao.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-label-md text-error">
+<span class="material-symbols-outlined text-[14px]">priority_high</span>
+                                    Overdue
+                                </div>
+<div class="w-6 h-6 rounded-full bg-surface-container border border-border-subtle flex items-center justify-center text-[10px] font-bold">AR</div>
+</div>
+</div>
+<!-- Task Item -->
+<div class="bg-white p-3 border border-border-subtle rounded-lg hover:border-primary transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-md font-label-md text-text-muted">ID-2861</span>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary">more_vert</span>
+</div>
+<h3 class="font-bold text-on-surface mb-1">Cierre de semana</h3>
+<p class="text-body-md text-text-muted line-clamp-1">Reporte de métricas mensuales CRM.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-label-md text-text-muted">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                    Friday
+                                </div>
+<div class="w-6 h-6 rounded-full bg-surface-container border border-border-subtle flex items-center justify-center text-[10px] font-bold">AR</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-border-subtle">
+<button class="w-full text-primary font-bold text-button flex items-center justify-center gap-2 hover:bg-surface-container transition-colors py-2 rounded-lg">
+<span class="material-symbols-outlined">add_circle</span>
+                            Quick Task
+                        </button>
+</div>
+</section>
+<!-- Eventos Section (External, long-running) - 8 cols -->
+<section class="lg:col-span-8 space-y-gutter overflow-y-auto h-[calc(100vh-280px)] pr-2 custom-scrollbar">
+<div class="flex items-center justify-between sticky top-0 bg-surface py-2 z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">hub</span>
+<h2 class="font-headline-md text-headline-md">Eventos Operativos</h2>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-border-subtle rounded-full text-label-md font-bold bg-white flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                Filter
+                            </button>
+<button class="px-4 py-2 bg-tertiary text-on-tertiary rounded-full text-label-md font-bold flex items-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                New Event
+                            </button>
+</div>
+</div>
+<!-- Event Card 1 -->
+<div class="bg-white border border-border-subtle rounded-lg overflow-hidden flex flex-col sm:flex-row transition-all hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+<div class="w-full sm:w-48 bg-surface-container-low p-6 flex flex-col justify-center items-center text-center border-b sm:border-b-0 sm:border-r border-border-subtle">
+<div class="text-label-md font-bold text-text-muted mb-1 uppercase tracking-widest">Oct 24</div>
+<div class="text-[48px] font-bold text-tertiary leading-none">12</div>
+<div class="text-label-md font-bold text-tertiary mt-1">Pending Approval</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-label-md font-bold mb-3">
+<span class="material-symbols-outlined text-[14px]">corporate_fare</span>
+                                        Calidda Regulatory
+                                    </div>
+<h3 class="text-headline-md font-bold text-on-surface">Aprobación de Cálidda</h3>
+</div>
+<div class="flex gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+</div>
+</div>
+<p class="text-body-md text-text-muted mb-6 leading-relaxed">External audit of gas installation compliance for Project 'Miraflores Sky'. Requires signature from Chief Operations Officer before final submission.</p>
+<div class="flex flex-wrap items-center gap-6 border-t border-border-subtle pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">person</span>
+<span class="text-body-md font-medium text-on-surface">Ing. Maria Lopez</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">description</span>
+<span class="text-body-md font-medium text-on-surface">4 Documents attached</span>
+</div>
+<button class="ml-auto text-primary font-bold text-button hover:underline">Follow-up</button>
+</div>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="bg-white border border-border-subtle rounded-lg overflow-hidden flex flex-col sm:flex-row transition-all hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+<div class="w-full sm:w-48 bg-surface-container-low p-6 flex flex-col justify-center items-center text-center border-b sm:border-b-0 sm:border-r border-border-subtle">
+<div class="text-label-md font-bold text-text-muted mb-1 uppercase tracking-widest">Nov 02</div>
+<div class="text-[48px] font-bold text-outline-variant leading-none">02</div>
+<div class="text-label-md font-bold text-outline-variant mt-1">Incoming</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-md font-bold mb-3">
+<span class="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+                                        Financial Ops
+                                    </div>
+<h3 class="text-headline-md font-bold text-on-surface">Envío de Estados Financieros</h3>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-white" data-alt="Professional avatar of a financial consultant, business attire, soft blurred office background, high quality portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ6kD0Zj45D1ozBNVi1iIlEIxw7FRehqVvBkcHPJf6POthB9r06aFhJBwSDlg5QcweFOpvhw_0-mEZGB6tFxmHJNgFBxUzPsNeUWkNZB1siCuth8TFbGXQ9Z5pQQ5siZiSIIwUKD-wvELre-J_YP-c-vhrgTUa5-3DN1-JHv0p-pkg_rljxZ4tMka81Cn2GU2F4-Q8B-DqfsfRVX1r93N-u-hJmv35eYY_CI7KpDwsqlHiwD1LqnNYcicJ5wuZSS64E-u0sl-KrIKv">
+<img class="w-8 h-8 rounded-full border-2 border-white" data-alt="Professional avatar of a legal advisor, formal wear, minimalist studio background, sharp focus, clean lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3_dpwP8RARSl91yWyT8ChXcHY9PGC0aRwe6V6nHcEPVqzDSf38n93W9H8sCbe2TMb3n8FH1EvFAOmwMS0jY1HOz3vtySlI9FycUo41vmKSwfEJWscCy0Dma486giyKnmhTs_z09yM5VrPJXUVQUmtEX2jS7ztcVhsR2ZV9mgttu-1fzR_a9jnvL9ZdyDnOEvGLZYT3KSfKKPMH8sPF7ZTy-3TC3FfosrQA7SCKiKQio8cjY7vQPf9KaB_IDdwrrMJ4zrqBDAhbgl_">
+</div>
+</div>
+<p class="text-body-md text-text-muted mb-6 leading-relaxed">Annual consolidation of financial statements for the South Regional division. Review mandatory for tax compliance filing.</p>
+<div class="flex flex-wrap items-center gap-6 border-t border-border-subtle pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">event_repeat</span>
+<span class="text-body-md font-medium text-on-surface">Monthly Recurring</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">flag</span>
+<span class="text-body-md font-medium text-on-surface">High Priority</span>
+</div>
+<button class="ml-auto text-primary font-bold text-button hover:underline">View Details</button>
+</div>
+</div>
+</div>
+<!-- Event Card 3 -->
+<div class="bg-white border border-border-subtle rounded-lg overflow-hidden flex flex-col sm:flex-row transition-all hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)]">
+<div class="w-full sm:w-48 bg-surface-container-low p-6 flex flex-col justify-center items-center text-center border-b sm:border-b-0 sm:border-r border-border-subtle">
+<div class="text-label-md font-bold text-text-muted mb-1 uppercase tracking-widest">Nov 15</div>
+<div class="text-[48px] font-bold text-outline-variant leading-none">15</div>
+<div class="text-label-md font-bold text-outline-variant mt-1">Scheduled</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-label-md font-bold mb-3">
+<span class="material-symbols-outlined text-[14px]">payments</span>
+                                        Credit Dept
+                                    </div>
+<h3 class="text-headline-md font-bold text-on-surface">Desembolso de Crédito</h3>
+</div>
+</div>
+<p class="text-body-md text-text-muted mb-6 leading-relaxed">Final disbursement for construction loan ID-9981. Funds to be released upon verification of stage 2 milestones.</p>
+<div class="flex flex-wrap items-center gap-6 border-t border-border-subtle pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">location_on</span>
+<span class="text-body-md font-medium text-on-surface">Main Branch</span>
+</div>
+<button class="ml-auto text-primary font-bold text-button hover:underline">View Progress</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Floating Action Button - Mobile/Quick Interaction -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<script>
+        // Simple interactivity for demonstration
+        document.querySelectorAll('.group').forEach(item => {
+            item.addEventListener('mousedown', () => {
+                item.classList.add('scale-[0.98]');
+            });
+            item.addEventListener('mouseup', () => {
+                item.classList.remove('scale-[0.98]');
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

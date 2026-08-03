@@ -1,0 +1,39 @@
+#!/bin/sh
+# Deriva API_ORIGIN (esquema + host + puerto) a partir de VITE_API_BASE_URL,
+# para la directiva connect-src de la CSP en nginx.conf.template.
+#
+# POR QUÉ hace falta recortar el path: en CSP, una fuente cuyo path NO termina
+# en "/" exige coincidencia EXACTA de la URL. Con
+# connect-src https://api.ejemplo.com/api/v1
+# el navegador permitiría solo esa URL literal y bloquearía
+# https://api.ejemplo.com/api/v1/empresas — es decir, todas las peticiones
+# reales de la aplicación. Recortando a https://api.ejemplo.com se permite el
+# host completo, que es la intención.
+#
+# La extensión .envsh no es decorativa: el entrypoint de la imagen oficial de
+# nginx SOURCEA los ficheros *.envsh de /docker-entrypoint.d/ y EJECUTA los *.sh.
+# Solo al sourcearlo el `export` sobrevive para el paso de envsubst, que corre
+# después (20-envsubst-on-templates.sh).
+
+# Sin `set -e` a propósito: este fichero se SOURCEA, así que la opción quedaría
+# activa en el shell del entrypoint y cualquier comando posterior con salida
+# distinta de cero abortaría el arranque de nginx. Los errores se controlan aquí.
+
+_base="${VITE_API_BASE_URL:-}"
+
+case "$_base" in
+  http://*|https://*)
+    # Recorta todo lo que siga al host (y su puerto, que sí se conserva).
+    API_ORIGIN="$(printf '%s' "$_base" | sed -E 's#^(https?://[^/]+).*#\1#')"
+    ;;
+  *)
+    # Base relativa (p. ej. "/api/v1"): la API va en el mismo origen, ya cubierto
+    # por 'self' en la CSP. Dejarlo vacío evita inyectar una fuente inválida que
+    # invalidaría la directiva entera.
+    API_ORIGIN=""
+    ;;
+esac
+
+export API_ORIGIN
+unset _base
+echo "[entrypoint] CSP connect-src usará: 'self' ${API_ORIGIN:-(solo self)}"

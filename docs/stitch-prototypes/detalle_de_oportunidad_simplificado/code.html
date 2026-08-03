@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalle de Oportunidad - Quantum CRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0799b6",
+                        "secondary": "#006a64",
+                        "background": "#FEFFFA",
+                        "surface": "#fbf8ff",
+                        "on-surface": "#0e193e",
+                        "on-surface-variant": "#444750",
+                        "outline": "#747781",
+                        "outline-variant": "#c4c6d1",
+                        "surface-container": "#ecedff",
+                        "surface-container-low": "#f3f2ff",
+                        "surface-container-high": "#e4e7ff",
+                        "surface-container-highest": "#dde1ff",
+                        "primary-container": "#e0f2f7",
+                        "on-primary-container": "#001f26"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "4px",
+                        "lg": "8px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "unit": "4px",
+                        "margin-page": "48px",
+                        "gutter": "24px",
+                        "container-padding": "24px"
+                    },
+                    fontFamily: {
+                        "body": ["Inter", "sans-serif"],
+                        "headline": ["Manrope", "sans-serif"]
+                    },
+                    fontSize: {
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FEFFFA;
+            color: #0e193e;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c4c6d1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+<!-- Header / Navbar Replacement -->
+<header class="w-full bg-white border-b border-outline-variant px-margin-page py-4 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<img alt="Quantum Investment Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlf-hcsO_C1Vv8mWMrTHI798R6Ku8mZFc4U_tI_qr0Nou6TxQStNnQznm0AqNh7HvgBCZsvdkDZPrsl-UWpRA7t20oMmpXJKueItNhyIoCuJi5kDoCv3FsVjpYI3DiYY07yGrLzeTClch8_TEjedFbexWySANAkqZFmZdFRn8cUqN95iPzOr7PV85eMgorbwae3hejLLwwMoQnPLLLic4kH4O7P45HjOJfgN00ngBLe8FinjVo9B6CB6k_ax5OI-5NL3wjIBlikVe5"/>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 bg-primary text-white rounded-full font-bold text-body-md flex items-center gap-2 hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                    Levantar Ticket
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-page py-10 flex flex-col gap-8">
+<!-- Breadcrumbs & Title -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md uppercase tracking-widest">
+<span>Pipeline</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span>Oportunidad #111111</span>
+</div>
+<div class="flex justify-between items-end">
+<h1 class="font-headline text-headline-lg text-primary">Suministro de Buses Eléctricos - Inversiones Huanca</h1>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Stepper -->
+<section class="bg-white p-8 rounded border border-outline-variant custom-shadow">
+<div class="relative flex items-center justify-between w-full max-w-3xl mx-auto py-2">
+<div class="absolute top-5 left-0 w-full h-[1px] bg-outline-variant -translate-y-1/2 z-0"></div>
+<!-- Step 1: Done -->
+<div class="relative z-10 flex flex-col items-center gap-3 bg-white px-6">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="font-label-md text-label-md text-primary">Aprobación</span>
+</div>
+<!-- Step 2: Active -->
+<div class="relative z-10 flex flex-col items-center gap-3 bg-white px-6">
+<div class="w-10 h-10 rounded-full bg-primary-container border-2 border-primary flex items-center justify-center text-primary">
+<span class="font-bold">2</span>
+</div>
+<div class="text-center">
+<span class="font-bold font-label-md text-label-md text-primary">Doc. Legales</span>
+<p class="text-[10px] text-on-surface-variant italic">4 días en este estado</p>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="relative z-10 flex flex-col items-center gap-3 bg-white px-6">
+<div class="w-10 h-10 rounded-full bg-white border border-outline-variant flex items-center justify-center text-outline">
+<span class="font-bold">3</span>
+</div>
+<span class="font-label-md text-label-md text-outline">Facturado</span>
+</div>
+</div>
+</section>
+<!-- Main Content Area -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Company Data Section (Now above primary info logic-wise) -->
+<div class="col-span-12">
+<section class="bg-surface-container-low p-6 rounded border border-outline-variant flex flex-wrap gap-12 items-center">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-white rounded border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz5kS38-UAwK5WOiRnizjtcXNALzw7DIY9QFAAOIJws3n2fh94BBQ8jTnpkgI8pB2xWCQe7l45FJrvqEBVv6jQvBkkpKMiW6J__BJxJpB2H5lGbuNRKQ1a3tyG45uV5jUp39Sr1uZAUTHq5alZhWwp8Uh0qOwLKnPVyi9LlnlXnhp6hVY9pMEcX343_-K_Tl8KHhHPyVWDK-cN2WfkiXMczG3b04klzVBrN-cYX1LWXXoxAFhrhaFtd0Pk6RdW5kgh6p3ymQUaJCsd"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Empresa</p>
+<h3 class="font-headline text-headline-sm text-on-surface">Inversiones Huanca S.A.C.</h3>
+<p class="text-body-md text-on-surface-variant">RUC: 20485938291</p>
+</div>
+</div>
+<div class="h-12 w-px bg-outline-variant hidden md:block"></div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Vendedor Asignado</p>
+<p class="font-bold text-body-lg text-primary underline cursor-pointer">Ricardo Palma</p>
+</div>
+<div class="h-12 w-px bg-outline-variant hidden md:block"></div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase mb-1">Fecha de Creación</p>
+<p class="text-body-lg text-on-surface">15 de Julio, 2023</p>
+</div>
+</section>
+</div>
+<!-- Left: Opportunity Details & Logic -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
+<div class="bg-white p-container-padding rounded border border-outline-variant custom-shadow flex flex-col gap-8">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">info</span>
+                            Información de la Oportunidad
+                        </h2>
+<button class="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[18px]">cloud_download</span>
+                            Ficha de Venta
+                        </button>
+</div>
+<!-- Clean List of Fields (Replacing Table) -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-6 p-6 bg-white border border-outline-variant rounded">
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">MODELO</span>
+<span class="font-bold text-body-lg">Bus E-Line 200</span>
+</div>
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">CANTIDAD</span>
+<span class="font-bold text-body-lg">2 unidades</span>
+</div>
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">PRECIO UNIT.</span>
+<span class="font-bold text-body-lg">$ 230,000</span>
+</div>
+<div>
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">DESCUENTO</span>
+<span class="font-bold text-error text-body-lg">-$ 10,000</span>
+</div>
+<div class="bg-surface-container-low p-2 rounded -m-2">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">SUBTOTAL</span>
+<span class="font-bold text-primary text-body-lg font-mono">$ 450,000.00</span>
+</div>
+</div>
+<div class="flex justify-end pt-4 border-t border-outline-variant">
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase block">Monto Total de Operación</span>
+<div class="flex items-baseline gap-2 justify-end">
+<span class="font-bold text-headline-lg font-mono text-primary">$ 450,000.00</span>
+<span class="text-body-md text-on-surface-variant italic">(calculado)</span>
+</div>
+</div>
+</div>
+<!-- Options -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Aplica Financiamiento</label>
+<select class="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md">
+<option>Sí, Crédito Directo</option>
+<option>Sí, Leasing Bancario</option>
+<option>No aplica</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Aplica Garantía</label>
+<select class="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md">
+<option>Extensión 5 años</option>
+<option>Estándar 2 años</option>
+<option>Sin garantía adicional</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Fecha Cierre Estimado</label>
+<div class="flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright cursor-pointer hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+<span class="font-body-md">30 de Agosto, 2023</span>
+</div>
+</div>
+</div>
+<!-- Notes -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Notas de Seguimiento</label>
+<textarea class="w-full h-32 border border-outline-variant rounded p-4 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md resize-none" placeholder="Registrar detalles de la última reunión o acuerdos específicos..."></textarea>
+</div>
+</div>
+</div>
+<!-- Right: Contacts -->
+<div class="col-span-12 lg:col-span-4">
+<div class="bg-white p-container-padding rounded border border-outline-variant custom-shadow h-full">
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline text-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">group</span>
+                            Contactos Relacionados
+                        </h2>
+<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Contact 1 -->
+<div class="p-4 border border-outline-variant rounded hover:border-primary transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-body-lg text-on-surface group-hover:text-primary transition-colors">Carlos Huanca</h4>
+<p class="text-body-md text-on-surface-variant">Gerente General</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Decision Maker</span>
+</div>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">call</span>
+</button>
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</button>
+</div>
+</div>
+<!-- Contact 2 -->
+<div class="p-4 border border-outline-variant rounded hover:border-primary transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-body-lg text-on-surface group-hover:text-primary transition-colors">Marta Rodríguez</h4>
+<p class="text-body-md text-on-surface-variant">Jefa de Adquisiciones</p>
+</div>
+</div>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">call</span>
+</button>
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</button>
+</div>
+</div>
+<!-- Contact 3 -->
+<div class="p-4 border border-outline-variant rounded hover:border-primary transition-all group cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-body-lg text-on-surface group-hover:text-primary transition-colors">Jorge Luna</h4>
+<p class="text-body-md text-on-surface-variant">Asesor Legal</p>
+</div>
+</div>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">call</span>
+</button>
+<button class="flex-1 py-2 bg-surface-container rounded-full text-primary hover:bg-primary hover:text-white transition-all flex justify-center items-center">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant">
+<button class="w-full flex items-center justify-center gap-2 text-on-surface-variant font-bold text-body-md py-3 hover:bg-surface-container-low rounded-full transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">visibility</span>
+                            Ver todos los contactos (12)
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interactions
+        document.querySelectorAll('button').forEach(elem => {
+            elem.addEventListener('mousedown', () => {
+                elem.style.transform = 'scale(0.97)';
+            });
+            elem.addEventListener('mouseup', () => {
+                elem.style.transform = 'scale(1)';
+            });
+            elem.addEventListener('mouseleave', () => {
+                elem.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

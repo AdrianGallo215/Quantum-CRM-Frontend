@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quantum CRM - Detalle de Empresa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#d4d8de",
+                    "secondary-fixed": "#92f3eb",
+                    "on-surface": "#0e193e",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#c3c7cd",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#fbf8ff",
+                    "secondary": "#006a64",
+                    "on-secondary-fixed": "#00201e",
+                    "on-tertiary-fixed-variant": "#43474d",
+                    "on-primary-fixed": "#001a43",
+                    "primary-fixed-dim": "#afc6ff",
+                    "secondary-container": "#8ff0e8",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#dfe2e9",
+                    "primary-fixed": "#d9e2ff",
+                    "on-tertiary-fixed": "#181c21",
+                    "error": "#ba1a1a",
+                    "primary-container": "#3e5c9a",
+                    "primary": "#244481",
+                    "on-primary-fixed-variant": "#254582",
+                    "secondary-fixed-dim": "#75d7ce",
+                    "surface-variant": "#dde1ff",
+                    "on-background": "#0e193e",
+                    "outline-variant": "#c4c6d1",
+                    "background": "#fbf8ff",
+                    "on-surface-variant": "#444750",
+                    "tertiary-container": "#5a5e64",
+                    "on-primary-container": "#c8d7ff",
+                    "surface-container": "#ecedff",
+                    "surface-tint": "#3f5d9b",
+                    "surface-container-low": "#f3f2ff",
+                    "outline": "#747781",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#006f69",
+                    "on-error": "#ffffff",
+                    "tertiary": "#42464c",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#fbf8ff",
+                    "on-secondary-fixed-variant": "#00504b",
+                    "inverse-primary": "#afc6ff",
+                    "surface-dim": "#d1d8ff",
+                    "inverse-on-surface": "#efefff",
+                    "inverse-surface": "#242e55",
+                    "surface-container-high": "#e4e7ff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#dde1ff",
+                    "brand-cyan": "#0799b6",
+                    "brand-bg": "#FEFFFA"
+            },
+            "borderRadius": {
+                    "DEFAULT": "4px",
+                    "lg": "4px",
+                    "xl": "4px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "container-padding": "20px",
+                    "gutter": "24px",
+                    "margin-page": "32px",
+                    "sidebar-width": "280px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "headline-sm": ["Manrope"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "body-lg": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #FEFFFA;
+            color: #0e193e;
+        }
+        .sidebar-brand-bg {
+            background-color: #3E5C9A;
+        }
+        .custom-shadow {
+            box-shadow: 0px 4px 20px rgba(0,0,0,0.05);
+        }
+        .btn-circular {
+            border-radius: 9999px !important;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- SIDEBAR NAVIGATION -->
+<!-- MAIN CONTENT AREA -->
+<main class="min-h-screen flex flex-col">
+<!-- TOP NAV BAR -->
+<header class="h-16 bg-white border-b border-outline-variant flex items-center justify-between px-container-padding sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border border-outline-variant rounded-full text-body-md focus:ring-2 focus:ring-brand-cyan focus:border-transparent outline-none w-80" placeholder="Buscar empresa o contacto..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="flex gap-6">
+<a class="text-on-surface-variant hover:text-brand-cyan transition-colors font-body-md" href="#">Pipeline</a>
+<a class="text-on-surface-variant hover:text-brand-cyan transition-colors font-body-md" href="#">Reportes</a>
+<a class="text-on-surface-variant hover:text-brand-cyan transition-colors font-body-md" href="#">Calendario</a>
+</nav>
+<div class="flex items-center gap-3 border-l pl-6 border-outline-variant">
+<button class="text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined">history</span>
+</button>
+<img class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A high-quality studio portrait of a professional corporate executive, middle-aged, with a confident and approachable expression. The lighting is soft and professional, using a neutral grey studio background. The executive is wearing a dark navy tailored suit. The image is clean and suitable for a professional CRM profile avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMiCXxJHnM4Xss04bI1H5SInnMTAvSF3xEeDgdyU4D6nfvLCwIgvUDcl8hioFNFEMsysPsEWRNGJpzQJvPa-tSqH4WSKM9TE3skag3b_hq74WXB3wem3Gp4Y-QzbzOYITZ3cuv-GlQhiF1XMQzwsjnmOsO9HE_A92sSguEgvUxjOzyWaDaHmI3q8XUviRqq4adjn5_LQnng9MqWbBTtctzyk-gDdW3IJYvTy-2LmOd6BGXuCepk5T2D3-qR8XSGhEsObt7KFmrADfS"/>
+</div>
+</div>
+</header>
+<!-- CONTENT CANVAS -->
+<div class="p-margin-page flex flex-col gap-gutter max-w-[1400px] mx-auto w-full">
+<!-- BREADCRUMBS & ACTION HEADER -->
+<div class="flex justify-between items-end">
+<div>
+<nav class="flex text-on-surface-variant text-label-md gap-2 mb-2 uppercase tracking-widest">
+<a class="hover:text-brand-cyan" href="#">Empresas</a>
+<span class="">/</span>
+<span class="text-on-surface">Cartera</span>
+</nav>
+<h2 class="font-headline-lg text-headline-lg text-primary">Cartera de Inversiones Globales S.A.</h2>
+</div>
+<div class="flex gap-3">
+<button class="btn-circular px-6 py-2 border border-brand-cyan text-brand-cyan font-bold hover:bg-brand-cyan/5 transition-colors">
+                        Editar Datos
+                    </button>
+<button class="btn-circular px-6 py-2 bg-brand-cyan text-white font-bold hover:opacity-90 transition-opacity">
+                        Nueva Gestión
+                    </button>
+</div>
+</div>
+<!-- 2-COLUMN GRID -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- LEFT COLUMN (70%) -->
+<div class="col-span-8 flex flex-col gap-gutter">
+<!-- COMPANY INFORMATION BLOCK -->
+<section class="bg-white p-container-padding rounded-lg custom-shadow border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-6 text-primary">
+<span class="material-symbols-outlined">info</span>
+<h3 class="font-headline-sm text-headline-sm">Información Corporativa</h3>
+</div>
+<div class="grid grid-cols-2 gap-y-6 gap-x-12">
+<div>
+<p class="text-label-md text-on-surface-variant uppercase mb-1">Nombre Comercial</p>
+<p class="text-body-lg font-semibold text-on-surface">Cartera Corporativa</p>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase mb-1">RUC / Identificación Fiscal</p>
+<p class="text-body-lg font-semibold text-on-surface">20601234567</p>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase mb-1">Sector Económico</p>
+<p class="text-body-lg font-semibold text-on-surface">Servicios Financieros y Seguros</p>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase mb-1">Sitio Web</p>
+<a class="text-body-lg font-semibold text-brand-cyan underline" href="#">www.carteraglobal.com</a>
+</div>
+<div class="col-span-2">
+<p class="text-label-md text-on-surface-variant uppercase mb-1">Dirección Fiscal</p>
+<p class="text-body-lg font-semibold text-on-surface">Av. de las Camelias 452, San Isidro, Lima, Perú</p>
+</div>
+</div>
+</section>
+<!-- ASSOCIATED OPPORTUNITIES BLOCK -->
+<section class="bg-white p-container-padding rounded-lg custom-shadow border border-outline-variant/30">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">monetization_on</span>
+<h3 class="font-headline-sm text-headline-sm">Oportunidades de Negocio</h3>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-md font-bold">3 Activas</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-4 font-label-md text-on-surface-variant uppercase">Nombre del Proyecto</th>
+<th class="py-4 font-label-md text-on-surface-variant uppercase">Monto Estimado</th>
+<th class="py-4 font-label-md text-on-surface-variant uppercase">Etapa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-outline-variant/50 transition-colors">
+<td class="py-4">
+<p class="font-semibold text-on-surface">Renovación de Cartera Q4</p>
+<p class="text-label-md text-on-surface-variant">Ref: OP-9921</p>
+</td>
+<td class="py-4 font-semibold text-on-surface">$125,000.00</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-primary-container text-on-primary-container rounded text-label-md font-bold uppercase">Propuesta</span>
+</td>
+</tr>
+<tr class="border-outline-variant/50 transition-colors">
+<td class="py-4">
+<p class="font-semibold text-on-surface">Expansión Infraestructura Cloud</p>
+<p class="text-label-md text-on-surface-variant">Ref: OP-8842</p>
+</td>
+<td class="py-4 font-semibold text-on-surface">$45,500.00</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-label-md font-bold uppercase">Negociación</span>
+</td>
+</tr>
+<tr class="transition-colors">
+<td class="py-4">
+<p class="font-semibold text-on-surface">Consultoría Estratégica 2024</p>
+<p class="text-label-md text-on-surface-variant">Ref: OP-7731</p>
+</td>
+<td class="py-4 font-semibold text-on-surface">$80,000.00</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-surface-container-highest text-on-surface-variant rounded text-label-md font-bold uppercase">Exploración</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<button class="w-full mt-6 py-2 text-brand-cyan font-bold border-t border-outline-variant/30 hover:bg-brand-cyan/5 transition-colors">
+                            Ver todas las oportunidades
+                        </button>
+</section>
+</div>
+<!-- RIGHT COLUMN (30%) -->
+<div class="col-span-4 flex flex-col gap-gutter">
+<!-- CONTACTS BLOCK -->
+<section class="bg-white p-container-padding rounded-lg custom-shadow border border-outline-variant/30">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">groups</span>
+<h3 class="font-headline-sm text-headline-sm">Contactos Clave</h3>
+</div>
+<button class="text-brand-cyan">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3 p-3 rounded border-outline-variant/20">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A clean, professional headshot of a female business executive in her late 30s. She is wearing a grey blazer and has a friendly yet professional demeanor. Neutral office background with soft bokeh, high resolution, soft key lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPZsfiPhUIwwsjJbctl2LLWxbNgEHES0NLK9Z2Cf2IKOuO_WCAY7H27RUab57Ujz73kbIBYrIQ_ni509Pk4-bCLnEobprMTxvrqK6p9e9m1c6hvyLMjqUHM0NoXyJnLM1zL1MlJ_3sTB1EnMgKC01OhoC2K0cWAUsgnZo2JktUBPa0dVeRHKDNJJuTl96EPqw-iqaNRYq7ZSxHQ9Kcjoo3-2hUkcEKk3FqJ8bxImFYtQhsyRHB7Yf1eK0O7WtiwliRq75PTb82pmYn"/>
+<div>
+<p class="font-semibold text-on-surface">Sofía Méndez</p>
+<p class="text-label-md text-on-surface-variant">Directora de Finanzas</p>
+</div>
+<button class="ml-auto text-on-surface-variant hover:text-brand-cyan">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-3 border-outline-variant/20 rounded">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a male IT director in his 40s. He is wearing a crisp white dress shirt. Sharp focus on the eyes, professional studio lighting, neutral background, modern corporate look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqBkSLcK178lDG8OB3U3_GNS4r4oUSaSns7yVG1Ma3cI0sa4H7-W2RRdoEys_lb2rtYIGlCzSofVR4cuaphf0HjiRKm8WZvWAr8SOqYC_qPdhD_ZBdTDY6Ap1_Mpxmnyf74w35b4akM_2NrpDMHCKJK7JTt63lmZKynpMvbxmzxWOPdmcmkBF5vEScelTPWlwSQIOHi0ZPAgr-LBErHm-W9P6OkenH7-BTllbQptBvwX8KOobkvwCgUOmxL0qYJsyf9gQ2GcljDb0c"/>
+<div>
+<p class="font-semibold text-on-surface">Ricardo Valdivia</p>
+<p class="text-label-md text-on-surface-variant">Gerente de Operaciones</p>
+</div>
+<button class="ml-auto text-on-surface-variant hover:text-brand-cyan">
+<span class="material-symbols-outlined">call</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ACTIVITIES BLOCK -->
+<section class="bg-white p-container-padding rounded-lg custom-shadow border border-outline-variant/30">
+<div class="flex items-center gap-2 mb-6 text-primary border-b border-outline-variant/30 pb-4">
+<span class="material-symbols-outlined">assignment</span>
+<h3 class="font-headline-sm text-headline-sm">Actividades Recientes</h3>
+</div><div class="flex gap-4 mb-6 border-b border-outline-variant/20"><button class="pb-2 text-on-surface-variant font-semibold text-label-md uppercase tracking-widest hover:text-brand-cyan transition-colors">Tareas</button><button class="pb-2 border-b-2 border-brand-cyan text-brand-cyan font-bold text-label-md uppercase tracking-widest">Eventos</button></div>
+<div class="relative pl-6 flex flex-col gap-6 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px]"><div class="relative"><div class="flex flex-col gap-1"><div class="flex justify-between items-start"><p class="font-semibold text-on-surface">Cena de Negocios</p><span class="text-label-md text-on-surface-variant">24 Oct, 08:00 PM</span></div></div></div><div class="relative"><div class="flex flex-col gap-1"><div class="flex justify-between items-start"><p class="font-semibold text-on-surface">Demo de Producto</p><span class="text-label-md text-on-surface-variant">15 Nov, 03:00 PM</span></div></div></div></div>
+<button class="w-full mt-6 py-2 text-brand-cyan font-bold border-t border-outline-variant/30 hover:bg-brand-cyan/5 transition-colors">
+                            Programar nueva actividad
+                        </button>
+</section>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.add('opacity-70');
+                setTimeout(() => row.classList.remove('opacity-70'), 200);
+            });
+        });
+
+        // Search focus visual feedback
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.02]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.02]');
+        });
+    </script>
+</body></html>

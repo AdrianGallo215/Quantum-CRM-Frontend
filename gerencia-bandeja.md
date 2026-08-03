@@ -1,0 +1,108 @@
+- generic [ref=f3e238]:
+  - complementary [ref=f3e239]:
+    - generic [ref=f3e240]:
+      - img "Quantum Investment Logo" [ref=f3e241]
+      - button "menu_open" [ref=f3e242] [cursor=pointer]
+    - navigation [ref=f3e244]:
+      - link "dashboard Inicio" [ref=f3e245] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f3e246]: dashboard
+        - generic [ref=f3e247]: Inicio
+      - link "view_kanban Pipeline" [ref=f3e248] [cursor=pointer]:
+        - /url: /pipeline
+        - generic [ref=f3e249]: view_kanban
+        - generic [ref=f3e250]: Pipeline
+      - link "account_balance_wallet Cartera" [ref=f3e251] [cursor=pointer]:
+        - /url: /cartera
+        - generic [ref=f3e252]: account_balance_wallet
+        - generic [ref=f3e253]: Cartera
+      - link "contacts Contactos" [ref=f3e254] [cursor=pointer]:
+        - /url: /contactos
+        - generic [ref=f3e255]: contacts
+        - generic [ref=f3e256]: Contactos
+      - link "person_search Prospección" [ref=f3e257] [cursor=pointer]:
+        - /url: /prospeccion
+        - generic [ref=f3e258]: person_search
+        - generic [ref=f3e259]: Prospección
+      - link "calendar_today Actividades" [ref=f3e260] [cursor=pointer]:
+        - /url: /actividades
+        - generic [ref=f3e261]: calendar_today
+        - generic [ref=f3e262]: Actividades
+      - link "monitoring Reportes" [ref=f3e263] [cursor=pointer]:
+        - /url: /reportes
+        - generic [ref=f3e264]: monitoring
+        - generic [ref=f3e265]: Reportes
+      - link "fact_check Gerencia" [active] [ref=f3e266] [cursor=pointer]:
+        - /url: /gerencia
+        - generic [ref=f3e267]: fact_check
+        - generic [ref=f3e268]: Gerencia
+    - generic [ref=f3e269]:
+      - button "confirmation_number Levantar Ticket" [ref=f3e270] [cursor=pointer]:
+        - generic [ref=f3e271]: confirmation_number
+        - text: Levantar Ticket
+      - generic [ref=f3e273]:
+        - generic [ref=f3e274]: settings
+        - text: Configuración
+  - main [ref=f3e275]:
+    - generic [ref=f3e276]:
+      - generic [ref=f3e278]:
+        - generic [ref=f3e279]: search
+        - textbox "Buscar oportunidad, empresa o contacto..." [ref=f3e280]
+      - generic [ref=f3e281]:
+        - generic [ref=f3e282]:
+          - button "notifications" [ref=f3e283] [cursor=pointer]:
+            - generic [ref=f3e284]:
+              - generic [ref=f3e285]: notifications
+              - superscript [ref=f3e286]
+          - button "history" [ref=f3e287] [cursor=pointer]
+        - generic [ref=f3e290] [cursor=pointer]:
+          - generic [ref=f3e291]:
+            - paragraph [ref=f3e292]: Teolinda
+            - paragraph [ref=f3e293]: Gerencia
+          - generic "Teolinda Beingolea" [ref=f3e294]: TB
+    - generic [ref=f3e400]:
+      - heading "Gerencia" [level=2] [ref=f3e401]
+      - text: Solicitudes de aprobación dirigidas a Gerencia
+      - generic [ref=f3e402]:
+        - generic [ref=f3e403]:
+          - tablist [ref=f3e404]:
+            - generic [ref=f3e406]:
+              - tab "Pendientes" [selected] [ref=f3e408] [cursor=pointer]
+              - tab "Historial" [ref=f3e410] [cursor=pointer]
+          - generic:
+            - generic:
+              - tabpanel "Pendientes"
+        - generic [ref=f3e413]:
+          - table [ref=f3e417]:
+            - rowgroup [ref=f3e418]:
+              - row [ref=f3e419]:
+                - columnheader "Solicitante" [ref=f3e420]
+                - columnheader "Tipo" [ref=f3e421]
+                - columnheader "Entidad" [ref=f3e422]
+                - columnheader "Cambio solicitado" [ref=f3e423]
+                - columnheader "Motivo" [ref=f3e424]
+                - columnheader "Fecha" [ref=f3e425]
+                - columnheader "Acciones" [ref=f3e426]
+            - rowgroup [ref=f3e427]:
+              - row [ref=f3e428]:
+                - cell "Aldo Martínez" [ref=f3e429]
+                - cell "Reasignación de cliente" [ref=f3e430]
+                - cell [ref=f3e432]:
+                  - link "Transporte SAC" [ref=f3e433] [cursor=pointer]:
+                    - /url: /empresas/3
+                - cell "Reasignar a Carlos Alcántara" [ref=f3e434]
+                - cell "El vendedor actual sale de vacaciones largas; Carlos continúa la gestión." [ref=f3e435]
+                - cell "17 jul 2026" [ref=f3e436]
+                - cell [ref=f3e437]:
+                  - generic [ref=f3e438]:
+                    - button "Ver detalle" [ref=f3e439] [cursor=pointer]
+                    - button "Aprobar" [ref=f3e441] [cursor=pointer]
+                    - button "Denegar" [ref=f3e443] [cursor=pointer]
+          - list [ref=f3e445]:
+            - listitem "Página anterior" [ref=f3e446]:
+              - button [disabled] [ref=f3e447]:
+                - img "left" [ref=f3e448]
+            - listitem "1" [ref=f3e451] [cursor=pointer]
+            - listitem "Página siguiente" [ref=f3e453]:
+              - button [disabled] [ref=f3e454]:
+                - img "right" [ref=f3e455]

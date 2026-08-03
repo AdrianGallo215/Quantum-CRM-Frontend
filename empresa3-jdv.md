@@ -1,0 +1,161 @@
+- generic [ref=f3e14]:
+  - complementary [ref=f3e15]:
+    - generic [ref=f3e16]:
+      - img "Quantum Investment Logo" [ref=f3e17]
+      - button "menu_open" [ref=f3e18] [cursor=pointer]
+    - navigation [ref=f3e20]:
+      - link "dashboard Inicio" [ref=f3e21] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f3e22]: dashboard
+        - generic [ref=f3e23]: Inicio
+      - link "view_kanban Pipeline" [ref=f3e24] [cursor=pointer]:
+        - /url: /pipeline
+        - generic [ref=f3e25]: view_kanban
+        - generic [ref=f3e26]: Pipeline
+      - link "account_balance_wallet Cartera" [ref=f3e27] [cursor=pointer]:
+        - /url: /cartera
+        - generic [ref=f3e28]: account_balance_wallet
+        - generic [ref=f3e29]: Cartera
+      - link "contacts Contactos" [ref=f3e30] [cursor=pointer]:
+        - /url: /contactos
+        - generic [ref=f3e31]: contacts
+        - generic [ref=f3e32]: Contactos
+      - link "person_search Prospección" [ref=f3e33] [cursor=pointer]:
+        - /url: /prospeccion
+        - generic [ref=f3e34]: person_search
+        - generic [ref=f3e35]: Prospección
+      - link "calendar_today Actividades" [ref=f3e36] [cursor=pointer]:
+        - /url: /actividades
+        - generic [ref=f3e37]: calendar_today
+        - generic [ref=f3e38]: Actividades
+      - link "monitoring Reportes" [ref=f3e39] [cursor=pointer]:
+        - /url: /reportes
+        - generic [ref=f3e40]: monitoring
+        - generic [ref=f3e41]: Reportes
+      - link "approval Solicitudes" [ref=f3e42] [cursor=pointer]:
+        - /url: /solicitudes
+        - generic [ref=f3e43]: approval
+        - generic [ref=f3e44]: Solicitudes
+    - generic [ref=f3e45]:
+      - button "confirmation_number Levantar Ticket" [ref=f3e46] [cursor=pointer]:
+        - generic [ref=f3e47]: confirmation_number
+        - text: Levantar Ticket
+      - generic [ref=f3e49]:
+        - generic [ref=f3e50]: settings
+        - text: Configuración
+  - main [ref=f3e51]:
+    - generic [ref=f3e52]:
+      - generic [ref=f3e54]:
+        - generic [ref=f3e55]: search
+        - textbox "Buscar oportunidad, empresa o contacto..." [ref=f3e56]
+      - generic [ref=f3e57]:
+        - generic [ref=f3e58]:
+          - button "notifications" [ref=f3e59] [cursor=pointer]:
+            - generic [ref=f3e60]:
+              - generic [ref=f3e61]: notifications
+              - superscript [ref=f3e62]
+          - button "history" [ref=f3e63] [cursor=pointer]
+        - generic [ref=f3e66] [cursor=pointer]:
+          - generic [ref=f3e67]:
+            - paragraph [ref=f3e68]: Aldo
+            - paragraph [ref=f3e69]: Jefe de Ventas
+          - generic "Aldo Martínez" [ref=f3e70]: AM
+    - main [ref=f3e72]:
+      - generic [ref=f3e73]:
+        - generic [ref=f3e74]:
+          - generic [ref=f3e75]:
+            - navigation [ref=f3e76]:
+              - link "Empresas" [ref=f3e77] [cursor=pointer]:
+                - /url: /cartera
+              - generic [ref=f3e78]: /
+              - generic [ref=f3e79]: Oportunidad activa
+            - heading "Transporte SAC" [level=2] [ref=f3e81]
+          - generic [ref=f3e82]:
+            - button "Editar Datos" [ref=f3e83] [cursor=pointer]
+            - button "Nueva Gestión" [ref=f3e84] [cursor=pointer]
+        - generic [ref=f3e85]:
+          - generic [ref=f3e86]:
+            - generic [ref=f3e87]:
+              - generic [ref=f3e88]:
+                - generic [ref=f3e89]: info
+                - heading "Información Corporativa" [level=3] [ref=f3e90]
+              - generic [ref=f3e91]:
+                - generic [ref=f3e92]:
+                  - paragraph [ref=f3e93]: Razón Social
+                  - paragraph [ref=f3e94]: Transporte SAC
+                - generic [ref=f3e95]:
+                  - paragraph [ref=f3e96]: RUC / Identificación Fiscal
+                  - paragraph [ref=f3e97]: "20123456789"
+                - generic [ref=f3e98]:
+                  - paragraph [ref=f3e99]: Sector Económico
+                  - paragraph [ref=f3e100]: Colegios
+                - generic [ref=f3e101]:
+                  - paragraph [ref=f3e102]: Sitio Web
+                  - paragraph [ref=f3e103]: —
+                - generic [ref=f3e104]:
+                  - paragraph [ref=f3e105]: Dirección Fiscal
+                  - paragraph [ref=f3e106]: —
+                - generic [ref=f3e107]:
+                  - paragraph [ref=f3e108]: Segmentos
+                  - generic [ref=f3e109]: urbano
+                - generic [ref=f3e111]:
+                  - paragraph [ref=f3e112]: Estado de Cartera
+                  - generic [ref=f3e113]: Oportunidad activa (derivado)
+                - generic [ref=f3e114]:
+                  - paragraph [ref=f3e115]: Vendedor Asignado
+                  - combobox [ref=f3e116]:
+                    - option "Sin asignar" [disabled]
+                    - option "Aldo Martínez"
+                    - option "Carlos Alcántara"
+                    - option "Lionel Messi" [selected]
+            - generic [ref=f3e117]:
+              - generic [ref=f3e118]:
+                - generic [ref=f3e119]:
+                  - generic [ref=f3e120]: monetization_on
+                  - heading "Oportunidades de Negocio" [level=3] [ref=f3e121]
+                - generic [ref=f3e122]: 1 Activas
+              - table [ref=f3e124]:
+                - rowgroup [ref=f3e125]:
+                  - row [ref=f3e126]:
+                    - columnheader "Nombre del Proyecto" [ref=f3e127]
+                    - columnheader "Monto Estimado" [ref=f3e128]
+                    - columnheader "Etapa" [ref=f3e129]
+                - rowgroup [ref=f3e130]:
+                  - row [ref=f3e131] [cursor=pointer]:
+                    - cell [ref=f3e132]:
+                      - paragraph [ref=f3e133]: HTK6772YN5 × 1
+                      - paragraph [ref=f3e134]: "Ref: OP-4"
+                    - cell "USD 93,575.00" [ref=f3e135]
+                    - cell "Evaluación Calidda" [ref=f3e136]
+              - button "Ver todas las oportunidades" [ref=f3e137] [cursor=pointer]
+          - generic [ref=f3e138]:
+            - generic [ref=f3e139]:
+              - generic [ref=f3e140]:
+                - generic [ref=f3e141]:
+                  - generic [ref=f3e142]: groups
+                  - heading "Contactos Clave" [level=3] [ref=f3e143]
+                - button "person_add" [ref=f3e144] [cursor=pointer]
+              - generic [ref=f3e146]:
+                - generic [ref=f3e147]:
+                  - generic [ref=f3e148]: CA
+                  - generic [ref=f3e149]:
+                    - paragraph [ref=f3e150]: Contacto 2 ApellidoPrincipal
+                    - paragraph [ref=f3e151]: Administrador
+                  - button "link_off" [ref=f3e153] [cursor=pointer]
+                - generic [ref=f3e155]:
+                  - generic [ref=f3e156]: CA
+                  - generic [ref=f3e157]:
+                    - paragraph [ref=f3e158]: Contacto 1 Apellido
+                    - paragraph [ref=f3e159]: Gerente Comercial · Decide
+                  - button "link_off" [ref=f3e161] [cursor=pointer]
+            - generic [ref=f3e163]:
+              - generic [ref=f3e164]:
+                - generic [ref=f3e165]: assignment
+                - heading "Actividades Recientes" [level=3] [ref=f3e166]
+              - generic [ref=f3e167]:
+                - button "Tareas" [ref=f3e168] [cursor=pointer]
+                - button "Eventos" [ref=f3e169] [cursor=pointer]
+              - generic [ref=f3e173]:
+                - paragraph [ref=f3e174]: Reunión
+                - generic [ref=f3e175]: 11 jul, 02:00 PM
+              - button "Programar nueva actividad" [ref=f3e176] [cursor=pointer]

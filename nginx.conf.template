@@ -1,0 +1,95 @@
+# Configuración de nginx para el SPA de Quantum CRM.
+#
+# Es una PLANTILLA: la imagen oficial de nginx la procesa con envsubst al
+# arrancar y sustituye ${API_ORIGIN} (definida en el Dockerfile). El resto de
+# variables de nginx ($uri, $host…) se preservan gracias a NGINX_ENVSUBST_FILTER.
+#
+# ⚠️ REGLA QUE NO SE PUEDE ROMPER: aquí NO hay ningún `add_header` dentro de un
+# `location`. En nginx, un `add_header` en un bloque hijo NO se suma a los del
+# padre: los REEMPLAZA por completo. Un solo `add_header Cache-Control` dentro
+# de `location /` dejaría a toda la aplicación sin CSP, sin X-Frame-Options y
+# sin el resto de cabeceras de seguridad, en silencio y sin ningún error.
+# Por eso el Cache-Control se resuelve con un `map` y se emite una única vez a
+# nivel de servidor.
+
+# El `map` se evalúa en el contexto http (los ficheros de conf.d se incluyen
+# dentro de él). Traduce la ruta pedida a su política de caché.
+map $uri $politica_cache {
+    # Por defecto, y en particular para index.html: nunca cachear. index.html es
+    # quien apunta a los assets versionados; si un navegador conserva una copia
+    # vieja, sigue pidiendo los ficheros del despliegue anterior y el usuario ve
+    # la versión antigua después de cada deploy.
+    default    "no-cache, no-store, must-revalidate";
+
+    # Vite versiona los ficheros de /assets (app-a1b2c3.js): su contenido nunca
+    # cambia bajo la misma URL, así que se pueden cachear indefinidamente.
+    ~^/assets/ "public, max-age=31536000, immutable";
+}
+
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  _;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    # ── Compresión ───────────────────────────────────────────────────────────
+    gzip              on;
+    gzip_vary         on;
+    gzip_min_length   1024;
+    gzip_proxied      any;
+    gzip_comp_level   6;
+    gzip_types
+        text/plain
+        text/css
+        text/javascript
+        application/javascript
+        application/json
+        application/xml
+        image/svg+xml
+        font/woff2;
+
+    # ── Cabeceras de seguridad (SECURITY-frontend.md §9) ─────────────────────
+    # `always` es imprescindible: sin él nginx omite estas cabeceras en las
+    # respuestas de error (4xx/5xx), justo donde también hacen falta.
+    add_header X-Frame-Options        "DENY"                            always;
+    add_header X-Content-Type-Options "nosniff"                         always;
+    add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy     "camera=(), microphone=(), geolocation=(), payment=()" always;
+    add_header Cache-Control          $politica_cache                   always;
+
+    # CSP. Cada excepción está justificada, para que nadie la amplíe sin motivo:
+    #  - style-src 'unsafe-inline': Ant Design v5 inyecta sus estilos en runtime
+    #    con CSS-in-JS. Sin esto la app se ve sin ningún estilo.
+    #  - fonts.googleapis.com / fonts.gstatic.com: Inter, Manrope, JetBrains Mono
+    #    y Material Symbols se cargan desde Google Fonts en index.html. Al
+    #    auto-hospedar las fuentes, estos dos orígenes se pueden eliminar.
+    #  - connect-src incluye ${API_ORIGIN}: sin él el navegador bloquea TODAS las
+    #    llamadas al backend, porque la API vive en otro dominio.
+    #  - frame-ancestors 'none' refuerza X-Frame-Options en navegadores modernos.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' ${API_ORIGIN}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+
+    # ── Assets versionados ───────────────────────────────────────────────────
+    # Sin `add_header` aquí: el Cache-Control correcto ya lo aplica el `map`.
+    location /assets/ {
+        try_files $uri =404;
+    }
+
+    # ── SPA fallback ─────────────────────────────────────────────────────────
+    # React Router resuelve las rutas en el cliente. Sin este try_files, recargar
+    # en /pipeline o abrir un enlace directo a /oportunidades/42 devuelve 404,
+    # porque en disco no existe ningún fichero con esa ruta.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Endpoint liviano para el healthcheck del orquestador.
+    # `default_type` en lugar de `add_header Content-Type`, para no disparar la
+    # regla de reemplazo de cabeceras descrita arriba.
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+}

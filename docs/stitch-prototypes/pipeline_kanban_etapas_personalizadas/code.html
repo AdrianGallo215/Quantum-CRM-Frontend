@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quantum CRM - Pipeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "secondary": "#006a64",
+                "secondary-container": "#8ff0e8",
+                "primary-fixed-dim": "#afc6ff",
+                "surface-dim": "#d1d8ff",
+                "on-secondary-fixed": "#00201e",
+                "surface-container-high": "#e4e7ff",
+                "secondary-fixed-dim": "#75d7ce",
+                "on-tertiary-fixed-variant": "#43474d",
+                "on-primary-fixed": "#001a43",
+                "tertiary-container": "#5a5e64",
+                "primary-container": "#3e5c9a",
+                "tertiary-fixed": "#dfe2e9",
+                "on-error": "#ffffff",
+                "on-background": "#0e193e",
+                "on-tertiary-fixed": "#181c21",
+                "on-surface-variant": "#444750",
+                "surface-tint": "#3f5d9b",
+                "secondary-fixed": "#92f3eb",
+                "on-primary-container": "#c8d7ff",
+                "primary": "#244481",
+                "on-secondary-fixed-variant": "#00504b",
+                "outline": "#747781",
+                "tertiary": "#42464c",
+                "error": "#ba1a1a",
+                "inverse-primary": "#afc6ff",
+                "surface-container-low": "#f3f2ff",
+                "on-surface": "#0e193e",
+                "surface-variant": "#dde1ff",
+                "tertiary-fixed-dim": "#c3c7cd",
+                "on-error-container": "#93000a",
+                "inverse-surface": "#242e55",
+                "surface": "#fbf8ff",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#d4d8de",
+                "surface-bright": "#fbf8ff",
+                "background": "#FEFFFA",
+                "on-tertiary": "#ffffff",
+                "on-primary": "#ffffff",
+                "on-primary-fixed-variant": "#254582",
+                "surface-container": "#ecedff",
+                "on-secondary-container": "#006f69",
+                "error-container": "#ffdad6",
+                "surface-container-highest": "#dde1ff",
+                "primary-fixed": "#d9e2ff",
+                "inverse-on-surface": "#efefff",
+                "outline-variant": "#c4c6d1",
+                "on-secondary": "#ffffff",
+                // Custom Palette from requirements
+                "brand-primary": "#0799b6",
+                "brand-secondary": "#9cd2d3",
+                "brand-tertiary": "#114c5f"
+            },
+            "borderRadius": {
+                "DEFAULT": "4px",
+                "pill": "9999px",
+                "sidebar-curve": "0 40px 40px 0"
+            },
+            "spacing": {
+                "container-padding": "20px",
+                "sidebar-width": "280px"
+            },
+            "fontFamily": {
+                "headline-md": ["Manrope"],
+                "body-lg": ["Inter"],
+                "headline-sm": ["Manrope"],
+                "label-md": ["Inter"],
+                "headline-lg": ["Manrope"],
+                "body-md": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #FEFFFA;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        .kanban-column {
+            min-width: 320px;
+            max-width: 320px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        .sidebar-active-gradient {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border-left: 4px solid #0799b6;
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full">
+<!-- Sidebar -->
+<aside class="flex flex-col h-full w-sidebar-width bg-primary text-white z-50 rounded-sidebar-curve shrink-0 shadow-xl overflow-hidden">
+<div class="p-8 pb-10">
+<img alt="Quantum Investment Logo" class="h-10 object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGuNpUhZf25wAXaf-2x8canYHjc4fypSdqATKJ39QVknokb-SNcBkpc4XcAty-HFVLRZoLeJUqjUisv0aBK5BV41tQGHqK8-hNplYaZHTH5_iosVynnH4_YXTUBwgwbV27ptICWP5wxyaVqL_VW3ERpNEEKR01kHvxjBShVYjMaOsmUmjH6CyGSNF9jOaZs_cwSioSwQUtphaLhwtQcvx7tc7_V-12a_LtVwbRMLJovrVo7td-u2hDkG9oLtlIbxuSljYgUP2WzOoh"/>
+</div>
+<nav class="flex-1 flex flex-col px-4 gap-1">
+<!-- Navigation Items mapped from JSON logic + manual labels -->
+<a class="flex items-center gap-3 px-6 py-3 rounded-md hover:bg-white/10 transition-all font-body-md text-body-md opacity-70" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Inicio</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 rounded-md sidebar-active-gradient transition-all font-body-md text-body-md font-bold text-white" href="#">
+<span class="material-symbols-outlined">view_kanban</span>
+<span>Pipeline</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 rounded-md hover:bg-white/10 transition-all font-body-md text-body-md opacity-70" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Cartera</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 rounded-md hover:bg-white/10 transition-all font-body-md text-body-md opacity-70" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span>Prospección</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 rounded-md hover:bg-white/10 transition-all font-body-md text-body-md opacity-70" href="#">
+<span class="material-symbols-outlined">contacts</span>
+<span>Contactos</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 rounded-md hover:bg-white/10 transition-all font-body-md text-body-md opacity-70" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Actividades</span>
+</a>
+</nav>
+<div class="p-6 border-t border-white/10">
+<button class="w-full flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white py-3 rounded-pill font-bold transition-all active:scale-95">
+<span class="material-symbols-outlined">confirmation_number</span>
+                Levantar Ticket
+            </button>
+<div class="mt-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-6 py-2 rounded-md hover:bg-white/5 opacity-50 text-xs" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+                    Configuración
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full relative overflow-hidden">
+<!-- Top Bar -->
+<header class="h-16 flex items-center justify-between px-8 bg-white border-b border-outline-variant/30">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-pill pl-10 pr-4 py-2 text-body-sm focus:ring-2 focus:ring-brand-primary/20" placeholder="Buscar oportunidad, empresa o contacto..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">history</span>
+</button>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="text-right">
+<p class="font-body-md text-on-surface font-bold">Tomas</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Admin</p>
+</div>
+<div class="w-10 h-10 rounded-pill bg-brand-secondary/30 flex items-center justify-center border-2 border-brand-secondary/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a business executive named Tomas. He has a friendly, authoritative expression. The lighting is soft and corporate, matching a clean light-mode UI aesthetic with subtle teal accents in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQKOPpnEU5BC1Pntol3Cyb2lO5IOPQGwWQYAP1e7_pjSguIJtlrs-HH24TLQF6wVciFuqdrGw6rEyx5xrogIbapzowARfekpj_E8lyAbpFHPIXgztlj9ZbgXPMObKRghewMmw_IBPeT5TgJCjc35-3VSZVWfwmSpjYQjXeTB3srmR7pIxWgPNy6oNbfxEc_guJ2FGFBHeNJVphZ6Da_ECuwUsb4TzS1agp0DfvzEJnXB9oIvujRLk54tChfykDjK3obU1p60-AzqbE"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Kanban View -->
+<section class="flex-1 overflow-hidden flex flex-col p-8">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface">Pipeline de Ventas</h1>
+<p class="text-on-surface-variant font-body-md">Visualiza y gestiona el flujo de tus oportunidades comerciales</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 bg-white border border-outline-variant px-5 py-2.5 rounded-pill text-on-surface hover:bg-surface transition-all font-medium text-body-sm">
+<span class="material-symbols-outlined">filter_list</span>
+                        Filtros
+                    </button>
+<button class="flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-pill hover:bg-brand-primary/90 transition-all font-bold text-body-sm shadow-lg shadow-brand-primary/20">
+<span class="material-symbols-outlined">add</span>
+                        Nueva Oportunidad
+                    </button>
+</div>
+</div>
+<!-- Board Container -->
+<div class="flex-1 flex gap-6 overflow-x-auto pb-6 custom-scrollbar"><!-- Column: Aprobación de Cálidda -->
+<div class="kanban-column flex flex-col">
+<div class="flex items-center justify-between mb-4 px-2 border-t-4 border-brand-primary pt-2">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-brand-tertiary text-body-md">Aprobación de Cálidda</h3>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+<div class="bg-white p-4 rounded shadow-sm border border-outline-variant/30 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
+<h4 class="font-bold text-on-surface text-body-md mb-2 leading-tight">TechFlow Solutions S.A.</h4>
+<div class="flex flex-col gap-1">
+<p class="text-on-surface-variant text-xs">12 unidades</p>
+<p class="text-on-surface-variant text-[10px] opacity-70">5 días en esta etapa</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded shadow-sm border border-outline-variant/30 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
+<h4 class="font-bold text-on-surface text-body-md mb-2 leading-tight">Inmobiliaria del Norte</h4>
+<div class="flex flex-col gap-1">
+<p class="text-on-surface-variant text-xs">8 unidades</p>
+<p class="text-on-surface-variant text-[10px] opacity-70">2 días en esta etapa</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Documentos Legales -->
+<div class="kanban-column flex flex-col">
+<div class="flex items-center justify-between mb-4 px-2 border-t-4 border-brand-secondary pt-2">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-brand-tertiary text-body-md">Documentos Legales</h3>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+<div class="bg-white p-4 rounded shadow-sm border border-outline-variant/30 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
+<h4 class="font-bold text-on-surface text-body-md mb-2 leading-tight">Banco Metropolitano</h4>
+<div class="flex flex-col gap-1">
+<p class="text-on-surface-variant text-xs">24 unidades</p>
+<p class="text-on-surface-variant text-[10px] opacity-70">12 días en esta etapa</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: Facturado -->
+<div class="kanban-column flex flex-col">
+<div class="flex items-center justify-between mb-4 px-2 border-t-4 border-emerald-500 pt-2">
+<div class="flex items-center gap-2">
+<h3 class="font-bold text-brand-tertiary text-body-md">Facturado</h3>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+<div class="bg-emerald-50/5 p-4 rounded shadow-sm border border-emerald-500/30 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
+<h4 class="font-bold text-on-surface text-body-md mb-2 leading-tight">DataHub Latam</h4>
+<div class="flex flex-col gap-1">
+<p class="text-on-surface-variant text-xs">40 unidades</p>
+<p class="text-on-surface-variant text-[10px] opacity-70">1 día en esta etapa</p>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<!-- Notification Toast (Micro-interaction mockup) -->
+<div class="absolute bottom-8 right-8 bg-brand-tertiary text-white px-6 py-4 rounded shadow-2xl flex items-center gap-4 translate-y-20 opacity-0 transition-all duration-500 z-[100]" id="toast">
+<div class="w-10 h-10 rounded-pill bg-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-brand-secondary">check_circle</span>
+</div>
+<div>
+<p class="font-bold text-body-md">Oportunidad Actualizada</p>
+<p class="text-xs opacity-70">El trato 'Software Enterprise' ha sido movido a Propuesta.</p>
+</div>
+<button class="ml-4 opacity-50 hover:opacity-100" onclick="hideToast()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</main>
+<script>
+        // Micro-interactions
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(hideToast, 5000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('translate-y-20', 'opacity-0');
+        }
+
+        // Simulating card movement
+        document.querySelectorAll('.kanban-column .bg-white').forEach(card => {
+            card.addEventListener('dragend', () => {
+                showToast();
+            });
+            // Click to simulate status change
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+
+        // Initialize tooltip simulation or other UI flair
+        console.log("Quantum CRM Loaded - Pipeline View Active");
+    </script>
+</body></html>

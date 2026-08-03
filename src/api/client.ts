@@ -1,0 +1,118 @@
+import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
+import type { ApiError, ApiResponse } from '@/types'
+
+// El token vive en cookie httpOnly — el JS nunca lo lee ni lo guarda.
+// withCredentials hace que el navegador adjunte la cookie en cada request.
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+interface RetriableConfig extends AxiosRequestConfig {
+  _retry?: boolean
+}
+
+let refreshPromise: Promise<void> | null = null
+
+async function refreshSession(): Promise<void> {
+  // Un solo refresh en vuelo; el refresh_token viaja en cookie httpOnly.
+  if (!refreshPromise) {
+    refreshPromise = axios
+      .post(
+        `${apiClient.defaults.baseURL}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      )
+      .then(() => undefined)
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+  return refreshPromise
+}
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config as RetriableConfig | undefined
+    const status = error.response?.status
+    const url = config?.url ?? ''
+    const esAuth = url.includes('/auth/login') || url.includes('/auth/refresh')
+
+    if (status === 401 && config && !config._retry && !esAuth) {
+      config._retry = true
+      try {
+        await refreshSession()
+        return apiClient.request(config)
+      } catch {
+        // Refresh falló → sesión terminada. Redirigir a login.
+        if (window.location.pathname !== '/login') {
+          window.location.assign('/login')
+        }
+      }
+    }
+    return Promise.reject(error)
+  },
+)
+
+/** Extrae el error de negocio del envelope de la API, si existe. */
+export function extraerApiError(error: unknown): ApiError | null {
+  if (axios.isAxiosError(error)) {
+    const body = error.response?.data as ApiResponse<unknown> | undefined
+    if (body && typeof body === 'object' && body.error) {
+      return body.error
+    }
+  }
+  return null
+}
+
+/** Mensaje legible para mostrar al usuario ante cualquier error HTTP. */
+export function mensajeDeError(error: unknown, fallback = 'Ocurrió un error inesperado'): string {
+  const apiError = extraerApiError(error)
+  if (apiError?.message) return apiError.message
+  if (axios.isAxiosError(error) && !error.response) {
+    return 'No se pudo conectar con el servidor'
+  }
+  return fallback
+}
+
+/** Código de negocio del envelope (p. ej. 'APROBACION_REQUERIDA'), o null. */
+export function codigoDeError(error: unknown): string | null {
+  return extraerApiError(error)?.code ?? null
+}
+
+/**
+ * Status HTTP crudo de la respuesta, o null si el error no llegó a tenerla.
+ * Útil cuando un proxy de borde corta la petición antes de llegar a la API: en
+ * ese caso no hay envelope y el `code` de negocio no existe, pero el status sí.
+ */
+export function estadoHttpDeError(error: unknown): number | null {
+  if (axios.isAxiosError(error)) return error.response?.status ?? null
+  return null
+}
+
+// Helpers HTTP que devuelven el envelope completo (data + meta)
+export async function get<T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
+  const res = await apiClient.get<ApiResponse<T>>(url, { params })
+  return res.data
+}
+
+export async function post<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  const res = await apiClient.post<ApiResponse<T>>(url, body)
+  return res.data
+}
+
+export async function put<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  const res = await apiClient.put<ApiResponse<T>>(url, body)
+  return res.data
+}
+
+export async function patch<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
+  const res = await apiClient.patch<ApiResponse<T>>(url, body)
+  return res.data
+}
+
+export async function del(url: string): Promise<void> {
+  await apiClient.delete(url)
+}
