@@ -118,7 +118,14 @@ export function AdminModelos() {
           Nuevo modelo
         </Button>
       </div>
-      <Table rowKey="id" dataSource={modelos.data ?? []} columns={columnas} pagination={false} size="middle" />
+      <Table
+        rowKey="id"
+        dataSource={modelos.data ?? []}
+        columns={columnas}
+        pagination={false}
+        size="middle"
+        scroll={{ x: 'max-content' }}
+      />
 
       <Modal
         title={editando ? 'Editar modelo' : 'Nuevo modelo'}

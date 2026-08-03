@@ -236,7 +236,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
           />
         </Form.Item>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item
             name="cantidad"
             label="Cantidad de unidades"
@@ -276,7 +276,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item name="garantia" label="Garantía" valuePropName="checked">
             <Switch />
           </Form.Item>

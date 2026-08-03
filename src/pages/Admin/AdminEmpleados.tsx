@@ -138,6 +138,7 @@ export function AdminEmpleados() {
         columns={columnas}
         pagination={false}
         size="middle"
+        scroll={{ x: 'max-content' }}
       />
 
       <Modal

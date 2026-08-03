@@ -38,11 +38,11 @@ export function ProspeccionPage() {
 
   return (
     <div className="proto-teal bg-background min-h-full font-body-md text-body-md text-on-background">
-      <main className="p-8">
+      <main className="p-4 md:p-8">
         <div className="max-w-[1200px] mx-auto space-y-8">
           {/* Page Header */}
           <div className="flex flex-col gap-1">
-            <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">
+            <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-tight">
               Prospección Comercial
             </h2>
             <p className="text-on-surface-variant font-body-lg text-body-lg">

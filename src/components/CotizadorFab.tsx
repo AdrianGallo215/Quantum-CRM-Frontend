@@ -34,7 +34,7 @@ export function CotizadorFab() {
       type="button"
       onClick={() => window.open(COTIZADOR_URL, '_blank', 'noopener,noreferrer')}
       title="Abrir cotizador"
-      className="group absolute bottom-6 right-6 z-40 flex h-14 w-14 items-center gap-3 overflow-hidden rounded-full bg-brand-primary pl-4 text-white shadow-xl transition-[width] duration-300 ease-out hover:w-48 hover:shadow-2xl"
+      className="group absolute bottom-[88px] md:bottom-6 right-6 z-40 flex h-14 w-14 items-center gap-3 overflow-hidden rounded-full bg-brand-primary pl-4 text-white shadow-xl transition-[width] duration-300 ease-out hover:w-48 hover:shadow-2xl"
     >
       <span className="material-symbols-outlined shrink-0 text-2xl">request_quote</span>
       <span className="whitespace-nowrap text-sm font-bold opacity-0 transition-opacity delay-100 duration-200 group-hover:opacity-100">

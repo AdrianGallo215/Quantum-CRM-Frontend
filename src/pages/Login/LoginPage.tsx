@@ -85,7 +85,7 @@ export function LoginPage() {
         background: '#F4F7FE',
       }}
     >
-      <div className="bento-card" style={{ width: 400, padding: 32 }}>
+      <div className="bento-card" style={{ width: 400, maxWidth: '100%', padding: 32 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <span
             className="headline"

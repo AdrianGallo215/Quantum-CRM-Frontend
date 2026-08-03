@@ -111,6 +111,7 @@ export function AdminImportCsvTemp() {
             columns={columnas}
             pagination={false}
             size="middle"
+            scroll={{ x: 'max-content' }}
           />
         </div>
       )}

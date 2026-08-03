@@ -121,6 +121,7 @@ function ReporteVentasView({ filtros, activo }: { filtros: ReporteFiltros; activ
             rowKey="id_vendedor"
             size="small"
             pagination={false}
+            scroll={{ x: 'max-content' }}
             dataSource={d.por_vendedor}
             columns={[
               { title: 'Vendedor', dataIndex: 'nombre' },
@@ -135,6 +136,7 @@ function ReporteVentasView({ filtros, activo }: { filtros: ReporteFiltros; activ
             rowKey="modelo"
             size="small"
             pagination={false}
+            scroll={{ x: 'max-content' }}
             dataSource={d.por_modelo}
             columns={[
               { title: 'Modelo', dataIndex: 'modelo' },
@@ -149,6 +151,7 @@ function ReporteVentasView({ filtros, activo }: { filtros: ReporteFiltros; activ
             rowKey="mes"
             size="small"
             pagination={false}
+            scroll={{ x: 'max-content' }}
             dataSource={d.por_mes}
             columns={[
               { title: 'Mes', dataIndex: 'mes' },
@@ -183,6 +186,7 @@ function ReportePipelineView({ activo }: { activo: boolean }) {
           rowKey="etapa"
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           dataSource={d.por_etapa}
           columns={[
             { title: 'Etapa', dataIndex: 'etapa', render: (e: string) => etiquetaEtapa(e) },
@@ -199,6 +203,7 @@ function ReportePipelineView({ activo }: { activo: boolean }) {
           rowKey="id"
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           dataSource={d.oportunidades_sin_actividad}
           columns={[
             { title: 'Empresa', dataIndex: 'empresa' },
@@ -235,7 +240,14 @@ function ReporteEquipoView({ filtros, activo }: { filtros: ReporteFiltros; activ
   ]
   return (
     <div className="bento-card">
-      <Table rowKey={(r) => r.vendedor.id} size="small" pagination={false} dataSource={q.data} columns={columnas} />
+      <Table
+        rowKey={(r) => r.vendedor.id}
+        size="small"
+        pagination={false}
+        scroll={{ x: 'max-content' }}
+        dataSource={q.data}
+        columns={columnas}
+      />
     </div>
   )
 }
@@ -255,6 +267,7 @@ function ReporteVelocidadView({ activo }: { activo: boolean }) {
           rowKey="etapa"
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           dataSource={q.data.data}
           columns={[
             { title: 'Etapa', dataIndex: 'etapa', render: (e: string) => etiquetaEtapa(e) },
@@ -317,6 +330,7 @@ function ReporteProspeccionView({ filtros, activo }: { filtros: ReporteFiltros; 
           rowKey="origen"
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           dataSource={d.por_origen_lead}
           columns={[
             { title: 'Origen', dataIndex: 'origen' },
@@ -346,6 +360,7 @@ function ReporteDescuentosView({ filtros, activo }: { filtros: ReporteFiltros; a
           rowKey="vendedor"
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           dataSource={d.por_vendedor}
           columns={[
             { title: 'Vendedor', dataIndex: 'vendedor' },

@@ -1,24 +1,15 @@
 import { useState } from 'react'
 import { Dropdown, Tooltip } from 'antd'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import {
-  useAuthStore,
-  ROLES_REPORTES,
-  ROLES_BANDEJA_GERENCIA,
-  ROLES_SOLICITANTES,
-  tieneRol,
-} from '@/store/authStore'
+import { useAuthStore } from '@/store/authStore'
 import { useLogout } from '@/hooks/useAuth'
 import { iniciales, nombreCompleto } from '@/utils/formato'
 import { ETIQUETA_ROL } from '@/utils/etiquetas'
 import { NotificacionesDropdown } from './NotificacionesDropdown'
 import { CotizadorFab } from './CotizadorFab'
-
-interface NavItem {
-  to: string
-  icono: string
-  label: string
-}
+import { useNavItems } from './navItems'
+import { BottomNavBar } from './BottomNavBar'
+import { TopBarMobile } from './TopBarMobile'
 
 const SIDEBAR_COLAPSADO_KEY = 'sidebar-colapsado'
 
@@ -44,29 +35,13 @@ export function AppLayout() {
     })
   }
 
-  const items: NavItem[] = [
-    { to: '/', icono: 'dashboard', label: 'Inicio' },
-    { to: '/pipeline', icono: 'view_kanban', label: 'Pipeline' },
-    { to: '/cartera', icono: 'account_balance_wallet', label: 'Cartera' },
-    { to: '/contactos', icono: 'contacts', label: 'Contactos' },
-    { to: '/prospeccion', icono: 'person_search', label: 'Prospección' },
-    { to: '/actividades', icono: 'calendar_today', label: 'Actividades' },
-  ]
-  if (tieneRol(empleado, ROLES_REPORTES)) {
-    items.push({ to: '/reportes', icono: 'monitoring', label: 'Reportes' })
-  }
-  if (tieneRol(empleado, ROLES_BANDEJA_GERENCIA)) {
-    items.push({ to: '/gerencia', icono: 'fact_check', label: 'Gerencia' })
-  }
-  if (tieneRol(empleado, ROLES_SOLICITANTES)) {
-    items.push({ to: '/solicitudes', icono: 'approval', label: 'Solicitudes' })
-  }
+  const items = useNavItems()
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
       {/* Sidebar (prototipo pipeline) */}
       <aside
-        className={`flex flex-col h-full ${colapsado ? 'w-20' : 'w-sidebar-width'} bg-primary text-white z-50 rounded-sidebar-curve shrink-0 shadow-xl overflow-hidden transition-all duration-200`}
+        className={`hidden md:flex flex-col h-full ${colapsado ? 'w-20' : 'w-sidebar-width'} bg-primary text-white z-50 rounded-sidebar-curve shrink-0 shadow-xl overflow-hidden transition-all duration-200`}
       >
         <div className={`flex items-center ${colapsado ? 'justify-center px-0' : 'justify-between px-8'} pt-8 pb-10`}>
           {/* Es EL MISMO logo de siempre, descargado del CDN y servido desde
@@ -144,8 +119,9 @@ export function AppLayout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+        <TopBarMobile />
         {/* Top Bar (prototipo pipeline) */}
-        <header className="h-16 shrink-0 flex items-center justify-between px-8 bg-white border-b border-outline-variant/30">
+        <header className="hidden md:flex h-16 shrink-0 items-center justify-between px-8 bg-white border-b border-outline-variant/30">
           <div className="flex items-center flex-1 max-w-xl">
             {/* Antes este input descartaba el texto y navegaba a /cartera a secas.
                 Ahora lleva la búsqueda en la URL y Cartera la aplica al cargar. */}
@@ -208,10 +184,11 @@ export function AppLayout() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar pb-16 md:pb-0">
           <Outlet />
         </div>
         <CotizadorFab />
+        <BottomNavBar />
       </main>
     </div>
   )

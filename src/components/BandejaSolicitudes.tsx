@@ -196,6 +196,7 @@ export function BandejaSolicitudes() {
         loading={solicitudes.isLoading}
         dataSource={solicitudes.data?.data ?? []}
         columns={tab === 'pendientes' ? columnasPendientes : columnasHistorial}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: pagina,
           total: solicitudes.data?.meta?.total ?? 0,

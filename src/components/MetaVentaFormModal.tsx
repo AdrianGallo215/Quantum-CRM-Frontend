@@ -119,7 +119,7 @@ export function MetaVentaFormModal({
       width={640}
     >
       <Form form={form} layout="vertical" requiredMark={false}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item name="id_empleado" label="Vendedor" rules={[{ required: true, message: 'Elige el vendedor' }]}>
             <Select
               disabled={modo === 'editar'}
@@ -136,7 +136,7 @@ export function MetaVentaFormModal({
           </Form.Item>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {MESES_META.map((mes) => (
             <Form.Item key={mes} name={mes} label={ETIQUETA_MES[mes]} initialValue={0}>
               <InputNumber style={{ width: '100%' }} min={0} precision={0} />

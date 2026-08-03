@@ -126,7 +126,14 @@ export function AdminFinanciadoras() {
           Nueva financiadora
         </Button>
       </div>
-      <Table rowKey="id" dataSource={financiadoras.data ?? []} columns={columnas} pagination={false} size="middle" />
+      <Table
+        rowKey="id"
+        dataSource={financiadoras.data ?? []}
+        columns={columnas}
+        pagination={false}
+        size="middle"
+        scroll={{ x: 'max-content' }}
+      />
 
       <Modal
         title={editando ? 'Editar financiadora' : 'Nueva financiadora'}

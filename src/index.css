@@ -149,3 +149,58 @@ h3.ant-typography,
 h4.ant-typography {
   font-family: 'Manrope', 'Inter', system-ui, sans-serif !important;
 }
+
+/* ── Adaptaciones mobile (< 768px) ──────────────────────────────────────
+   Ver docs/superpowers/specs/2026-08-03-adaptabilidad-mobile-design.md */
+@media (max-width: 767px) {
+  /* Modales fullscreen.
+     La app tiene 31 usos de <Modal>, 14 de ellos con un `width` fijo (440–640px)
+     que Ant Design aplica como estilo inline sobre `.ant-modal`. A 375px eso
+     desborda o deja el contenido apretado. Una regla global los cubre todos sin
+     editar 31 archivos; `max-width` neutraliza el width inline.
+     Acoplado a nombres de clase internos de Ant Design v5: revalidar si se
+     actualiza a un major nuevo. */
+  .ant-modal {
+    max-width: 100vw !important;
+    margin: 0 !important;
+    top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .ant-modal-content {
+    border-radius: 0 !important;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* El cuerpo absorbe el alto sobrante y scrollea solo, para que el título y
+     los botones de acción queden siempre visibles en formularios largos. */
+  .ant-modal-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* Padding de página: 32px se come demasiado ancho útil a 375px.
+     16px es el token `margin-mobile` de tailwind.config.js. */
+  .page-container {
+    padding: 16px 16px 32px;
+  }
+
+  /* Columna de kanban: 320px fijos no dejan ver que hay más columnas al lado
+     en una pantalla de 375px. 82vw deja asomar la siguiente y sugiere el swipe. */
+  .kanban-column {
+    min-width: 82vw;
+    max-width: 82vw;
+  }
+
+  /* Títulos de página de Ant Design (`Typography.Title level={2}`, usado por
+     Inicio, Cartera, Contactos, Solicitudes, Reportes, Gerencia y Admin).
+     A su tamaño de desktop ocupan dos o tres líneas en 375px. 24px es el token
+     `headline-lg-mobile` de tailwind.config.js. */
+  h2.ant-typography {
+    font-size: 24px !important;
+    line-height: 32px !important;
+    letter-spacing: -0.01em;
+  }
+}

@@ -132,9 +132,9 @@ function Contenido({ empresa }: { empresa: Empresa }) {
 
   return (
     <main className="min-h-full flex flex-col bg-brand-bg">
-      <div className="p-margin-page flex flex-col gap-gutter max-w-[1400px] mx-auto w-full">
+      <div className="p-4 md:p-margin-page flex flex-col gap-gutter max-w-[1400px] mx-auto w-full">
         {/* BREADCRUMBS & ACTION HEADER (prototipo) */}
-        <div className="flex justify-between items-end">
+        <div className="flex flex-wrap justify-between items-end gap-4">
           <div>
             <nav className="flex text-on-surface-variant text-label-md gap-2 mb-2 uppercase tracking-widest">
               <Link className="hover:text-brand-cyan" to="/cartera">
@@ -144,11 +144,11 @@ function Contenido({ empresa }: { empresa: Empresa }) {
               <span className="text-on-surface">{ETIQUETA_CARTERA[empresa.estado_cartera]}</span>
             </nav>
             <div className="flex items-center gap-3">
-              <h2 className="font-headline-lg text-headline-lg text-primary">{empresa.razon_social}</h2>
+              <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">{empresa.razon_social}</h2>
               {empresa.en_cartera_maestra && <NeutralTag>Cartera Maestra</NeutralTag>}
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               className="btn-circular px-6 py-2 border border-brand-cyan text-brand-cyan font-bold hover:bg-brand-cyan/5 transition-colors"
               onClick={abrirEditar}
@@ -219,7 +219,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                 <span className="material-symbols-outlined">info</span>
                 <h3 className="font-headline-sm text-headline-sm">Información Corporativa</h3>
               </div>
-              <div className="grid grid-cols-2 gap-y-6 gap-x-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                 <div>
                   <p className="text-label-md text-on-surface-variant uppercase mb-1">Razón Social</p>
                   <p className="text-body-lg font-semibold text-on-surface">{empresa.razon_social}</p>
@@ -641,7 +641,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
           <Form.Item name="direccion_fiscal" label="Dirección fiscal">
             <Input />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Form.Item name="distrito" label="Distrito">
               <Input />
             </Form.Item>

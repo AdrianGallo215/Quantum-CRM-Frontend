@@ -92,7 +92,7 @@ function Contenido({ contacto: c }: { contacto: ContactoDetalle }) {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-y-6 gap-x-12 pt-6 border-t border-outline-variant/30">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 pt-6 border-t border-outline-variant/30">
                 <div>
                   <p className="text-label-md text-on-surface-variant uppercase mb-1">Correo Electrónico</p>
                   <p className="text-body-lg font-semibold text-on-surface">{c.email_1 ?? '—'}</p>
@@ -114,7 +114,7 @@ function Contenido({ contacto: c }: { contacto: ContactoDetalle }) {
                   </div>
                 )}
                 {c.notas && (
-                  <div className="col-span-2">
+                  <div className="col-span-1 md:col-span-2">
                     <p className="text-label-md text-on-surface-variant uppercase mb-1">Notas</p>
                     <p className="text-body-lg font-semibold text-on-surface">{c.notas}</p>
                   </div>

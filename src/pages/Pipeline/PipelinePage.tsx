@@ -54,15 +54,15 @@ export function PipelinePage() {
   }, [lista, mostrarCerradas])
 
   return (
-    <section className="flex-1 overflow-hidden flex flex-col p-8 h-full">
-      <div className="flex items-center justify-between mb-8">
+    <section className="flex-1 overflow-hidden flex flex-col p-4 md:p-8 h-full">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="font-headline-md text-headline-md text-on-surface">Pipeline de Ventas</h1>
           <p className="text-on-surface-variant font-body-md">
             Visualiza y gestiona el flujo de tus oportunidades comerciales
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <div className="flex bg-white border border-outline-variant rounded-pill p-1">
             <button
               className={`flex items-center gap-2 px-4 py-2 rounded-pill font-medium text-body-sm transition-all ${vista === 'kanban' ? 'bg-brand-primary text-white' : 'text-on-surface-variant hover:bg-surface'}`}

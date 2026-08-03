@@ -74,7 +74,7 @@ export function ActividadesPage() {
 
   return (
     <div className="proto-teal bg-surface min-h-full font-body-md text-body-md text-on-background">
-      <div className="p-8 max-w-container-max mx-auto w-full">
+      <div className="p-4 md:p-8 max-w-container-max mx-auto w-full">
         <div className="mb-8">
           <h1 className="font-headline-lg text-headline-lg text-on-surface">Gestión de Actividades</h1>
           <p className="text-text-muted">

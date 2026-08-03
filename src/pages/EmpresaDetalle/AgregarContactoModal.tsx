@@ -168,7 +168,7 @@ export function AgregarContactoModal({ idEmpresa, open, onClose }: Props) {
         </>
       ) : (
         <Form form={form} layout="vertical" requiredMark={false}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Form.Item name="nombres" label="Nombres" rules={[{ required: true, message: 'Requerido' }]}>
               <Input />
             </Form.Item>
@@ -179,7 +179,7 @@ export function AgregarContactoModal({ idEmpresa, open, onClose }: Props) {
           <Form.Item name="cargo" label="Cargo">
             <Input />
           </Form.Item>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Form.Item name="tlf_1" label="Teléfono">
               <Input />
             </Form.Item>

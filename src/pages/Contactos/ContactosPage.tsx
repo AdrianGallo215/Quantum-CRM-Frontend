@@ -25,6 +25,8 @@ export function ContactosPage() {
     {
       title: 'Contacto',
       key: 'contacto',
+      fixed: 'left',
+      width: 200,
       render: (_, c) => (
         <div>
           <div style={{ fontWeight: 600 }}>{nombreCompleto(c)}</div>
@@ -68,7 +70,7 @@ export function ContactosPage() {
         <Input.Search
           placeholder="Buscar por nombre o teléfono"
           allowClear
-          style={{ width: 300 }}
+          style={{ width: '100%', maxWidth: 420 }}
           onSearch={cambiarBusqueda}
           onChange={(e) => {
             if (e.target.value === '') cambiarBusqueda('')
@@ -87,6 +89,7 @@ export function ContactosPage() {
             dataSource={contactos.data?.data ?? []}
             columns={columnas}
             size="middle"
+            scroll={{ x: 'max-content' }}
             onRow={(c) => ({
               onClick: () => navigate(`/contactos/${c.id}`),
               style: { cursor: 'pointer' },

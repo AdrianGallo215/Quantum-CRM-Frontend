@@ -149,7 +149,7 @@ function EditarTerminosModal({
             options={(financiadoras.data ?? []).map((fi) => ({ value: fi.id, label: fi.nombre }))}
           />
         </Form.Item>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Form.Item name="cantidad" label="Cantidad" rules={[{ required: true, message: 'Requerido' }]}>
             <InputNumber style={{ width: '100%' }} min={1} precision={0} />
           </Form.Item>
@@ -184,7 +184,7 @@ function EditarTerminosModal({
             {formatoMonto(montoEnVivo)}
           </span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Form.Item name="garantia" label="Garantía" valuePropName="checked">
             <Switch />
           </Form.Item>
@@ -230,7 +230,7 @@ function FichaBusModal({
         <p className="text-on-surface-variant">Cargando datos del bus…</p>
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <span className="font-label-md text-label-md text-on-surface-variant block mb-1">Longitud</span>
               <span className="font-bold text-body-lg">{modelo.longitud ?? '—'}</span>

@@ -73,6 +73,8 @@ export function CarteraPage() {
     {
       title: 'Empresa',
       key: 'empresa',
+      fixed: 'left',
+      width: 220,
       render: (_, e) => (
         <div>
           <div style={{ fontWeight: 600 }}>{e.razon_social}</div>
@@ -180,11 +182,11 @@ export function CarteraPage() {
           </Typography.Title>
           <span style={{ color: '#444750' }}>Empresas de tu cartera por estado</span>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', width: '100%', maxWidth: 420 }}>
           <Input.Search
             placeholder="Buscar por razón social o RUC"
             allowClear
-            style={{ width: 300 }}
+            style={{ flex: 1, minWidth: 200 }}
             defaultValue={busqueda}
             key={busqueda}
             onSearch={cambiarBusqueda}
@@ -219,6 +221,7 @@ export function CarteraPage() {
             dataSource={empresas.data?.data ?? []}
             columns={esTabMaestra ? columnasMaestra : esAdmin ? [...columnas, columnaEliminar] : columnas}
             size="middle"
+            scroll={{ x: 'max-content' }}
             onRow={(e) => ({
               onClick: () => navigate(`/empresas/${e.id}`),
               style: { cursor: 'pointer' },

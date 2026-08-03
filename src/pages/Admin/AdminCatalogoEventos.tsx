@@ -129,7 +129,14 @@ export function AdminCatalogoEventos() {
           Nuevo evento
         </Button>
       </div>
-      <Table rowKey="id" dataSource={catalogo.data ?? []} columns={columnas} pagination={false} size="middle" />
+      <Table
+        rowKey="id"
+        dataSource={catalogo.data ?? []}
+        columns={columnas}
+        pagination={false}
+        size="middle"
+        scroll={{ x: 'max-content' }}
+      />
 
       <Modal
         title={editando ? 'Editar evento del catálogo' : 'Nuevo evento del catálogo'}

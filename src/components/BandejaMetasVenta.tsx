@@ -156,6 +156,7 @@ export function BandejaMetasVenta() {
         loading={metas.isLoading}
         dataSource={metas.data?.data ?? []}
         columns={tab === 'pendientes' ? columnasPendientes : columnasHistorial}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: pagina,
           total: metas.data?.meta?.total ?? 0,

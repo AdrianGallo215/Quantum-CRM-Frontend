@@ -76,6 +76,7 @@ export function MisMetasEquipo() {
         loading={metas.isLoading}
         dataSource={metas.data?.data ?? []}
         columns={columnas}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: pagina,
           total: metas.data?.meta?.total ?? 0,

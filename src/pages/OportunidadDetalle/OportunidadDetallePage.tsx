@@ -88,7 +88,7 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
 
   return (
     <div className="proto-oportunidad bg-background min-h-full">
-      <main className="max-w-7xl mx-auto px-margin-page py-10 flex flex-col gap-8">
+      <main className="max-w-7xl mx-auto px-4 md:px-margin-page py-6 md:py-10 flex flex-col gap-8">
         {/* Breadcrumbs & Title */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md uppercase tracking-widest">
@@ -98,8 +98,8 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
             <span className="material-symbols-outlined text-[16px]">chevron_right</span>
             <span>Oportunidad #{o.id}</span>
           </div>
-          <div className="flex justify-between items-end">
-            <h1 className="font-headline text-headline-lg text-primary">
+          <div className="flex flex-wrap justify-between items-end gap-3">
+            <h1 className="font-headline text-headline-lg-mobile md:text-headline-lg text-primary">
               {o.modelo.codigo} × {o.cantidad} — {o.empresa.razon_social}
             </h1>
             <div className="flex gap-2">
@@ -123,8 +123,8 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
         )}
 
         {/* Stepper (prototipo) — clic en un paso cambia el estado */}
-        <section className="bg-white p-8 rounded border border-outline-variant custom-shadow">
-          <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto py-2">
+        <section className="bg-white p-4 md:p-8 rounded border border-outline-variant custom-shadow overflow-x-auto custom-scrollbar">
+          <div className="relative flex items-center justify-between w-full min-w-[520px] max-w-3xl mx-auto py-2">
             <div className="absolute top-5 left-0 w-full h-[1px] bg-outline-variant -translate-y-1/2 z-0"></div>
             {ETAPAS_PIPELINE.map((etapa, idx) => {
               const done = !estaCerrada && idx < indiceActual

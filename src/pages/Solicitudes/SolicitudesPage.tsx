@@ -148,6 +148,7 @@ export function SolicitudesPage() {
         loading={solicitudes.isLoading}
         dataSource={solicitudes.data?.data ?? []}
         columns={columnas}
+        scroll={{ x: 'max-content' }}
         pagination={{
           current: pagina,
           total: solicitudes.data?.meta?.total ?? 0,
@@ -211,7 +212,7 @@ export function SolicitudesPage() {
         <Select
           allowClear
           placeholder="Todos los estados"
-          style={{ width: 200 }}
+          style={{ width: '100%', maxWidth: 260 }}
           value={estadoFiltro}
           onChange={(v) => {
             setEstadoFiltro(v)

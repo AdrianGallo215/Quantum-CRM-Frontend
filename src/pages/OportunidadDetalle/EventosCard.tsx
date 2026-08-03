@@ -241,7 +241,7 @@ export function EventosCard({ oportunidad: o }: { oportunidad: OportunidadDetall
               <Input placeholder="Reunión con asesor legal del cliente" />
             </Form.Item>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Form.Item name="fecha_estimada" label="Fecha estimada">
               <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
             </Form.Item>

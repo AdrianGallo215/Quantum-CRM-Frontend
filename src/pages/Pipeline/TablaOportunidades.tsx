@@ -59,6 +59,8 @@ const DEFINICIONES: DefinicionColumna[] = [
     construir: () => ({
       title: 'Nombre de Oportunidad',
       key: 'nombre',
+      fixed: 'left',
+      width: 220,
       render: (_, o) => o.modelo.codigo,
       sorter: (a, b) => compararTexto(a.modelo.codigo, b.modelo.codigo),
     }),

@@ -71,7 +71,7 @@ export function EditarContactoModal({ contacto, open, onClose }: Props) {
       width={560}
     >
       <Form form={form} layout="vertical" requiredMark={false}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item name="nombres" label="Nombres" rules={[{ required: true, message: 'Requerido' }]}>
             <Input />
           </Form.Item>
@@ -79,7 +79,7 @@ export function EditarContactoModal({ contacto, open, onClose }: Props) {
             <Input />
           </Form.Item>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item name="email_1" label="Correo principal" rules={[{ type: 'email', message: 'Correo inválido' }]}>
             <Input />
           </Form.Item>
@@ -87,7 +87,7 @@ export function EditarContactoModal({ contacto, open, onClose }: Props) {
             <Input />
           </Form.Item>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Form.Item name="tlf_1" label="Teléfono principal">
             <Input />
           </Form.Item>
