@@ -7,6 +7,7 @@ import { AppRouter } from './router'
 import { useRestaurarSesion } from './hooks/useAuth'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { estadoHttpDeError } from './api/client'
+import { Analytics } from '@vercel/analytics/react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ export function App() {
             <BrowserRouter>
               <Bootstrap />
             </BrowserRouter>
+            <Analytics />
           </AntApp>
         </ConfigProvider>
       </QueryClientProvider>

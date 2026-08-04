@@ -1,4 +1,4 @@
-import type { EstadoCartera } from './enums'
+import type { EstadoCartera, OrigenLead } from './enums'
 import type { EmpleadoResumen } from './empleado'
 
 export interface ContactoEnEmpresa {
@@ -42,7 +42,7 @@ export interface Empresa {
   provincia: string | null
   departamento: string | null
   aval_fiador: string | null
-  origen_lead: string | null
+  origen_lead: OrigenLead | null
   estado_cartera: EstadoCartera
   file_drive: string | null
   /** ID de la carpeta de Drive de la empresa. null en registros previos a la migración Headless Storage. */
@@ -90,7 +90,7 @@ export interface CrearEmpresaInput {
   provincia?: string | null
   departamento?: string | null
   aval_fiador?: string | null
-  origen_lead?: string | null
+  origen_lead?: OrigenLead | null
   file_drive?: string | null
   sitio_web?: string | null
   notas?: string | null

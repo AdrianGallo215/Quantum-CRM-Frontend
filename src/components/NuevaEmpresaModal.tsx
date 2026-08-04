@@ -6,7 +6,7 @@ import { empresasApi } from '@/api/empresas'
 import { extraerApiError, mensajeDeError } from '@/api/client'
 import { useAuthStore, ROLES_SUPERVISION, tieneRol } from '@/store/authStore'
 import { ETIQUETA_ORIGEN_LEAD } from '@/utils/etiquetas'
-import type { Empresa } from '@/types'
+import type { Empresa, OrigenLead } from '@/types'
 
 const SEGMENTOS = ['urbano', 'interprovincial', 'turismo', 'personal', 'otro']
 
@@ -19,7 +19,7 @@ interface FormValues {
   distrito?: string
   provincia?: string
   departamento?: string
-  origen_lead?: string
+  origen_lead?: OrigenLead
   segmentos: string[]
   id_vendedor?: number
   notas?: string

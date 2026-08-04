@@ -20,7 +20,7 @@ export type EstadoAccion = 'pendiente' | 'completada' | 'cancelada'
 
 export type TipoAccion = 'llamada' | 'reunion' | 'visita' | 'email' | 'whatsapp' | 'otro'
 
-export type OrigenLead = 'cartera' | 'visita_fria' | 'referido' | 'web' | 'evento' | 'otro'
+export type OrigenLead = 'cartera' | 'visita_fria' | 'referido_calidda' | 'red_contactos' | 'otro'
 
 export type Segmento = 'urbano' | 'interprovincial' | 'turismo' | 'personal' | 'otro'
 

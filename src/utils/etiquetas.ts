@@ -5,6 +5,7 @@ import type {
   EstadoOportunidad,
   EstadoSolicitud,
   MesMeta,
+  OrigenLead,
   RolAprobador,
   TipoAccion,
   TipoSolicitud,
@@ -65,12 +66,11 @@ export const ETIQUETA_ROL_APROBADOR: Record<RolAprobador, string> = {
   gerencia: 'Gerencia',
 }
 
-export const ETIQUETA_ORIGEN_LEAD: Record<string, string> = {
+export const ETIQUETA_ORIGEN_LEAD: Record<OrigenLead, string> = {
   cartera: 'Cartera',
   visita_fria: 'Visita fría',
-  referido: 'Referido',
-  web: 'Web',
-  evento: 'Evento',
+  referido_calidda: 'Referido Calidda',
+  red_contactos: 'Red de contactos',
   otro: 'Otro',
 }
 
