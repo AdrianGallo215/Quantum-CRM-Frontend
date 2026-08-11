@@ -5,10 +5,8 @@ import { useVendedoresAsignables } from '@/hooks/useCatalogos'
 import { empresasApi } from '@/api/empresas'
 import { extraerApiError, mensajeDeError } from '@/api/client'
 import { useAuthStore, ROLES_SUPERVISION, tieneRol } from '@/store/authStore'
-import { ETIQUETA_ORIGEN_LEAD } from '@/utils/etiquetas'
-import type { Empresa, OrigenLead } from '@/types'
-
-const SEGMENTOS = ['urbano', 'interprovincial', 'turismo', 'personal', 'otro']
+import { ETIQUETA_ORIGEN_LEAD, ETIQUETA_SEGMENTO } from '@/utils/etiquetas'
+import { SEGMENTOS, type Empresa, type OrigenLead } from '@/types'
 
 interface FormValues {
   ruc: string
@@ -134,7 +132,10 @@ export function NuevaEmpresaModal({ open, onClose, onCreada }: Props) {
           label="Segmentos"
           rules={[{ required: true, message: 'Selecciona al menos un segmento' }]}
         >
-          <Select mode="multiple" options={SEGMENTOS.map((s) => ({ value: s, label: s }))} />
+          <Select
+            mode="multiple"
+            options={SEGMENTOS.map((s) => ({ value: s, label: ETIQUETA_SEGMENTO[s] }))}
+          />
         </Form.Item>
         <Form.Item name="actividad_econ" label="Actividad económica">
           <Input />

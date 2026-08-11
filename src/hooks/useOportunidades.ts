@@ -8,10 +8,16 @@ import type {
 } from '@/types'
 import { invalidar, qk } from './queryKeys'
 
-export function useOportunidades(filtros?: OportunidadesFiltros) {
+/**
+ * `enabled` sigue el patrón de `useTareas`/`useEmpleados`: permite montar el
+ * hook antes de saber por qué empresa se filtra, sin disparar mientras tanto una
+ * consulta de todas las oportunidades del CRM.
+ */
+export function useOportunidades(filtros?: OportunidadesFiltros, enabled = true) {
   return useQuery({
     queryKey: [...qk.oportunidades, filtros ?? {}],
     queryFn: () => oportunidadesApi.listar(filtros),
+    enabled,
   })
 }
 

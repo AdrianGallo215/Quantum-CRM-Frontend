@@ -7,6 +7,7 @@ import type {
   MesMeta,
   OrigenLead,
   RolAprobador,
+  Segmento,
   TipoAccion,
   TipoSolicitud,
 } from '@/types'
@@ -71,6 +72,19 @@ export const ETIQUETA_ORIGEN_LEAD: Record<OrigenLead, string> = {
   visita_fria: 'Visita fría',
   referido_calidda: 'Referido Calidda',
   red_contactos: 'Red de contactos',
+  otro: 'Otro',
+}
+
+/**
+ * `Record<Segmento, string>` a propósito: si mañana se añade un valor al enum
+ * `Segmento`, TypeScript falla aquí hasta que se le dé etiqueta. Es la red que
+ * el array `SEGMENTOS` no puede dar.
+ */
+export const ETIQUETA_SEGMENTO: Record<Segmento, string> = {
+  urbano: 'Urbano',
+  interprovincial: 'Interprovincial',
+  turismo: 'Turismo',
+  personal: 'Personal',
   otro: 'Otro',
 }
 

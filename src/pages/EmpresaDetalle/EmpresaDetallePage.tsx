@@ -30,12 +30,13 @@ import {
 } from '@/store/authStore'
 import {
   ESTADOS_CARTERA_MANUALES,
+  SEGMENTOS,
   type Empresa,
   type EstadoCartera,
   type Evento,
   type Tarea,
 } from '@/types'
-import { ETIQUETA_CARTERA, etiquetaEtapa } from '@/utils/etiquetas'
+import { ETIQUETA_CARTERA, ETIQUETA_SEGMENTO, etiquetaEtapa } from '@/utils/etiquetas'
 import { formatoFecha, formatoMonto, iniciales, nombreCompleto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NeutralTag } from '@/components/EstadoTag'
@@ -45,11 +46,10 @@ import { EventoDetalleModal } from '@/components/EventoDetalleModal'
 import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudModal'
 import { EliminarEmpresaModal } from '@/components/EliminarEmpresaModal'
 import { DocumentosDrive } from '@/components/DocumentosDrive'
+import { CrearTareaModal } from '@/components/CrearTareaModal'
 import { LiberarEmpresaModal } from '../Cartera/LiberarEmpresaModal'
 import { AgregarContactoModal } from './AgregarContactoModal'
 import { CrearEventoEmpresaModal } from './CrearEventoEmpresaModal'
-
-const SEGMENTOS = ['urbano', 'interprovincial', 'turismo', 'personal', 'otro']
 
 export function EmpresaDetallePage() {
   const { id } = useParams()
@@ -75,6 +75,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
   const [modalContacto, setModalContacto] = useState(false)
   const [modalOportunidad, setModalOportunidad] = useState(false)
   const [modalEvento, setModalEvento] = useState(false)
+  const [modalTarea, setModalTarea] = useState(false)
   const [tabActividad, setTabActividad] = useState<'tareas' | 'eventos'>('tareas')
   const [solicitudReasignacion, setSolicitudReasignacion] = useState<SolicitudPendiente | null>(null)
   const [aLiberar, setALiberar] = useState<{ id: number; razon_social: string } | null>(null)
@@ -605,7 +606,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
               )}
               <button
                 className="w-full mt-6 py-2 text-brand-cyan font-bold border-t border-outline-variant/30 hover:bg-brand-cyan/5 transition-colors"
-                onClick={() => (tabActividad === 'eventos' ? setModalEvento(true) : navigate('/actividades'))}
+                onClick={() => (tabActividad === 'eventos' ? setModalEvento(true) : setModalTarea(true))}
               >
                 {tabActividad === 'eventos' ? 'Registrar evento' : 'Programar nueva actividad'}
               </button>
@@ -630,7 +631,10 @@ function Contenido({ empresa }: { empresa: Empresa }) {
             <Input />
           </Form.Item>
           <Form.Item name="segmentos" label="Segmentos" rules={[{ required: true, message: 'Requerido' }]}>
-            <Select mode="multiple" options={SEGMENTOS.map((s) => ({ value: s, label: s }))} />
+            <Select
+              mode="multiple"
+              options={SEGMENTOS.map((s) => ({ value: s, label: ETIQUETA_SEGMENTO[s] }))}
+            />
           </Form.Item>
           <Form.Item name="actividad_econ" label="Actividad económica">
             <Input />
@@ -675,6 +679,12 @@ function Contenido({ empresa }: { empresa: Empresa }) {
         idEmpresa={empresa.id}
         open={modalEvento}
         onClose={() => setModalEvento(false)}
+      />
+      <CrearTareaModal
+        open={modalTarea}
+        onClose={() => setModalTarea(false)}
+        empresaPreseleccionada={{ id: empresa.id, razon_social: empresa.razon_social }}
+        contactos={empresa.contactos}
       />
       <SolicitudModal
         solicitud={solicitudReasignacion}

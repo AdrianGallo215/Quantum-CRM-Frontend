@@ -1,76 +1,40 @@
 import { useState } from 'react'
-import { App, DatePicker, Form, Input, Modal, Popconfirm, Select } from 'antd'
-import dayjs, { type Dayjs } from 'dayjs'
+import { App, Popconfirm } from 'antd'
+import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import {
   useActualizarTarea,
   useCancelarTarea,
   useCompletarTarea,
-  useCrearTarea,
   useTareas,
 } from '@/hooks/useEventosTareas'
 import { useInicio } from '@/hooks/usePantallas'
-import { useEmpresas } from '@/hooks/useEmpresas'
 import { useEmpleadosSeleccionables } from '@/hooks/useCatalogos'
 import { mensajeDeError } from '@/api/client'
-import type { Tarea, TipoAccion } from '@/types'
+import type { Tarea } from '@/types'
 import { ETIQUETA_TIPO_ACCION } from '@/utils/etiquetas'
 import { iniciales, nombreCompleto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { TareaDetalleModal } from '@/components/TareaDetalleModal'
-import { EmpleadoMultiSelect, EmpleadoSelect } from '@/components/EmpleadoSelect'
-
-interface FormValues {
-  id_empresa: number
-  tipo_accion: TipoAccion
-  descripcion: string
-  fecha_ejecucion: Dayjs
-  id_asignado?: number
-  ids_colaboradores?: number[]
-}
+import { CrearTareaModal } from '@/components/CrearTareaModal'
 
 /** Pantalla de actividades según el prototipo gestión_de_actividades (paleta teal) */
 export function ActividadesPage() {
   const { message } = App.useApp()
   const navigate = useNavigate()
   const [modalNueva, setModalNueva] = useState(false)
-  const [busquedaEmpresa, setBusquedaEmpresa] = useState('')
   const [tareaSel, setTareaSel] = useState<Tarea | null>(null)
-  const [form] = Form.useForm<FormValues>()
 
   const empleados = useEmpleadosSeleccionables()
 
   const tareas = useTareas({ estado_accion: 'pendiente' })
   const inicio = useInicio()
-  const empresas = useEmpresas(
-    busquedaEmpresa.trim().length >= 2 ? { q: busquedaEmpresa } : undefined,
-  )
-  const crear = useCrearTarea()
   const completar = useCompletarTarea()
   const cancelar = useCancelarTarea()
   const actualizar = useActualizarTarea()
 
   const pendientes = tareas.data ?? []
   const eventos = inicio.data?.eventos_por_seguir ?? []
-
-  const onCrear = async () => {
-    const v = await form.validateFields()
-    try {
-      await crear.mutateAsync({
-        id_empresa: v.id_empresa,
-        id_asignado: v.id_asignado ?? null,
-        ids_colaboradores: v.ids_colaboradores ?? [],
-        tipo_accion: v.tipo_accion,
-        descripcion: v.descripcion,
-        fecha_ejecucion: v.fecha_ejecucion.toISOString(),
-      })
-      message.success('Tarea creada')
-      form.resetFields()
-      setModalNueva(false)
-    } catch (e) {
-      message.error(mensajeDeError(e, 'No se pudo crear la tarea'))
-    }
-  }
 
   return (
     <div className="proto-teal bg-surface min-h-full font-body-md text-body-md text-on-background">
@@ -315,47 +279,7 @@ export function ActividadesPage() {
         }
       />
 
-      <Modal
-        title="Nueva tarea"
-        open={modalNueva}
-        onCancel={() => setModalNueva(false)}
-        onOk={() => void onCrear()}
-        okText="Crear tarea"
-        cancelText="Cancelar"
-        confirmLoading={crear.isPending}
-        destroyOnHidden
-      >
-        <Form form={form} layout="vertical" requiredMark={false} initialValues={{ tipo_accion: 'llamada' }}>
-          <Form.Item name="id_empresa" label="Empresa" rules={[{ required: true, message: 'Requerido' }]}>
-            <Select
-              showSearch
-              filterOption={false}
-              onSearch={setBusquedaEmpresa}
-              placeholder="Busca por razón social o RUC"
-              options={(empresas.data?.data ?? []).map((e) => ({ value: e.id, label: e.razon_social }))}
-              loading={empresas.isFetching}
-              notFoundContent={
-                busquedaEmpresa.trim().length < 2 ? 'Escribe al menos 2 caracteres' : undefined
-              }
-            />
-          </Form.Item>
-          <Form.Item name="tipo_accion" label="Tipo de acción" rules={[{ required: true, message: 'Requerido' }]}>
-            <Select options={Object.entries(ETIQUETA_TIPO_ACCION).map(([value, label]) => ({ value, label }))} />
-          </Form.Item>
-          <Form.Item name="descripcion" label="Descripción" rules={[{ required: true, message: 'Requerido' }]}>
-            <Input.TextArea rows={2} />
-          </Form.Item>
-          <Form.Item name="fecha_ejecucion" label="Fecha y hora" rules={[{ required: true, message: 'Requerido' }]}>
-            <DatePicker style={{ width: '100%' }} showTime={{ format: 'HH:mm' }} format="DD/MM/YYYY HH:mm" />
-          </Form.Item>
-          <Form.Item name="id_asignado" label="Responsable">
-            <EmpleadoSelect empleados={empleados} allowClear placeholder="Te asignas a ti mismo si lo dejas vacío" />
-          </Form.Item>
-          <Form.Item name="ids_colaboradores" label="Colaboradores">
-            <EmpleadoMultiSelect empleados={empleados} placeholder="Sin colaboradores" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <CrearTareaModal open={modalNueva} onClose={() => setModalNueva(false)} />
     </div>
   )
 }

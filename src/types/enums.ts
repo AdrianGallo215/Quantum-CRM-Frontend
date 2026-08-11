@@ -38,3 +38,19 @@ export const ETAPAS_PIPELINE: EstadoOportunidad[] = [
   'documentos_legales',
   'facturado',
 ]
+
+/**
+ * Segmentos de negocio de una empresa, en el orden en que se muestran.
+ *
+ * Fuente única para todos los selects de segmento. Antes vivía duplicada como
+ * `string[]` en NuevaEmpresaModal y EmpresaDetallePage, sin ninguna relación de
+ * tipos con el enum `Segmento`: añadir un segmento al enum no rompía nada y las
+ * copias se quedaban atrás en silencio.
+ */
+export const SEGMENTOS: Segmento[] = [
+  'urbano',
+  'interprovincial',
+  'turismo',
+  'personal',
+  'otro',
+]
