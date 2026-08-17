@@ -31,7 +31,6 @@ export const ETIQUETA_CARTERA: Record<EstadoCartera, string> = {
 export const ETIQUETA_TIPO_ACCION: Record<TipoAccion, string> = {
   llamada: 'Llamada',
   reunion: 'Reunión',
-  visita: 'Visita',
   email: 'Email',
   whatsapp: 'WhatsApp',
   otro: 'Otro',
