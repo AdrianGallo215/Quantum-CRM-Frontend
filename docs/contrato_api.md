@@ -28,7 +28,8 @@
 20. [Solicitudes](#20-solicitudes)
 21. [Metas de venta](#21-metas-de-venta)
 22. [Mantenimiento](#22-mantenimiento)
-23. [Notas operativas del frontend (no cubiertas arriba)](#23-notas-operativas-del-frontend-no-cubiertas-arriba)
+23. [Enums](#23-enums)
+24. [Notas operativas del frontend (no cubiertas arriba)](#24-notas-operativas-del-frontend-no-cubiertas-arriba)
 
 ---
 
@@ -112,7 +113,7 @@ En caso de error, `data` es `null` y `error` contiene:
 | `FINANCIADORA_DEFAULT_INEXISTENTE` | 500 | No hay financiadora con `es_default = true` |
 | `ESTADO_INVALIDO` | 400 | Transición de estado no permitida |
 | `PERMISO_INSUFICIENTE` | 403 | El rol no tiene acceso a esta operación |
-| `CAMBIO_CONTRASENA_REQUERIDO` | 403 | El empleado tiene `requiere_cambio_contrasena = true`. **Bloquea toda la API** salvo `/auth/cambiar-contrasena`, `/auth/logout` y `/empleados/me`. El frontend lo intercepta y redirige al formulario (ver `src/api/client.ts`) |
+| `CAMBIO_CONTRASENA_REQUERIDO` | 403 | La cuenta arrastra el cambio de contraseña inicial pendiente (ver abajo) |
 | `NO_ENCONTRADO` | 404 | El recurso no existe |
 | `CONTACTO_VINCULADO` | 409 | No se puede eliminar un contacto vinculado a una empresa |
 | `MONTO_NO_EDITABLE` | 400 | Se intentó enviar `monto_total` en el body |
@@ -125,6 +126,20 @@ En caso de error, `data` es `null` y `error` contiene:
 | `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera `DRIVE_MAX_FILE_SIZE_BYTES` |
 | `DRIVE_NO_DISPONIBLE` | 502 | Google Drive no respondió |
 | `DRIVE_SIN_CUOTA` | 502 | `ROOT_DRIVE_FOLDER_ID` no apunta a una unidad compartida |
+
+### Cambio de contraseña obligatorio (`CAMBIO_CONTRASENA_REQUERIDO`)
+
+Todo empleado creado por un admin nace con `requiere_cambio_contrasena = true`. Mientras el flag siga en `true`, **el backend rechaza con `403 CAMBIO_CONTRASENA_REQUERIDO` cualquier request autenticada**, con estas únicas excepciones:
+
+| Endpoint | Por qué está exento |
+|---|---|
+| `POST /auth/cambiar-contrasena` | Es la única forma de apagar el flag |
+| `POST /auth/logout` | Cerrar sesión nunca debe poder fallar |
+| `GET /empleados/me` | El frontend lee el flag aquí para redirigir al restaurar la sesión |
+
+`POST /auth/login` y `POST /auth/refresh` son públicos y no se ven afectados: siguen funcionando y reemiten las cookies con el estado actualizado del flag.
+
+**No es solo UX del cliente:** aunque el frontend no redirija (por un bug, o porque el usuario recargó la página), la API queda cerrada hasta que se cambie la contraseña. El frontend debe igualmente redirigir al formulario de cambio en cuanto vea el flag en `true`, para que el usuario no se tope con 403 sueltos (implementado en `src/api/client.ts`).
 
 ---
 
@@ -193,7 +208,8 @@ Los tokens **nunca** viajan en el body ni se leen de un header `Authorization`: 
       "email": "aldo.martinez@quantum.pe",
       "rol": "jdv",
       "area": "Comercial",
-      "puesto": "Jefe de Ventas"
+      "puesto": "Jefe de Ventas",
+      "activo": true
     }
   }
 }
@@ -202,7 +218,7 @@ Los tokens **nunca** viajan en el body ni se leen de un header `Authorization`: 
 **Notas:**
 - Setea `access_token` (expira en 1 hora) y `refresh_token` (expira en 7 días) — ver §1.
 - Responde `401` si las credenciales son inválidas, sin indicar si el error es en email o contraseña.
-- Rate limiting por email: 5 intentos fallidos → `429` con cabecera `Retry-After` (segundos) y `error.code = "DEMASIADOS_INTENTOS"`. Confirmado con backend: `Access-Control-Expose-Headers: Retry-After` ya está desplegado — la cabecera es legible desde el frontend.
+- Rate limiting por email: 5 intentos fallidos → `429` con cabecera `Retry-After` (segundos) y `error.code = "DEMASIADOS_INTENTOS"`. Confirmado con backend: `Access-Control-Expose-Headers: Retry-After` ya está desplegado, así que la cabecera es legible desde el frontend aunque `crm.*` y `api.*` sean orígenes distintos.
 - `requiere_cambio_contrasena` vive en la **raíz** de `data`, nunca dentro de `empleado` — `EmpleadoDto` no tiene ese campo (confirmado con backend). `GET /empleados/me` (§7) **sí** lo devuelve por separado, así que el flujo sobrevive a una recarga de página.
 - Mientras el flag esté en `true`, el backend responde `403 CAMBIO_CONTRASENA_REQUERIDO` a **todos** los demás endpoints (§3). No es solo UX del cliente: es bloqueo de servidor.
 
@@ -304,11 +320,27 @@ Reemite ambas cookies.
 
 **Roles:** todos
 
-**Respuesta 200:** un objeto `empleado` como el de arriba.
+**Respuesta 200:** el objeto `empleado` de arriba **más** `requiere_cambio_contrasena`:
 
-**Incluye `requiere_cambio_contrasena`** (añadido por backend el 2026-08-17). Es uno de los tres endpoints que siguen respondiendo mientras ese flag esté activo, junto con `/auth/cambiar-contrasena` y `/auth/logout` — todos los demás devuelven `403 CAMBIO_CONTRASENA_REQUERIDO` (§3).
+```json
+{
+  "data": {
+    "id": 1,
+    "nombres": "Aldo",
+    "apellidos": "Martínez",
+    "email": "aldo.martinez@quantum.pe",
+    "rol": "jdv",
+    "area": "Comercial",
+    "puesto": "Jefe de Ventas",
+    "activo": true,
+    "requiere_cambio_contrasena": false
+  }
+}
+```
 
-El frontend lo lee en cada restauración de sesión (`useRestaurarSesion`), de modo que el guard vuelve a forzar la redirección tras una recarga de página.
+**Notas:**
+- `requiere_cambio_contrasena` aparece **solo aquí y en `/auth/login`**, nunca en `GET /empleados` (que lista a *otros* empleados): el estado de la contraseña de un colega no es asunto de quien lista.
+- Este endpoint está exento del bloqueo por cambio de contraseña pendiente (ver §3), justamente para que el frontend pueda leer el flag y redirigir al restaurar la sesión en cada carga de página (`useRestaurarSesion`).
 
 ---
 
@@ -2181,13 +2213,42 @@ Meta de unidades vendidas (no monto) por vendedor/jdv, mensual (12 meses) + anua
 
 ---
 
-## 23. Notas operativas del frontend (no cubiertas arriba)
+## 23. Enums
 
-> Esta sección **no forma parte del contrato oficial del backend**. Recoge aclaraciones puntuales que el equipo de frontend obtuvo directamente del equipo de backend (confirmadas 2026-07-31) sobre el flujo de archivos de Drive (§8, §10, §22), y que todavía no están escritas en el `contrato_api.md` que mantiene el backend. Se conservan aquí para no perder el conocimiento, pero **deben pedirse al equipo de backend para que las incorpore a su documento oficial** — no se deben tratar como fuente de verdad definitiva mientras no estén ahí.
+> Valores exactos que viajan en `campos` de tipo enum, en minúscula, tal cual los define PostgreSQL (migración V1 y siguientes) y los enums Kotlin del backend. Un valor fuera de esta lista responde `400 VALIDACION`. Verificado contra el schema real de producción (Supabase) el 2026-08-17 — sin deriva respecto a las migraciones locales (V1–V39).
+>
+> Si agregas o renombras un valor (migración nueva), actualiza esta tabla en el mismo commit.
 
-- **Creación de carpeta al subir sobre `drive_folder_id: null`:** subir un archivo (`POST .../archivos`) sobre un registro visible cuyo `drive_folder_id` es `null` crea la carpeta en ese momento y la persiste — no devuelve 404. El 404 solo ocurre si la entidad no existe o es ajena al usuario. Consecuencia para el cliente: tras esa primera subida, el detalle de la entidad debe refrescarse, porque `drive_folder_id` ya dejó de ser `null` en el servidor.
-- **Unidad del límite de tamaño:** el límite de archivo son **MiB**, `104_857_600` bytes exactos (100 × 1024 × 1024), no MB decimales. El framing del multipart (boundary, headers, CRLFs) no cuenta contra el límite: el backend mide el contenido ya desenmarcado, así que validar contra `file.size` en el cliente es exacto y no requiere reservar margen.
-- **Errores sin envelope:** no hay nginx propio en este proyecto; el deploy (Render/Railway) corre detrás del proxy de borde de la plataforma, que puede cortar una petición antes de que llegue a la API. En ese caso la respuesta **no trae el envelope** `{ data, meta, error }` y no existe `error.code`. El cliente nunca debe leer `error.code` a ciegas: si el body no parsea como el envelope esperado, cae al mensaje genérico. Excepción razonada: un **413 sin envelope** se trata igual que `ARCHIVO_DEMASIADO_GRANDE`, porque ese status solo puede significar eso.
+| Enum | Usado en | Valores |
+|---|---|---|
+| `rol_empleado` | `Empleado.rol` | `admin`, `gerencia`, `jdv`, `vendedor`, `analista`, `otro` |
+| `estado_cartera_enum` | `Empresa.estado_cartera` | `no_contactado`, `no_aplica`, `no_interesado`, `prospeccion`, `oportunidad_activa`, `cliente` |
+| `segmento_enum` | `Empresa.segmento` (`empresa_segmentos`) | `urbano`, `personal`, `turismo`, `interprovincial`, `otro` |
+| `origen_lead_enum` | `Empresa.origen_lead` | `cartera`, `visita_fria`, `referido_calidda`, `red_contactos`, `otro` |
+| `estado_op_enum` | `Oportunidad.estado` | `evaluacion_calidda`, `documentos_legales`, `facturado`, `cerrado` |
+| `aplicacion_enum` | `Modelo.aplicaciones` (`modelo_aplicaciones`) | `urbano`, `interprovincial`, `turismo`, `personal` |
+| `estado_evento_enum` | `Evento.estado` | `pendiente`, `ocurrido`, `descartado` |
+| `tipo_accion_enum` | `Tarea.tipo_accion` | `llamada`, `correo`, `reunion`, `whatsapp`, `otro` |
+| `estado_accion_enum` | `Tarea.estado_accion` | `pendiente`, `completada`, `cancelada` |
+| `tipo_solicitud_enum` | `Solicitud.tipo_solicitud` | `descuento`, `reasignacion_cliente` |
+| `estado_solicitud_enum` | `Solicitud.estado` | `pendiente`, `aprobada`, `denegada` |
+| `aprobador_solicitud_enum` | `Solicitud.aprobador_rol` | `jdv`, `gerencia` |
+| `entidad_solicitud_enum` | `Solicitud.entidad_tipo` | `oportunidad`, `empresa` |
+| `estado_meta_enum` | `MetaVenta.estado` | `propuesta`, `aprobada`, `rechazada` |
+| `tipo_notificacion_enum` | `Notificacion.tipo` | `oportunidad_cambio_estado`, `empresa_convertida`, `evento_creado`, `tarea_creada`, `tarea_colaborador_agregado`, `empresa_asignada`, `oportunidad_traspasada`, `tarea_recordatorio`, `evento_recordatorio`, `solicitud_creada`, `solicitud_aprobada`, `solicitud_denegada`, `meta_propuesta`, `meta_aprobada`, `meta_rechazada`, `meta_modificada` |
+| `entidad_notificacion_enum` | `Notificacion.entidad_tipo` | `oportunidad`, `empresa`, `solicitud`, `meta_venta` |
+
+**No expuestos por la API** (uso interno, dedup del job de recordatorios — no aparecen en ningún request/response): `origen_recordatorio_enum` (`tarea`, `evento`), `umbral_recordatorio_enum` (`proximo`, `vencido`).
+
+---
+
+## 24. Notas operativas — Drive
+
+> Aclaraciones sobre el flujo de archivos de Drive (§8 Empresas, §10 Oportunidades, §22 Mantenimiento) que no se desprenden de la firma de los endpoints. El equipo de frontend las traía documentadas por separado, confirmadas de palabra con backend el 2026-07-31; quedan incorporadas aquí, en el contrato oficial, el 2026-08-17 tras verificarlas contra el código actual (`EmpresaDriveController.kt`, `OportunidadDriveController.kt`, `DriveMultipartUploader.kt`, `DriveProperties.kt`, `GlobalExceptionHandler.kt`).
+
+- **Creación de carpeta al subir sobre `drive_folder_id: null`:** `POST /empresas/:id/archivos` y `POST /oportunidades/:id/archivos` llaman primero a `asegurarCarpetaDrive`, que crea la carpeta en ese momento si `drive_folder_id` es `null` y la persiste antes de subir el archivo — no devuelve 404. El 404 solo ocurre si la entidad no existe o es ajena al usuario (chequeo de visibilidad corre antes de tocar Drive, por diseño de IDOR). Consecuencia para el cliente: tras esa primera subida, el detalle de la entidad debe refrescarse, porque `drive_folder_id` ya dejó de ser `null` en el servidor.
+- **Unidad del límite de tamaño:** el límite de archivo es `app.drive.max-file-size-bytes`, por defecto **`104_857_600` bytes exactos** (100 × 1024 × 1024 = MiB, no MB decimales — ver `DriveProperties.DEFAULT_MAX_FILE_SIZE_BYTES`). El límite se aplica sobre el stream ya desenmarcado del multipart (`StreamAcotado` envuelve `parte.inputStream`, después de que `commons-fileupload2` separa boundary/headers/CRLFs): el framing nunca cuenta contra el tope. Validar contra `file.size` en el cliente es exacto y no requiere reservar margen.
+- **Errores sin envelope:** el deploy (Render/Railway, ver `DEVOPS-backend.md` §6.1) no tiene nginx propio — corre detrás del proxy de borde de la plataforma, que puede cortar una petición antes de que llegue a la API Spring. En ese caso la respuesta **no trae el envelope** `{ data, meta, error }` ni `error.code`. El cliente nunca debe leer `error.code` a ciegas: si el body no parsea como el envelope esperado, cae al mensaje genérico. Cuando la petición sí llega a la API, un 413 por archivo grande **siempre** trae el envelope con `code: "ARCHIVO_DEMASIADO_GRANDE"` (`GlobalExceptionHandler.handleUploadTooLarge`). Excepción razonada para el cliente: un 413 sin envelope se puede tratar igual que `ARCHIVO_DEMASIADO_GRANDE`, porque ese status solo puede significar eso.
 
 ---
 
