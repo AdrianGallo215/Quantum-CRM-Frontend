@@ -17,6 +17,7 @@ import {
   formatoFecha,
   formatoFechaHora,
 } from '@/utils/formato'
+import { urlSegura } from '@/utils/url'
 
 const CLAVE_SESION_COLUMNAS = 'quantum_pipeline_tabla_columnas'
 
@@ -231,8 +232,13 @@ const DEFINICIONES: DefinicionColumna[] = [
       title: 'Ficha de Venta',
       dataIndex: 'ficha_venta',
       render: (v: string | null) =>
-        v ? (
-          <a href={v} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+        urlSegura(v) ? (
+          <a
+            href={urlSegura(v)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
             Abrir ficha
           </a>
         ) : (

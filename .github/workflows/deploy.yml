@@ -1,3 +1,11 @@
+# ⚠️ ESTE NO ES EL DESPLIEGUE VIGENTE (auditoría 2026-08-13).
+# Producción se sirve desde **Vercel**, y las cabeceras de seguridad reales
+# (CSP, HSTS, X-Frame-Options…) las emite `vercel.json` — verificado en vivo
+# contra https://crm.quantuminvest.com.pe. La imagen Docker + nginx de este
+# workflow se mantiene como plan de contingencia, pero NO sirve tráfico.
+# Si cambias la CSP, hazlo en `vercel.json` PRIMERO; `nginx.conf.template` es
+# una copia que hay que mantener sincronizada a mano.
+#
 # Despliegue automático: en cada push a `main` se construye la imagen Docker y
 # se publica en GitHub Container Registry (ghcr.io), etiquetada con el SHA del
 # commit y con `latest`.
@@ -45,12 +53,24 @@ jobs:
       - name: Comprobación de tipos
         run: npm run type-check
 
-      - name: Auditoría de dependencias
-        # No bloquea el despliegue: muchas alertas vienen de dependencias de
-        # desarrollo que nunca llegan al bundle. Queda registrada en el log para
-        # revisarla. Cambia a `--audit-level=high` sin `|| true` para convertirlo
-        # en un gate real cuando el equipo pueda atender los hallazgos.
+      # GATE REAL sobre lo que llega al navegador del usuario.
+      # `--omit=dev` es deliberado: las vulnerabilidades de Vite, esbuild o
+      # PostCSS afectan a la máquina del desarrollador, no al bundle desplegado.
+      # Un gate que falla por ellas acaba desactivado, y entonces no protege nada.
+      - name: Auditoría de dependencias de producción (BLOQUEANTE)
+        run: npm audit --audit-level=high --omit=dev
+
+      # Informativo: incluye devDependencies. No bloquea, pero deja el estado en
+      # el log para que las vulnerabilidades de tooling no pasen inadvertidas.
+      - name: Auditoría completa incl. desarrollo (informativo)
         run: npm audit --audit-level=high || true
+
+      # El build es el último gate de DEVOPS-frontend.md §4: detecta fallos de
+      # empaquetado que `tsc --noEmit` no ve.
+      - name: Build de producción
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://api.quantuminvest.com.pe/api/v1
 
   publicar:
     name: Construir y publicar imagen

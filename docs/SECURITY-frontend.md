@@ -17,7 +17,18 @@
 
 ### 2.1 Cookie httpOnly — el token nunca toca JavaScript
 
-- El backend setea el JWT en una cookie `httpOnly`. **El frontend nunca lee, guarda ni manipula el token.** No hay código que acceda a `document.cookie` para el token.
+- El backend setea el JWT en dos cookies `httpOnly`. **El frontend nunca lee, guarda ni manipula el token.** No hay código que acceda a `document.cookie` para el token.
+
+Atributos reales, confirmados por el equipo de backend y verificados en producción el 2026-08-13:
+
+```
+Set-Cookie: access_token=<jwt>;  HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600
+Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800
+```
+
+**Por qué `SameSite=Strict` no rompe la aplicación** (y por qué nadie debe "arreglarlo" a `Lax`): el frontend vive en `crm.quantuminvest.com.pe` y la API en `api.quantuminvest.com.pe`. Comparten dominio registrable, así que las peticiones XHR de la SPA son *same-site* y el navegador adjunta la cookie con normalidad. El problema clásico de `Strict` —llegar desde un enlace externo sin cookie— no aplica: lo primero que se carga es el HTML estático, que no necesita sesión; las llamadas a la API que vienen después ya salen de una página del propio sitio.
+
+`SameSite=Strict` **es** la mitigación de CSRF. No hay token CSRF y no hace falta implementarlo en el cliente.
 - **Prohibido `localStorage` y `sessionStorage` para el token o cualquier dato de sesión sensible.** Son accesibles por JavaScript y vulnerables a XSS. Esta es una regla dura.
 - El cliente Axios se configura con `withCredentials: true` para que el navegador envíe la cookie automáticamente en cada request. El frontend no agrega el token manualmente a los headers.
 
@@ -92,7 +103,9 @@ function RutaAdmin({ children }: { children: ReactNode }) {
 ## 6. Comunicación segura
 
 - **HTTPS obligatorio en producción.** El frontend solo se comunica con el backend sobre HTTPS. `VITE_API_BASE_URL` apunta a un endpoint HTTPS en producción.
-- No hacer requests a orígenes no confiables. Todo el tráfico va al backend de Quantum.
+- No hacer requests a orígenes no confiables. Todo el tráfico va al backend de Quantum, **con una excepción registrada**: Vercel Analytics (`<Analytics />` en `App.tsx`) envía la ruta visitada a Vercel. Se carga desde `/_vercel/insights/script.js` (mismo origen), por lo que la CSP lo permite.
+
+  Implicación a tener presente: las rutas del CRM incluyen identificadores de negocio (`/empresas/123`, `/oportunidades/45`), así que qué empresas y oportunidades se consultan sale hacia un procesador externo. Es una decisión de tratamiento de datos, no un fallo técnico. Si deja de aceptarse, se retira el componente de `App.tsx`.
 - No incluir datos sensibles en URLs (query params), que quedan en logs e historial del navegador. Los datos sensibles van en el body de POST/PATCH.
 
 ---
@@ -136,11 +149,16 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ```typescript
 function logout() {
-  await authApi.logout()        // el backend invalida la sesión
-  queryClient.clear()           // limpiar datos en memoria
-  redirectToLogin()
+  queryClient.clear()           // limpiar datos en memoria del usuario anterior
+  limpiarEstadoLocal()
+  redirectToLogin()             // la UI responde al instante
+  authApi.logout().catch(avisar) // el backend revoca el refresh token y borra las cookies
 }
 ```
+
+`POST /auth/logout` responde `204` siempre (con sesión o sin ella) y limpia ambas cookies con `Max-Age=0`. Como no puede fallar por autorización, **un error solo puede ser de red — y hay que decírselo al usuario**: si la petición no llegó, las cookies siguen vivas y la sesión no está realmente cerrada. Tragarse ese error en silencio fue el hallazgo crítico de la auditoría del 2026-08-13.
+
+Límite conocido y aceptado: un `access_token` ya emitido sigue siendo válido hasta expirar (máx. 1 hora). En el navegador que cerró sesión la cookie se borra, así que esto solo afecta a un token exfiltrado antes del cierre.
 
 ---
 

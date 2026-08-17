@@ -17,7 +17,10 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const location = useLocation()
 
   if (cargando) return <Cargando mensaje="Verificando sesión…" />
-  if (!empleado) return <Navigate to="/login" state={{ from: location }} replace />
+  // Sin `state={{ from }}`: nadie lo leía — tras el login siempre se va a "/".
+  // Si algún día se implementa el retorno a la ruta original, hay que validar
+  // que sea una ruta interna antes de navegar; si no, es un open redirect.
+  if (!empleado) return <Navigate to="/login" replace />
   if (empleado.requiere_cambio_contrasena && location.pathname !== '/cambiar-contrasena') {
     return <Navigate to="/cambiar-contrasena" replace />
   }

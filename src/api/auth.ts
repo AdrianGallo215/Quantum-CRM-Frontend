@@ -13,25 +13,20 @@ export const authApi = {
   },
 
   /**
-   * Cierra la sesión en el servidor para que invalide el refresh_token y borre
-   * las cookies httpOnly.
+   * Cierra la sesión en el servidor: revoca el refresh token e invalida ambas
+   * cookies httpOnly (contrato §6, `POST /auth/logout`).
    *
-   * ⚠️ IMPORTANTE: sin esta llamada, "cerrar sesión" solo limpiaba el estado
-   * del cliente y la cookie seguía viva — bastaba recargar para volver a entrar
-   * (GET /empleados/me responde con la cookie intacta). En PCs compartidas eso
-   * es una sesión que no se cierra nunca.
+   * El endpoint es idempotente y responde `204` con o sin sesión válida — nunca
+   * 401. Eso hace que un fallo aquí solo pueda ser de red, y que importe: si la
+   * petición no llega, las cookies siguen vivas en el navegador y el usuario
+   * cree haber cerrado sesión sin haberlo hecho. En una PC compartida eso es
+   * exactamente el problema que este endpoint vino a resolver.
    *
-   * El endpoint aún no figura en contrato_api.md §6: si el backend responde 404
-   * tragamos el error para no bloquear el cierre local, pero la cookie seguirá
-   * viva hasta expirar. Solicitado al equipo de backend — al publicarse, esta
-   * función ya queda conectada sin más cambios.
+   * Por eso el error se propaga en vez de tragarse: el llamador decide qué
+   * decirle al usuario.
    */
   logout: async (): Promise<void> => {
-    try {
-      await post('/auth/logout', {})
-    } catch {
-      // El cierre local se hace igual: nunca dejar al usuario "dentro".
-    }
+    await post('/auth/logout')
   },
 
   me: async (): Promise<Empleado> => {

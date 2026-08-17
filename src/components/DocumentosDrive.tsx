@@ -10,6 +10,7 @@ import {
   type ErrorSubida,
 } from '@/utils/archivos'
 import { formatoTamanoArchivo } from '@/utils/formato'
+import { urlSegura } from '@/utils/url'
 import { Icono } from '@/components/Icono'
 import { ErrorCarga } from '@/components/Estados'
 import type { TipoEntidadArchivo } from '@/types'
@@ -165,17 +166,17 @@ export function DocumentosDrive({ tipo, id, driveFolderId, nombreFile }: Documen
                 />
                 <div className="min-w-0 flex-1">
                   <Tooltip title={a.nombre}>
-                    {a.url ? (
+                    {urlSegura(a.url) ? (
                       <a
                         className="block truncate text-body-md font-semibold text-primary hover:underline"
-                        href={a.url}
+                        href={urlSegura(a.url)}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                       >
                         {a.nombre}
                       </a>
                     ) : (
-                      // url null → el nombre no debe ser clicable
+                      // url ausente o con esquema no confiable → no clicable
                       <span className="block truncate text-body-md font-semibold text-on-surface">
                         {a.nombre}
                       </span>

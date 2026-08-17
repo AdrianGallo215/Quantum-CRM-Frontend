@@ -15,9 +15,16 @@ export interface Empleado extends EmpleadoResumen {
   requiere_cambio_contrasena?: boolean
 }
 
+/**
+ * Respuesta de `POST /auth/login` (contrato §6).
+ *
+ * Los tokens NO viajan aquí: van en las cookies httpOnly `access_token` y
+ * `refresh_token` que setea el backend (contrato §1). Este tipo declaró
+ * `access_token`/`refresh_token` desde el MVP por un error del contrato
+ * original; el backend confirmó que nunca los devolvió en el body. Si vuelven
+ * a aparecer aquí, es un fallo de seguridad, no una mejora.
+ */
 export interface LoginResponse {
-  access_token: string
-  refresh_token: string
   expires_in: number
   empleado: Empleado
 }

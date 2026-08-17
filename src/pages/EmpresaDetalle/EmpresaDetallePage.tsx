@@ -21,6 +21,7 @@ import {
 } from '@/hooks/useEventosTareas'
 import { useEmpleadosSeleccionables, useVendedoresAsignables } from '@/hooks/useCatalogos'
 import { codigoDeError, extraerApiError, mensajeDeError } from '@/api/client'
+import { urlSegura } from '@/utils/url'
 import {
   useAuthStore,
   ROLES_ADMIN,
@@ -239,12 +240,12 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                 </div>
                 <div>
                   <p className="text-label-md text-on-surface-variant uppercase mb-1">Sitio Web</p>
-                  {empresa.sitio_web ? (
+                  {urlSegura(empresa.sitio_web) ? (
                     <a
                       className="text-body-lg font-semibold text-brand-cyan underline"
-                      href={empresa.sitio_web}
+                      href={urlSegura(empresa.sitio_web)}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                     >
                       {empresa.sitio_web}
                     </a>

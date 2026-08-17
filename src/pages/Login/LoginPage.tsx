@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Alert, Button, Input, Typography } from 'antd'
 import { authApi } from '@/api/auth'
-import { estadoHttpDeError, mensajeDeError } from '@/api/client'
+import { codigoDeError, estadoHttpDeError, mensajeDeError } from '@/api/client'
 import { useAuthStore } from '@/store/authStore'
 import { Cargando } from '@/components/Estados'
 
@@ -23,8 +23,13 @@ type LoginForm = z.infer<typeof schema>
  */
 function mensajeDeLogin(error: unknown): string {
   const status = estadoHttpDeError(error)
+  // El bloqueo por intentos va PRIMERO: el backend lo devuelve como 429, pero
+  // comprobar también el código de negocio cubre el caso de que un proxy de
+  // borde devuelva un 429 propio sin envelope.
+  if (codigoDeError(error) === 'DEMASIADOS_INTENTOS' || status === 429) {
+    return 'Demasiados intentos fallidos. Por seguridad tienes que esperar unos minutos antes de volver a probar'
+  }
   if (status === 401) return 'Email o contraseña incorrectos'
-  if (status === 429) return 'Demasiados intentos. Espera unos minutos antes de volver a probar'
   if (status !== null && status >= 500) {
     return 'El servidor no está disponible en este momento. Inténtalo de nuevo en unos minutos'
   }

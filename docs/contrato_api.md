@@ -26,6 +26,9 @@
 18. [Reportes](#18-reportes)
 19. [Notificaciones](#19-notificaciones)
 20. [Solicitudes](#20-solicitudes)
+21. [Metas de venta](#21-metas-de-venta)
+22. [Mantenimiento](#22-mantenimiento)
+23. [Notas operativas del frontend (no cubiertas arriba)](#23-notas-operativas-del-frontend-no-cubiertas-arriba)
 
 ---
 
@@ -34,14 +37,25 @@
 ```
 Base URL:      /api/v1
 Content-Type:  application/json
-Auth header:   Authorization: Bearer {jwt_token}
+Auth:          cookies httpOnly, ver abajo — NUNCA Authorization: Bearer
 Fechas:        ISO 8601 — "2026-06-19T14:30:00Z" para timestamps, "2026-06-19" para fechas
 Montos:        NUMERIC como string en JSON para evitar pérdida de precisión — "45000.00"
 Enums:         snake_case — "evaluacion_calidda", "no_contactado"
 IDs:           Long (número entero)
 ```
 
-Todo endpoint salvo `/auth/login` y `/auth/refresh` requiere token JWT válido.
+**Autenticación real (SECURITY-backend.md §2.1):** el JWT viaja en dos cookies `httpOnly`, nunca en el body ni en un header. El frontend no las lee ni las setea — el navegador las adjunta solo. `withCredentials: true` (o `credentials: 'include'`) es obligatorio en cada petición.
+
+```
+Set-Cookie: access_token=<jwt>;  HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600
+Set-Cookie: refresh_token=<jwt>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=604800
+```
+
+- `Secure` exige HTTPS (en local sobre HTTP se desactiva vía `COOKIE_SECURE=false`, nunca en un despliegue real).
+- `SameSite=Strict` es la mitigación de CSRF; no hay token CSRF adicional.
+- Ambas cookies se reemiten en cada `/auth/login`, `/auth/refresh` y `/auth/cambiar-contrasena` exitoso.
+
+Todo endpoint salvo `/auth/login`, `/auth/refresh` y `/auth/logout` requiere sesión válida (cookie `access_token`).
 
 ---
 
@@ -83,13 +97,16 @@ En caso de error, `data` es `null` y `error` contiene:
 }
 ```
 
+`error.field` va siempre en **snake_case**, igual que el resto del JSON (§1): un campo compuesto como `idContacto` sale como `id_contacto`, casando con el nombre que el frontend envió en el request. Un campo anidado con índice de array conserva el índice: `contactos[0].id_contacto`.
+
 ---
 
 ## 3. Códigos de error
 
 | Código | HTTP | Descripción |
 |---|---|---|
-| `RUC_DUPLICADO` | 409 | El RUC ya existe en el sistema |
+| `CREDENCIALES_INVALIDAS` | 401 | Login o `password_actual` de `/auth/cambiar-contrasena` no coincide |
+| `RUC_DUPLICADO` | 409 | El RUC ya existe en el sistema y pertenece a **otro** vendedor (mismo vendedor → `200 OK`, no es error; ver §8) |
 | `MOTIVO_CIERRE_REQUERIDO` | 400 | Se intentó cerrar una oportunidad sin motivo |
 | `MODELO_SIN_APLICACIONES` | 400 | Se intentó crear un modelo sin aplicaciones |
 | `FINANCIADORA_DEFAULT_INEXISTENTE` | 500 | No hay financiadora con `es_default = true` |
@@ -104,6 +121,9 @@ En caso de error, `data` es `null` y `error` contiene:
 | `SOLICITUD_YA_RESUELTA` | 409 | Otro aprobador ya resolvió la solicitud |
 | `SOLICITUD_NO_APLICABLE` | 409 | La entidad cambió y el efecto de la solicitud ya no aplica |
 | `CARTERA_MAESTRA_CON_OPORTUNIDADES` | 409 | No se puede reservar una empresa con oportunidades activas |
+| `ARCHIVO_DEMASIADO_GRANDE` | 413 | El archivo supera `DRIVE_MAX_FILE_SIZE_BYTES` |
+| `DRIVE_NO_DISPONIBLE` | 502 | Google Drive no respondió |
+| `DRIVE_SIN_CUOTA` | 502 | `ROOT_DRIVE_FOLDER_ID` no apunta a una unidad compartida |
 
 ---
 
@@ -146,8 +166,10 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 
 ## 6. Auth
 
+Los tokens **nunca** viajan en el body ni se leen de un header `Authorization`: van en las cookies `httpOnly` descritas en §1. Todas las respuestas de esta sección solo llevan lo que no está ya en la cookie.
+
 ### POST /auth/login
-> Autentica al usuario y devuelve un par de tokens.
+> Autentica al usuario y setea las cookies de sesión.
 
 **Body:**
 ```json
@@ -161,8 +183,6 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 ```json
 {
   "data": {
-    "access_token": "eyJ...",
-    "refresh_token": "eyJ...",
     "expires_in": 3600,
     "empleado": {
       "id": 1,
@@ -178,20 +198,72 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 ```
 
 **Notas:**
-- `access_token` expira en 1 hora. `refresh_token` expira en 7 días.
+- Setea `access_token` (expira en 1 hora) y `refresh_token` (expira en 7 días) — ver §1.
 - Responde `401` si las credenciales son inválidas, sin indicar si el error es en email o contraseña.
+- Rate limiting por email: 5 intentos fallidos → `429` con cabecera `Retry-After` (segundos) y `error.code = "DEMASIADOS_INTENTOS"`.
+  ⚠️ **Pendiente con backend:** `Retry-After` no está en `Access-Control-Expose-Headers`, así que el frontend no puede leerla desde otro origen.
 
 ---
 
 ### POST /auth/refresh
-> Renueva el access token usando el refresh token.
+> Renueva el access token. El refresh token se lee de su propia cookie — no del body.
+
+**Body:** ninguno (POST sin contenido).
+
+**Respuesta 200:**
+```json
+{ "data": { "expires_in": 3600 } }
+```
+
+Reemite ambas cookies.
+
+**Errores:**
+- `401 CREDENCIALES_INVALIDAS` — la cookie `refresh_token` falta, no es válida, expiró, es de tipo access, el empleado está inactivo, la sesión fue revocada (logout o cambio de contraseña), **o el empleado ya no existe** (una credencial muerta no es un recurso ausente: nunca `404`).
+
+---
+
+### POST /auth/logout
+> Cierra sesión: revoca el refresh token en servidor y limpia ambas cookies.
+
+**Body:** ninguno. No requiere sesión válida.
+
+**Respuesta:** `204 No Content`, sin body.
+
+**Notas:**
+- Idempotente y a prueba de fallos: responde `204` con o sin cookie de sesión, con cookie expirada, o sin sesión — nunca `401`.
+- Si la cookie `refresh_token` es válida, invalida esa sesión **en servidor** (no solo en el navegador): un refresh token copiado antes del logout deja de servir en el siguiente `/auth/refresh`.
+- Limpia `access_token` y `refresh_token` con `Max-Age=0`, con los mismos `Path`/`HttpOnly`/`Secure`/`SameSite` con que se emitieron.
+- Límite conocido: un `access_token` ya emitido sigue siendo válido hasta expirar (máx. 1 hora); no se revisa contra base de datos en cada request. En el navegador que hizo logout la cookie se borra, así que esto solo aplica a un token exfiltrado antes del cierre.
+
+---
+
+### POST /auth/cambiar-contrasena
+> Cambia la contraseña del usuario autenticado. Es el único endpoint de `/auth/**` que exige autenticación — todos los demás son públicos por definición.
+
+**Roles:** todos (usuario autenticado, sobre su propia cuenta)
 
 **Body:**
 ```json
-{ "refresh_token": "eyJ..." }
+{
+  "password_actual": "...",
+  "password_nueva": "..."
+}
 ```
 
-**Respuesta 200:** misma estructura que `/auth/login` pero sin `empleado`.
+`password_nueva`: 8–72 caracteres.
+
+**Respuesta 200:** sin datos (`{ "data": null }`). Reemite ambas cookies.
+
+**Errores:**
+
+| Código | HTTP | Motivo |
+|---|---|---|
+| `CREDENCIALES_INVALIDAS` | 401 | `password_actual` no coincide con la contraseña vigente |
+| `VALIDACION` | 400 | `password_nueva` es igual a `password_actual`, o no cumple la longitud 8–72 (`field: "password_nueva"`) |
+
+**Notas:**
+- Al completarse con éxito, `requiere_cambio_contrasena` pasa a `false`. El siguiente `/auth/login` ya lo refleja en el `empleado` devuelto.
+- Invalida el refresh token de cualquier otra sesión abierta con la cuenta (mismo mecanismo que `/auth/logout`); la sesión que hizo el cambio sigue viva porque el backend reemite sus cookies con la versión ya vigente.
 
 ---
 
@@ -289,7 +361,7 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 | Param | Tipo | Descripción |
 |---|---|---|
 | `q` | string | Búsqueda por razón social o RUC |
-| `estado_cartera` | enum | Filtrar por estado de cartera |
+| `estado_cartera` | enum | Filtrar por estado de cartera. Un valor fuera del enum responde `400 VALIDACION` (`field: "estado_cartera"`), no se ignora en silencio |
 | `id_vendedor` | long | Filtrar por vendedor (solo admin/gerencia/jdv) |
 | `segmento` | string | Filtrar por segmento |
 | `distrito` | string | Filtrar por distrito |
@@ -346,6 +418,7 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
     "origen_lead": "visita_fria",
     "estado_cartera": "oportunidad_activa",
     "file_drive": "https://drive.google.com/...",
+    "drive_folder_id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
     "sitio_web": null,
     "notas": null,
     "id_vendedor": 1,
@@ -424,11 +497,17 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 }
 ```
 
-**Respuesta 201:** el objeto empresa completo.
+**Respuesta 201** (RUC nuevo): el objeto empresa completo, recién creado.
+
+**Respuesta 200** (RUC ya existente y asignado al **mismo** vendedor que lo envía): el objeto empresa **existente**, sin crear una fila ni una carpeta de Drive nuevas. Ver `reglas_negocio.md §2.1`.
 
 **Notas:**
+- Se crea la carpeta de Google Drive de la empresa bajo la unidad compartida raíz, y su ID se devuelve en `drive_folder_id`. Si Drive no responde, la empresa **no se crea** (`502 DRIVE_NO_DISPONIBLE`). Esto solo aplica al camino de creación real (201); el camino de reutilización (200) no llama a Drive.
+- `drive_folder_id` es de **solo lectura**: lo administra el backend y nunca se acepta en el body. No confundir con `file_drive`, que es una URL suelta editable por el usuario.
 - `segmentos` se inserta en `empresa_segmentos` de forma atómica.
-- El backend valida el RUC antes de insertar. Si ya existe → `409 RUC_DUPLICADO`.
+- El backend valida el RUC antes de insertar. **`reglas_negocio.md §2.1` es la fuente de verdad de esta regla** — si en algún momento este contrato y esa sección dejan de coincidir, manda `reglas_negocio.md` y hay que actualizar este documento, no al revés:
+  - Si el RUC existe y pertenece a **otro** vendedor → `409 RUC_DUPLICADO` con mensaje: *"Esta empresa ya está registrada en el sistema y la gestiona otro vendedor. Coordina con tu jefe de ventas si necesitas acceder a ella."* No se expone a qué vendedor pertenece.
+  - Si el RUC existe y pertenece al **mismo** vendedor → `200 OK` con la empresa existente (ver arriba). No es un error.
 - `estado_cartera` siempre nace como `no_contactado`. No es aceptado como campo de entrada.
 
 ---
@@ -545,6 +624,65 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 - Notifica `empresa_asignada` al vendedor destino. A partir de este momento la empresa es visible para el `jdv` y el vendedor asignado.
 
 **Respuesta 200:** `{ "data": { "en_cartera_maestra": false, "id_vendedor": 8 } }`
+
+---
+
+### POST /empresas/:id/carpeta-drive
+> Crea la carpeta de Google Drive de la empresa. Idempotente.
+
+**Roles:** los mismos que ven la empresa (un vendedor solo las suyas).
+
+**Body:** vacío.
+
+**Respuesta 200:** `{ "data": { "drive_folder_id": "1AbCdEfGhIjKlMnOpQrStUvWxYz" } }`
+
+**Notas:**
+- Si la empresa ya tiene carpeta, la devuelve sin tocar Drive. El frontend puede llamarlo sin verificar antes.
+- El botón "Crear File del Cliente" debe **ocultarse** cuando `drive_folder_id` ya viene distinto de `null` en `GET /empresas/:id`.
+- Errores: `404 NO_ENCONTRADO` (ajena o inexistente) · `502 DRIVE_NO_DISPONIBLE` / `DRIVE_SIN_CUOTA`.
+
+---
+
+### GET /empresas/:id/archivos
+> Lista los documentos de la carpeta de Google Drive de la empresa.
+
+**Roles:** los mismos que ven la empresa (un vendedor solo ve las suyas).
+
+**Respuesta 200:**
+
+```json
+{
+  "data": [
+    {
+      "id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "nombre": "ficha-ruc.pdf",
+      "url": "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz/view",
+      "tamano_bytes": 284512,
+      "mime_type": "application/pdf"
+    }
+  ]
+}
+```
+
+**Notas:**
+- Orden alfabético por nombre. No incluye subcarpetas de oportunidades ni elementos en la papelera de Drive.
+- Si la empresa aún no tiene carpeta, devuelve `"data": []`. Esta llamada **nunca crea la carpeta**.
+- Errores: `404 NO_ENCONTRADO` (ajena o inexistente) · `502 DRIVE_NO_DISPONIBLE`.
+
+---
+
+### POST /empresas/:id/archivos
+> Sube un documento a la carpeta de Google Drive de la empresa.
+
+**Roles:** los mismos que ven la empresa (un vendedor solo sube a las suyas).
+
+**Request:** `multipart/form-data` con el archivo en el campo **`file`**. Otros campos se ignoran.
+
+El backend no almacena el archivo: lo transmite en streaming hacia Drive.
+
+**Respuesta 201:** igual forma que el listado, un solo objeto en `data` (ver `POST /oportunidades/:id/archivos`).
+
+**Errores:** los mismos que `POST /oportunidades/:id/archivos` — `400 VALIDACION` · `404 NO_ENCONTRADO` · `413 ARCHIVO_DEMASIADO_GRANDE` · `502 DRIVE_NO_DISPONIBLE` / `DRIVE_SIN_CUOTA`.
 
 ---
 
@@ -733,7 +871,7 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 
 | Param | Tipo | Descripción |
 |---|---|---|
-| `estado` | enum | Filtrar por etapa del pipeline |
+| `estado` | enum | Filtrar por etapa del pipeline. Un valor fuera del enum responde `400 VALIDACION` (`field: "estado"`), no se ignora en silencio |
 | `id_empresa` | long | Filtrar por empresa |
 | `id_vendedor` | long | Solo admin/gerente/jdv |
 | `id_financiadora` | long | Filtrar por financiadora |
@@ -761,6 +899,7 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
       "garantia": true,
       "finc_paralelo": false,
       "ficha_venta": null,
+      "drive_folder_id": "1XyZaBcDeFgHiJkLmNoPqRsTuV",
       "notas": null,
       "motivo_cierre": null,
       "fecha_cierre_estimado": "2026-07-10",
@@ -834,6 +973,91 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 - Si `dcto` supera el límite del rol (§5) → `422 APROBACION_REQUERIDA`: no se crea la oportunidad. Crear primero sin descuento (o dentro del límite) y solicitar el mayor después sobre la oportunidad ya creada.
 - Se inserta el primer registro en `oportunidad_estados_log`.
 - Se llama a `actualizarEstadoCartera` en la misma transacción.
+- Se crea la subcarpeta de Google Drive de la oportunidad dentro de la carpeta de su empresa, y su ID se devuelve en `drive_folder_id`. Si Drive no responde, la oportunidad **no se crea** (`502 DRIVE_NO_DISPONIBLE`).
+
+---
+
+### POST /oportunidades/:id/carpeta-drive
+> Crea la carpeta de Google Drive de la oportunidad, dentro de la de su empresa. Idempotente.
+
+**Roles:** los mismos que ven la oportunidad (un vendedor solo las suyas).
+
+**Body:** vacío.
+
+**Respuesta 200:** `{ "data": { "drive_folder_id": "1XyZaBcDeFgHiJkLmNoPqRsTuV" } }`
+
+**Notas:**
+- Si la empresa de esa oportunidad tampoco tiene carpeta, se crean **ambas**: primero la de la empresa, y la de la oportunidad dentro.
+- Si la oportunidad ya tiene carpeta, la devuelve sin tocar Drive.
+- El botón "Crear File de la Oportunidad" debe **ocultarse** cuando `drive_folder_id` ya viene distinto de `null` en `GET /oportunidades/:id`.
+- Errores: `404 NO_ENCONTRADO` (ajena o inexistente) · `502 DRIVE_NO_DISPONIBLE` / `DRIVE_SIN_CUOTA`.
+
+---
+
+### GET /oportunidades/:id/archivos
+> Lista los documentos de la carpeta de Google Drive de la oportunidad.
+
+**Roles:** los mismos que ven la oportunidad (un vendedor solo ve las suyas).
+
+**Respuesta 200:**
+
+```json
+{
+  "data": [
+    {
+      "id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+      "nombre": "contrato-firmado.pdf",
+      "url": "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz/view",
+      "tamano_bytes": 284512,
+      "mime_type": "application/pdf"
+    }
+  ]
+}
+```
+
+**Notas:**
+- Orden alfabético por nombre. No incluye subcarpetas ni elementos en la papelera de Drive.
+- Si la oportunidad aún no tiene carpeta (nunca se subió nada), devuelve `"data": []`. Esta llamada **nunca crea la carpeta** — a diferencia de `POST`, una lectura no tiene efectos secundarios.
+- Errores: `404 NO_ENCONTRADO` (ajena o inexistente) · `502 DRIVE_NO_DISPONIBLE`.
+
+---
+
+### POST /oportunidades/:id/archivos
+> Sube un documento a la carpeta de Google Drive de la oportunidad.
+
+**Roles:** los mismos que ven la oportunidad (un vendedor solo sube a las suyas).
+
+**Request:** `multipart/form-data` con el archivo en el campo **`file`**. Otros campos se ignoran.
+
+El backend no almacena el archivo: lo transmite en streaming hacia Drive. No hay límite práctico de tamaño por memoria del servidor, solo el tope configurado (`DRIVE_MAX_FILE_SIZE_BYTES`, 100 MB por defecto).
+
+**Respuesta 201:**
+
+```json
+{
+  "data": {
+    "id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+    "nombre": "contrato-firmado.pdf",
+    "url": "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz/view",
+    "tamano_bytes": 284512,
+    "mime_type": "application/pdf"
+  }
+}
+```
+
+**Errores:**
+
+| HTTP | `code` | Cuándo |
+|---|---|---|
+| 400 | `VALIDACION` | No es `multipart/form-data`, falta el campo `file`, o el archivo no tiene nombre |
+| 404 | `NO_ENCONTRADO` | La oportunidad no existe o es ajena (IDOR — 404, nunca 403) |
+| 413 | `ARCHIVO_DEMASIADO_GRANDE` | Supera `DRIVE_MAX_FILE_SIZE_BYTES` |
+| 502 | `DRIVE_NO_DISPONIBLE` | Google Drive no responde |
+| 502 | `DRIVE_SIN_CUOTA` | `ROOT_DRIVE_FOLDER_ID` no apunta a una unidad compartida |
+
+**Notas:**
+- Si la oportunidad aún no tiene carpeta (creada antes de la migración V35), se crea en esta llamada.
+- La visibilidad se verifica **antes** de leer un solo byte del cuerpo.
 
 ---
 
@@ -939,6 +1163,9 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 **Body:** `{ "id_contacto": 5, "rol_en_oportunidad": "Contacto Principal" }`
 
 **Respuesta 201:** la vinculación creada.
+
+**Errores:**
+- `409 CONTACTO_YA_VINCULADO` — el contacto ya está vinculado a esta oportunidad; usa `PUT` para cambiar su rol en vez de reenviar el `POST`.
 
 ---
 
@@ -1274,6 +1501,9 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 
 **Respuesta 200:** la financiadora actualizada.
 
+**Errores:**
+- `409 FINANCIADORA_DEFAULT_REQUERIDA` — se intenta desmarcar (`es_default: false`) la única financiadora default; marca otra antes de desmarcar esta.
+
 ---
 
 ## 14. Modelos
@@ -1337,6 +1567,9 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 
 **Respuesta 200:** el modelo actualizado.
 
+**Errores:**
+- `409 CODIGO_DUPLICADO` (`field: "codigo"`) — el código ya lo usa otro modelo. Mismo código y `field` que devuelve `POST /modelos`.
+
 ---
 
 ## 15. Catálogo de eventos
@@ -1396,6 +1629,9 @@ La visibilidad de datos varía según el rol del usuario autenticado. El backend
 **Body:** mismos campos que POST, todos opcionales.
 
 **Respuesta 200:** el evento actualizado.
+
+**Errores:**
+- `409 NOMBRE_DUPLICADO` (`field: "nombre"`) — el nombre ya lo usa otro evento del catálogo. Mismo código y `field` que devuelve `POST /catalogo-eventos`.
 
 ---
 
@@ -1692,9 +1928,12 @@ Todos aceptan `fecha_desde` y `fecha_hasta` como query params (ISO 8601 date). S
 
 Notifica a un usuario cuando ocurre una acción relacionada con él pero no accionada por él mismo. También cubre recordatorios de tareas y eventos (job programado, sin actor humano).
 
-**Tipo (`tipo`):** `oportunidad_cambio_estado`, `empresa_convertida`, `evento_creado`, `tarea_creada`, `tarea_colaborador_agregado`, `empresa_asignada`, `oportunidad_traspasada`, `tarea_recordatorio`, `evento_recordatorio`.
+**Tipo (`tipo`):** los 16 valores reales de `TipoNotificacion` (`NotificacionEnums.kt`, migración V22/V28/V34):
+- `oportunidad_cambio_estado`, `empresa_convertida`, `evento_creado`, `tarea_creada`, `tarea_colaborador_agregado`, `empresa_asignada`, `oportunidad_traspasada`, `tarea_recordatorio`, `evento_recordatorio` — el set original.
+- `solicitud_creada`, `solicitud_aprobada`, `solicitud_denegada` — ciclo de vida de una Solicitud (§20).
+- `meta_propuesta`, `meta_aprobada`, `meta_rechazada`, `meta_modificada` — ciclo de vida de una Meta de venta (§21).
 
-**Entidad referenciada (`entidad_tipo`):** `oportunidad` | `empresa` — nunca una tarea/evento suelto; para tareas/eventos se referencia su oportunidad si tiene una, si no su empresa.
+**Entidad referenciada (`entidad_tipo`):** los 4 valores reales de `EntidadNotificacion`: `oportunidad` | `empresa` | `solicitud` | `meta_venta` — nunca una tarea/evento suelto; para tareas/eventos se referencia su oportunidad si tiene una, si no su empresa.
 
 **DTO `Notificacion`:**
 ```json
@@ -1901,91 +2140,47 @@ Meta de unidades vendidas (no monto) por vendedor/jdv, mensual (12 meses) + anua
 
 ---
 
-## 22. Archivos (Headless Storage — Google Drive)
+## 22. Mantenimiento
 
-El CRM no guarda documentos en su propio disco: los guarda en Google Drive. Cada Empresa y cada Oportunidad tiene su propia carpeta, **creada automáticamente por el backend** al crear la entidad. Su ID viene en el detalle de la entidad como `drive_folder_id` (puede ser `null` en registros previos a la migración).
+### POST /mantenimiento/carpetas-drive
+> Crea las carpetas de Google Drive que faltan en empresas y oportunidades anteriores a la integración.
 
-**No hay endpoint para "abrir la carpeta"** — el link se arma en el frontend: `https://drive.google.com/drive/folders/{drive_folder_id}`.
+**Roles:** `admin`
 
-### 22.1 Listar documentos
+**Query params:** `tamano_lote` (opcional). Sin él procesa **todos** los pendientes en un solo llamado.
 
-```
-GET /api/v1/empresas/:id/archivos
-GET /api/v1/oportunidades/:id/archivos
-```
-
-Respuesta 200 — orden alfabético por `nombre`:
+**Respuesta 200:**
 
 ```json
 {
-  "data": [
-    {
-      "id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
-      "nombre": "contrato-firmado.pdf",
-      "url": "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz/view",
-      "tamano_bytes": 284512,
-      "mime_type": "application/pdf"
-    }
-  ]
+  "data": {
+    "empresas_procesadas": 12,
+    "oportunidades_procesadas": 30,
+    "errores": [
+      { "entidad": "empresa", "id": 7, "motivo": "Google Drive no pudo crear la carpeta" }
+    ],
+    "pendientes_restantes": 1
+  }
 }
 ```
 
-- `"data": []` es un **estado válido y esperado** (carpeta sin documentos), no un error.
-- `url` puede venir `null` en casos raros.
+**Notas:**
+- Idempotente y re-ejecutable. Si no hay pendientes responde todo en cero sin tocar Drive.
+- Cada carpeta se persiste en su propia transacción: si la llamada se corta a la mitad, lo ya procesado queda guardado y repetir el endpoint retoma donde quedó.
+- Un registro que falle no aborta el resto: se lista en `errores` y sigue pendiente. Repetir el endpoint lo reintenta.
+- `pendientes_restantes > 0` significa que hace falta volver a llamarlo (por `tamano_lote` o por errores).
 
-### 22.2 Subir un documento
+**Notas para el frontend:** este endpoint **no tiene UI ni debe consumirse desde el frontend** — se dispara por request directo al desplegar (admin-only, uso operativo).
 
-```
-POST /api/v1/empresas/:id/archivos
-POST /api/v1/oportunidades/:id/archivos
-Content-Type: multipart/form-data
-```
+---
 
-- El archivo va en el campo **`file`** (exacto, case-sensitive). No se envían otros campos.
-- El cliente **no debe fijar el header `Content-Type` a mano** — el browser genera el boundary.
-- Respuesta **201**: un objeto con la misma forma que un ítem del listado.
+## 23. Notas operativas del frontend (no cubiertas arriba)
 
-**Sobre `drive_folder_id: null`** (confirmado con backend 2026-07-31): subir sobre un registro visible cuyo `drive_folder_id` es `null` **crea la carpeta en ese momento** y la persiste — no devuelve 404. El 404 solo ocurre si la entidad no existe o es ajena al usuario. Consecuencia para el cliente: tras esa primera subida el detalle de la entidad debe refrescarse, porque `drive_folder_id` ya dejó de ser `null` en el servidor.
+> Esta sección **no forma parte del contrato oficial del backend**. Recoge aclaraciones puntuales que el equipo de frontend obtuvo directamente del equipo de backend (confirmadas 2026-07-31) sobre el flujo de archivos de Drive (§8, §10, §22), y que todavía no están escritas en el `contrato_api.md` que mantiene el backend. Se conservan aquí para no perder el conocimiento, pero **deben pedirse al equipo de backend para que las incorpore a su documento oficial** — no se deben tratar como fuente de verdad definitiva mientras no estén ahí.
 
-**Sobre el límite de tamaño** (confirmado con backend 2026-07-31): son **MiB**, `104_857_600` bytes exactos (100 × 1024 × 1024), no MB decimales. El framing del multipart (boundary, headers, CRLFs) **no cuenta** contra el límite: el backend mide el contenido ya desenmarcado, así que validar contra `file.size` en el cliente es exacto y no requiere reservar margen.
-
-### 22.3 Errores
-
-| HTTP | `error.code` | Significado |
-|---|---|---|
-| 400 | `VALIDACION` | No se envió archivo |
-| 404 | `NO_ENCONTRADO` | Recurso ajeno o inexistente |
-| 413 | `ARCHIVO_DEMASIADO_GRANDE` | Supera el máximo de 100 MiB |
-| 502 | `DRIVE_NO_DISPONIBLE` | Fallo transitorio de Drive — reintentable |
-| 502 | `DRIVE_SIN_CUOTA` | Error de configuración del backend — no accionable por el usuario |
-
-**Errores sin envelope.** No hay nginx propio en este proyecto: el deploy (Render/Railway) corre detrás del proxy de borde de la plataforma, que puede cortar una petición antes de que llegue a la API. En ese caso la respuesta **no trae el envelope** `{ data, meta, error }` y no existe `error.code`. El cliente nunca debe leer `error.code` a ciegas: si el body no parsea como el envelope esperado, cae al mensaje genérico. Excepción razonada: un **413 sin envelope** se trata igual que `ARCHIVO_DEMASIADO_GRANDE`, porque ese status solo puede significar eso.
-
-### 22.4 Crear la carpeta explícitamente
-
-```
-POST /api/v1/empresas/:id/carpeta-drive
-POST /api/v1/oportunidades/:id/carpeta-drive
-```
-
-Sin body. Respuesta **200**:
-
-```json
-{ "data": { "drive_folder_id": "1AbCdEfGhIjKlMnOpQrStUvWxYz" } }
-```
-
-- **Idempotente**: si el registro ya tiene carpeta, devuelve la existente sin tocar Drive.
-- Mismos roles y visibilidad que el resto de endpoints del recurso.
-- Errores: 404 `NO_ENCONTRADO` · 502 `DRIVE_NO_DISPONIBLE` · 502 `DRIVE_SIN_CUOTA`.
-- **Concurrencia resuelta en el servidor** (lock): doble clic o dos pestañas no crean carpetas duplicadas. Deshabilitar el botón en submit es buena UX, no un requisito de corrección.
-
-**Dos caminos crean la carpeta.** Este endpoint y también `POST .../archivos` (§22.2), que la crea automáticamente si no existía. El cliente debe refrescar `drive_folder_id` **después de cualquiera de los dos**, no solo tras el botón de crear.
-
-### 22.5 No implementado
-
-No existen endpoints para borrar ni renombrar documentos, ni paginación del listado.
-
-`POST /api/v1/mantenimiento/carpetas-drive` (backfill masivo, admin-only) existe en el backend pero **no tiene UI ni debe consumirse desde el frontend**: se dispara por request directo al desplegar.
+- **Creación de carpeta al subir sobre `drive_folder_id: null`:** subir un archivo (`POST .../archivos`) sobre un registro visible cuyo `drive_folder_id` es `null` crea la carpeta en ese momento y la persiste — no devuelve 404. El 404 solo ocurre si la entidad no existe o es ajena al usuario. Consecuencia para el cliente: tras esa primera subida, el detalle de la entidad debe refrescarse, porque `drive_folder_id` ya dejó de ser `null` en el servidor.
+- **Unidad del límite de tamaño:** el límite de archivo son **MiB**, `104_857_600` bytes exactos (100 × 1024 × 1024), no MB decimales. El framing del multipart (boundary, headers, CRLFs) no cuenta contra el límite: el backend mide el contenido ya desenmarcado, así que validar contra `file.size` en el cliente es exacto y no requiere reservar margen.
+- **Errores sin envelope:** no hay nginx propio en este proyecto; el deploy (Render/Railway) corre detrás del proxy de borde de la plataforma, que puede cortar una petición antes de que llegue a la API. En ese caso la respuesta **no trae el envelope** `{ data, meta, error }` y no existe `error.code`. El cliente nunca debe leer `error.code` a ciegas: si el body no parsea como el envelope esperado, cae al mensaje genérico. Excepción razonada: un **413 sin envelope** se trata igual que `ARCHIVO_DEMASIADO_GRANDE`, porque ese status solo puede significar eso.
 
 ---
 

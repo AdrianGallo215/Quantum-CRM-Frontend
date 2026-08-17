@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+# ⚠️ Esta imagen NO sirve el tráfico de producción (auditoría 2026-08-13).
+# Producción está en Vercel. Se mantiene como plan de contingencia; ver la
+# cabecera de `nginx.conf.template`.
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Etapa 1 — build
 #

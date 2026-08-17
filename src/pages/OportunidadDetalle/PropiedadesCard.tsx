@@ -12,6 +12,7 @@ import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudM
 import type { Modelo, OportunidadDetalle } from '@/types'
 import { formatoFecha, formatoMonto } from '@/utils/formato'
 import { calcularMontoTotal } from '@/utils/monto'
+import { urlSegura } from '@/utils/url'
 
 interface FormValues {
   id_modelo: number
@@ -265,12 +266,12 @@ function FichaBusModal({
               ))}
             </div>
           </div>
-          {modelo.ficha_tecnica && (
+          {urlSegura(modelo.ficha_tecnica) && (
             <a
               className="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline pt-4 border-t border-outline-variant"
-              href={modelo.ficha_tecnica}
+              href={urlSegura(modelo.ficha_tecnica)}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="material-symbols-outlined text-[18px]">description</span>
               Ver Ficha Técnica
@@ -364,12 +365,12 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           <span className="material-symbols-outlined text-primary">info</span>
           Información de la Oportunidad
         </h2>
-        {o.ficha_venta ? (
+        {urlSegura(o.ficha_venta) ? (
           <a
             className="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline"
-            href={o.ficha_venta}
+            href={urlSegura(o.ficha_venta)}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             <span className="material-symbols-outlined text-[18px]">cloud_download</span>
             Ficha de Venta

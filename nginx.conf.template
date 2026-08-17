@@ -1,3 +1,12 @@
+# ⚠️ NO ES LA CONFIGURACIÓN VIGENTE EN PRODUCCIÓN (auditoría 2026-08-13).
+#
+# Producción se sirve desde Vercel: las cabeceras reales las emite `vercel.json`
+# (verificado en vivo contra https://crm.quantuminvest.com.pe). Este archivo se
+# mantiene como plan de contingencia por si se vuelve al contenedor nginx.
+#
+# La CSP de abajo es una COPIA de la de `vercel.json`. Si cambias una, cambia la
+# otra: no hay nada que las mantenga sincronizadas y la divergencia es silenciosa.
+#
 # Configuración de nginx para el SPA de Quantum CRM.
 #
 # Es una PLANTILLA: la imagen oficial de nginx la procesa con envsubst al

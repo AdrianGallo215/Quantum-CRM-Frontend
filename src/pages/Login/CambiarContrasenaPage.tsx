@@ -11,7 +11,10 @@ import { Cargando } from '@/components/Estados'
 const schema = z
   .object({
     password_actual: z.string().min(1, 'Requerido'),
-    password_nueva: z.string().min(8, 'Mínimo 8 caracteres'),
+    password_nueva: z
+      .string()
+      .min(8, 'Mínimo 8 caracteres')
+      .max(72, 'Máximo 72 caracteres'),
     password_confirmacion: z.string().min(1, 'Requerido'),
   })
   .refine((v) => v.password_nueva === v.password_confirmacion, {
