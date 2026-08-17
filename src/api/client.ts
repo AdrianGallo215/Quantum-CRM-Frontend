@@ -15,6 +15,10 @@ interface RetriableConfig extends AxiosRequestConfig {
 
 let refreshPromise: Promise<void> | null = null
 
+/** Formulario de cambio obligatorio. El backend bloquea el resto de la app. */
+const RUTA_CAMBIO_CONTRASENA = '/cambiar-contrasena'
+let redirigiendoACambioContrasena = false
+
 async function refreshSession(): Promise<void> {
   // Un solo refresh en vuelo; el refresh_token viaja en cookie httpOnly.
   if (!refreshPromise) {
@@ -52,6 +56,33 @@ apiClient.interceptors.response.use(
         }
       }
     }
+
+    /**
+     * Cambio de contraseña obligatorio: mientras el flag esté activo el backend
+     * responde 403 a TODO salvo /auth/cambiar-contrasena, /auth/logout y
+     * /empleados/me. Sin este bloque el usuario vería "no tienes permiso" por
+     * toda la app, que es exactamente el diagnóstico equivocado.
+     *
+     * Hace falta aunque el guard del router ya mire el flag: el guard solo lo
+     * evalúa al montar, y el caso que importa es que un admin resetee la
+     * contraseña a mitad de sesión, con el usuario ya navegando. El polling de
+     * notificaciones (45 s) dispara el 403 él solo.
+     *
+     * Se distingue por `code`, no por el 403 a secas: un 403 normal
+     * (PERMISO_INSUFICIENTE) debe seguir mostrando la pantalla "Sin acceso".
+     */
+    if (
+      status === 403 &&
+      extraerApiError(error)?.code === 'CAMBIO_CONTRASENA_REQUERIDO' &&
+      !redirigiendoACambioContrasena &&
+      window.location.pathname !== RUTA_CAMBIO_CONTRASENA
+    ) {
+      // El flag evita que varias respuestas 403 en paralelo (el dashboard lanza
+      // muchas queries a la vez) disparen varias navegaciones encadenadas.
+      redirigiendoACambioContrasena = true
+      window.location.assign(RUTA_CAMBIO_CONTRASENA)
+    }
+
     return Promise.reject(error)
   },
 )

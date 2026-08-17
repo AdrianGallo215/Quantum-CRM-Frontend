@@ -83,6 +83,16 @@ function RutaAdmin({ children }: { children: ReactNode }) {
 
 ---
 
+## 3.1 Cambio de contraseña obligatorio — esta vez sí es seguridad
+
+La regla general de §3 (los guards del cliente son UX, no seguridad) tiene aquí su contraejemplo útil: `requiere_cambio_contrasena` **sí** lo impone el backend. Mientras el flag esté activo, la API responde `403 CAMBIO_CONTRASENA_REQUERIDO` a todo salvo `/auth/cambiar-contrasena`, `/auth/logout` y `/empleados/me`.
+
+El trabajo del frontend no es *impedir el acceso* —eso ya está garantizado— sino **traducir el bloqueo a algo entendible**:
+
+- El interceptor de `api/client.ts` detecta ese `code` y redirige al formulario. Sin eso el usuario ve "no tienes permiso" por toda la app, que es un diagnóstico falso.
+- Se distingue por `error.code`, nunca por el `403` a secas: un `PERMISO_INSUFICIENTE` normal debe seguir mostrando "Sin acceso".
+- La pantalla de cambio lleva un botón de **cerrar sesión**. Es la única salida: no está dentro de `AppLayout` y el resto de la API está bloqueada, así que sin él un usuario que no recuerde su contraseña actual queda encerrado.
+
 ## 4. XSS (Cross-Site Scripting)
 
 - React escapa por defecto el contenido renderizado, mitigando XSS reflejado y almacenado.

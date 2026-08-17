@@ -4,8 +4,10 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Alert, Button, Input, Typography } from 'antd'
+import { useQueryClient } from '@tanstack/react-query'
 import { post, mensajeDeError } from '@/api/client'
 import { useAuthStore } from '@/store/authStore'
+import { useLogout } from '@/hooks/useAuth'
 import { Cargando } from '@/components/Estados'
 
 const schema = z
@@ -31,6 +33,8 @@ type Form = z.infer<typeof schema>
  */
 export function CambiarContrasenaPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const logout = useLogout()
   const empleado = useAuthStore((s) => s.empleado)
   const cargandoSesion = useAuthStore((s) => s.cargando)
   const setEmpleado = useAuthStore((s) => s.setEmpleado)
@@ -60,6 +64,10 @@ export function CambiarContrasenaPage() {
         password_actual: values.password_actual,
         password_nueva: values.password_nueva,
       })
+      // El cache puede tener respuestas 403 CAMBIO_CONTRASENA_REQUERIDO de antes
+      // del cambio: sin limpiarlo, esas pantallas seguirían mostrando un error ya
+      // resuelto. El backend además reemite cookies y revoca las otras sesiones.
+      queryClient.clear()
       setEmpleado({ ...empleado, requiere_cambio_contrasena: false })
       navigate('/', { replace: true })
     } catch (e) {
@@ -105,7 +113,8 @@ export function CambiarContrasenaPage() {
           Cambia tu contraseña
         </Typography.Title>
         <Typography.Paragraph style={{ color: '#444750' }}>
-          Por seguridad debes definir una contraseña nueva antes de continuar.
+          Por seguridad debes definir una contraseña nueva antes de continuar. El
+          resto de la aplicación permanece bloqueado hasta que la cambies.
         </Typography.Paragraph>
 
         {error && (
@@ -120,6 +129,15 @@ export function CambiarContrasenaPage() {
             Guardar y continuar
           </Button>
         </form>
+
+        {/* Única salida de esta pantalla: no está dentro de AppLayout, así que no
+            hay menú de usuario. Mientras el flag siga activo el backend responde
+            403 a todo lo demás, de modo que sin este botón alguien que no recuerde
+            su contraseña actual queda encerrado, sin poder navegar ni cambiar de
+            cuenta. */}
+        <Button type="link" block onClick={logout} style={{ marginTop: 12 }}>
+          Cerrar sesión
+        </Button>
       </div>
     </div>
   )

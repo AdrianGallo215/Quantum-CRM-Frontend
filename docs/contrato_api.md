@@ -112,6 +112,7 @@ En caso de error, `data` es `null` y `error` contiene:
 | `FINANCIADORA_DEFAULT_INEXISTENTE` | 500 | No hay financiadora con `es_default = true` |
 | `ESTADO_INVALIDO` | 400 | Transición de estado no permitida |
 | `PERMISO_INSUFICIENTE` | 403 | El rol no tiene acceso a esta operación |
+| `CAMBIO_CONTRASENA_REQUERIDO` | 403 | El empleado tiene `requiere_cambio_contrasena = true`. **Bloquea toda la API** salvo `/auth/cambiar-contrasena`, `/auth/logout` y `/empleados/me`. El frontend lo intercepta y redirige al formulario (ver `src/api/client.ts`) |
 | `NO_ENCONTRADO` | 404 | El recurso no existe |
 | `CONTACTO_VINCULADO` | 409 | No se puede eliminar un contacto vinculado a una empresa |
 | `MONTO_NO_EDITABLE` | 400 | Se intentó enviar `monto_total` en el body |
@@ -184,6 +185,7 @@ Los tokens **nunca** viajan en el body ni se leen de un header `Authorization`: 
 {
   "data": {
     "expires_in": 3600,
+    "requiere_cambio_contrasena": false,
     "empleado": {
       "id": 1,
       "nombres": "Aldo",
@@ -200,8 +202,9 @@ Los tokens **nunca** viajan en el body ni se leen de un header `Authorization`: 
 **Notas:**
 - Setea `access_token` (expira en 1 hora) y `refresh_token` (expira en 7 días) — ver §1.
 - Responde `401` si las credenciales son inválidas, sin indicar si el error es en email o contraseña.
-- Rate limiting por email: 5 intentos fallidos → `429` con cabecera `Retry-After` (segundos) y `error.code = "DEMASIADOS_INTENTOS"`.
-  ⚠️ **Pendiente con backend:** `Retry-After` no está en `Access-Control-Expose-Headers`, así que el frontend no puede leerla desde otro origen.
+- Rate limiting por email: 5 intentos fallidos → `429` con cabecera `Retry-After` (segundos) y `error.code = "DEMASIADOS_INTENTOS"`. Confirmado con backend: `Access-Control-Expose-Headers: Retry-After` ya está desplegado — la cabecera es legible desde el frontend.
+- `requiere_cambio_contrasena` vive en la **raíz** de `data`, nunca dentro de `empleado` — `EmpleadoDto` no tiene ese campo (confirmado con backend). `GET /empleados/me` (§7) **sí** lo devuelve por separado, así que el flujo sobrevive a una recarga de página.
+- Mientras el flag esté en `true`, el backend responde `403 CAMBIO_CONTRASENA_REQUERIDO` a **todos** los demás endpoints (§3). No es solo UX del cliente: es bloqueo de servidor.
 
 ---
 
@@ -262,7 +265,7 @@ Reemite ambas cookies.
 | `VALIDACION` | 400 | `password_nueva` es igual a `password_actual`, o no cumple la longitud 8–72 (`field: "password_nueva"`) |
 
 **Notas:**
-- Al completarse con éxito, `requiere_cambio_contrasena` pasa a `false`. El siguiente `/auth/login` ya lo refleja en el `empleado` devuelto.
+- Al completarse con éxito, `requiere_cambio_contrasena` pasa a `false`. El siguiente `/auth/login` ya lo refleja en la raíz de `data` (nunca en `empleado` — ver §6 arriba).
 - Invalida el refresh token de cualquier otra sesión abierta con la cuenta (mismo mecanismo que `/auth/logout`); la sesión que hizo el cambio sigue viva porque el backend reemite sus cookies con la versión ya vigente.
 
 ---
@@ -302,6 +305,10 @@ Reemite ambas cookies.
 **Roles:** todos
 
 **Respuesta 200:** un objeto `empleado` como el de arriba.
+
+**Incluye `requiere_cambio_contrasena`** (añadido por backend el 2026-08-17). Es uno de los tres endpoints que siguen respondiendo mientras ese flag esté activo, junto con `/auth/cambiar-contrasena` y `/auth/logout` — todos los demás devuelven `403 CAMBIO_CONTRASENA_REQUERIDO` (§3).
+
+El frontend lo lee en cada restauración de sesión (`useRestaurarSesion`), de modo que el guard vuelve a forzar la redirección tras una recarga de página.
 
 ---
 

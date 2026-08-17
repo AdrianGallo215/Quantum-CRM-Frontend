@@ -58,8 +58,14 @@ export function LoginPage() {
     setEnviando(true)
     try {
       const res = await authApi.login(values.email, values.password)
-      setEmpleado(res.empleado)
-      if (res.empleado.requiere_cambio_contrasena) {
+      // `requiere_cambio_contrasena` viaja en la raíz de la respuesta, no en
+      // `empleado` (el backend confirmó que `EmpleadoDto` nunca tuvo ese
+      // campo). Se copia al objeto guardado porque `RequireAuth` (guards.tsx)
+      // lo lee de ahí para forzar la redirección en cualquier ruta protegida,
+      // no solo aquí, y porque GET /empleados/me lo devuelve con esa misma forma
+      // al restaurar la sesión: así ambos caminos dejan el store idéntico.
+      setEmpleado({ ...res.empleado, requiere_cambio_contrasena: res.requiere_cambio_contrasena })
+      if (res.requiere_cambio_contrasena) {
         navigate('/cambiar-contrasena', { replace: true })
       } else {
         navigate('/', { replace: true })
