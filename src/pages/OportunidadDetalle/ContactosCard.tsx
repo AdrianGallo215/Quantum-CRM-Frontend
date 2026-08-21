@@ -99,11 +99,12 @@ export function ContactosCard({ oportunidad: o }: { oportunidad: OportunidadDeta
                 >
                   <span className="material-symbols-outlined text-[20px]">mail</span>
                 </a>
-                {/* DELETE /oportunidades/:id/contactos/:contacto_id no tiene rol
-                    documentado en el contrato (vacío real, no una omisión de este
-                    archivo). Se asume bloqueado para roles de apoyo por ser el mismo
-                    recurso que POST (sí documentado, línea 1201) — pendiente de que
-                    backend lo confirme por escrito. Ver plan 2026-08-18, T7.6. */}
+                {/* DELETE /oportunidades/:id/contactos/:contacto_id no aparece en
+                    contrato_api.md (deriva de documentación, confirmada con backend
+                    2026-08-21) — pero SÍ está bloqueado en producción: OportunidadServiceImpl
+                    llama a OportunidadVisibilidad.rechazarSiEsApoyo() antes de tocar
+                    cualquier dato, igual que en POST/PUT del mismo recurso. 403, no 404
+                    (diseño deliberado: "puede consultar, no modificar", no IDOR). */}
                 {!esRolDeApoyo && (
                   <Popconfirm
                     title="¿Desvincular contacto de la oportunidad?"
