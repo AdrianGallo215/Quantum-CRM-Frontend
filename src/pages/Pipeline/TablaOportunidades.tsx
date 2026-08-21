@@ -389,7 +389,7 @@ export function TablaOportunidades({ oportunidades }: { oportunidades: Oportunid
             >
               <Checkbox.Group
                 value={columnasActivas}
-                onChange={(v) => setColumnasActivas(v as string[])}
+                onChange={(v) => setColumnasActivas(v)}
                 style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
                 options={DEFINICIONES.map((d) => ({ label: d.titulo, value: d.key }))}
               />

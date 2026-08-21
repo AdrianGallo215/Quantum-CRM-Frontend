@@ -58,7 +58,7 @@ export function MetaVentaFormModal({
       form.setFieldsValue(valoresIniciales)
     } else {
       form.resetFields()
-      form.setFieldsValue({ anio: ANIO_ACTUAL } as Partial<FormValues>)
+      form.setFieldsValue({ anio: ANIO_ACTUAL })
     }
   }, [open, metaAEditar, form])
 

@@ -3,6 +3,7 @@ import { Pagination, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import { useProspeccion } from '@/hooks/usePantallas'
+import { useAuthStore, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import type { ProspeccionItem } from '@/types'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NuevaOportunidadModal } from '@/components/NuevaOportunidadModal'
@@ -15,6 +16,8 @@ const requiereAccion = (i: ProspeccionItem) =>
 
 export function ProspeccionPage() {
   const navigate = useNavigate()
+  const empleado = useAuthStore((s) => s.empleado)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const [pagina, setPagina] = useState(1)
   const prospeccion = useProspeccion(pagina)
   const [convertir, setConvertir] = useState<ProspeccionItem | null>(null)
@@ -113,6 +116,7 @@ export function ProspeccionPage() {
                     <Fila
                       key={item.id_empresa}
                       item={item}
+                      esRolDeApoyo={esRolDeApoyo}
                       onConvertir={() => setConvertir(item)}
                       onVerEmpresa={() => navigate(`/empresas/${item.id_empresa}`)}
                     />
@@ -176,7 +180,7 @@ export function ProspeccionPage() {
               >
                 <button
                   className="flex items-center gap-2 px-8 py-3 bg-[#0799b6] text-white font-button rounded-full hover:opacity-90 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
-                  disabled={listaParaConvertir === null}
+                  disabled={listaParaConvertir === null || esRolDeApoyo}
                   onClick={() => setConvertir(listaParaConvertir)}
                 >
                   <span className="material-symbols-outlined">rocket_launch</span>
@@ -201,10 +205,12 @@ export function ProspeccionPage() {
 
 function Fila({
   item,
+  esRolDeApoyo,
   onConvertir,
   onVerEmpresa,
 }: {
   item: ProspeccionItem
+  esRolDeApoyo: boolean
   onConvertir: () => void
   onVerEmpresa: () => void
 }) {
@@ -293,7 +299,7 @@ function Fila({
       </td>
       <td className="px-6 py-5 text-right">
         <div className="flex items-center justify-end gap-2">
-          {item.lista_para_convertir && (
+          {item.lista_para_convertir && !esRolDeApoyo && (
             <button
               className="bg-primary-container text-on-primary-container p-2 rounded-full hover:shadow-md transition-all"
               title="Convertir a oportunidad"

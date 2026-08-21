@@ -267,7 +267,7 @@ export function ActividadesPage() {
         onClose={() => setTareaSel(null)}
         onSave={(input) => actualizar.mutateAsync({ id: tareaSel!.id, input })}
         guardando={actualizar.isPending}
-        empleados={empleados}
+        empleados={empleados.datos}
         irADetalle={
           tareaSel
             ? () => {

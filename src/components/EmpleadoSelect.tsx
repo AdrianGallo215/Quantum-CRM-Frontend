@@ -13,6 +13,8 @@ interface EmpleadoSelectProps {
   autoFocus?: boolean
   allowClear?: boolean
   placeholder?: string
+  cargando?: boolean
+  error?: boolean
 }
 
 /** Select de un solo empleado (para "Responsable"/`id_asignado`). */
@@ -23,6 +25,8 @@ export function EmpleadoSelect({
   autoFocus,
   allowClear,
   placeholder,
+  cargando,
+  error,
 }: EmpleadoSelectProps) {
   return (
     <Select
@@ -35,6 +39,11 @@ export function EmpleadoSelect({
       value={value}
       onChange={onChange}
       options={opciones(empleados)}
+      loading={cargando}
+      status={error ? 'error' : undefined}
+      notFoundContent={
+        error ? 'No se pudieron cargar los empleados' : cargando ? 'Cargando…' : undefined
+      }
     />
   )
 }
@@ -45,6 +54,8 @@ interface EmpleadoMultiSelectProps {
   onChange?: (value: number[]) => void
   autoFocus?: boolean
   placeholder?: string
+  cargando?: boolean
+  error?: boolean
 }
 
 /** Select de varios empleados (para "Colaboradores"/`ids_colaboradores`). */
@@ -54,6 +65,8 @@ export function EmpleadoMultiSelect({
   onChange,
   autoFocus,
   placeholder,
+  cargando,
+  error,
 }: EmpleadoMultiSelectProps) {
   return (
     <Select
@@ -66,6 +79,11 @@ export function EmpleadoMultiSelect({
       value={value}
       onChange={onChange}
       options={opciones(empleados)}
+      loading={cargando}
+      status={error ? 'error' : undefined}
+      notFoundContent={
+        error ? 'No se pudieron cargar los empleados' : cargando ? 'Cargando…' : undefined
+      }
     />
   )
 }

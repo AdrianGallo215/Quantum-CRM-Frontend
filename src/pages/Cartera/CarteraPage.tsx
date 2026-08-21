@@ -7,6 +7,7 @@ import { useVendedoresAsignables } from '@/hooks/useCatalogos'
 import {
   useAuthStore,
   ROLES_ADMIN,
+  ROLES_APOYO,
   ROLES_BANDEJA_GERENCIA,
   ROLES_SUPERVISION,
   tieneRol,
@@ -88,6 +89,7 @@ export function CarteraPage() {
   // El backend solo acepta `id_vendedor` de admin/gerencia/jdv, y `GET /empleados`
   // tiene esos mismos roles: para el resto no hay ni filtro ni lista que mostrar.
   const esSupervision = tieneRol(empleado, ROLES_SUPERVISION)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
 
   /* El querystring es la ÚNICA fuente de verdad del filtrado de esta pantalla.
      Antes solo `?q=` vivía aquí y el tab y la página estaban en useState: al
@@ -301,9 +303,11 @@ export function CarteraPage() {
               if (e.target.value === '') escribirUrl({ q: '' })
             }}
           />
-          <Button type="primary" icon={<Icono nombre="add" tamano={18} />} onClick={() => setModalNueva(true)}>
-            Nueva empresa
-          </Button>
+          {!esRolDeApoyo && (
+            <Button type="primary" icon={<Icono nombre="add" tamano={18} />} onClick={() => setModalNueva(true)}>
+              Nueva empresa
+            </Button>
+          )}
         </div>
       </div>
 

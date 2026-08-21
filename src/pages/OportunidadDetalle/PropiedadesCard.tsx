@@ -5,13 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import { useActualizarOportunidad, useEliminarOportunidad } from '@/hooks/useOportunidades'
 import { useFinanciadoras, useModelos } from '@/hooks/useCatalogos'
 import { codigoDeError, extraerApiError, mensajeDeError } from '@/api/client'
-import { useAuthStore, ROLES_ADMIN, tieneRol } from '@/store/authStore'
+import { useAuthStore, ROLES_ADMIN, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import { aprobadorParaDcto } from '@/utils/solicitudes'
 import { ETIQUETA_ROL_APROBADOR } from '@/utils/etiquetas'
 import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudModal'
 import type { Modelo, OportunidadDetalle } from '@/types'
 import { formatoFecha, formatoMonto } from '@/utils/formato'
-import { calcularMontoTotal } from '@/utils/monto'
+import { calcularDescuento, calcularMontoTotal } from '@/utils/monto'
 import { urlSegura } from '@/utils/url'
 
 interface FormValues {
@@ -42,6 +42,7 @@ function EditarTerminosModal({
   const financiadoras = useFinanciadoras()
   const actualizar = useActualizarOportunidad(o.id)
   const empleado = useAuthStore((s) => s.empleado)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const [solicitudPendiente, setSolicitudPendiente] = useState<SolicitudPendiente | null>(null)
 
   const cantidad = Form.useWatch('cantidad', form)
@@ -91,8 +92,18 @@ function EditarTerminosModal({
               : null,
             notas: v.notas ?? null,
           })
-        } catch {
-          // Si también falla, el modal de solicitud sigue siendo lo importante
+        } catch (e2) {
+          // El modal de solicitud sigue siendo lo importante, pero el usuario
+          // TIENE que saber que el resto de campos no se guardó: si no, cierra
+          // el modal creyendo que cantidad, precio y notas quedaron persistidos.
+          notification.warning({
+            message: 'Los demás cambios no se guardaron',
+            description: mensajeDeError(
+              e2,
+              'Solo se registró la solicitud de descuento. Vuelve a editar los términos para guardar el resto.',
+            ),
+            duration: 8,
+          })
         }
         setSolicitudPendiente({
           tipo: 'descuento',
@@ -114,6 +125,7 @@ function EditarTerminosModal({
       onOk={() => void onGuardar()}
       okText="Guardar"
       cancelText="Cancelar"
+      okButtonProps={{ disabled: esRolDeApoyo }}
       confirmLoading={actualizar.isPending}
       width={560}
       destroyOnHidden
@@ -289,17 +301,20 @@ function BotonEditar({ oportunidad }: { oportunidad: OportunidadDetalle }) {
   const navigate = useNavigate()
   const empleado = useAuthStore((s) => s.empleado)
   const esAdmin = tieneRol(empleado, ROLES_ADMIN)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const eliminar = useEliminarOportunidad()
   const [abierto, setAbierto] = useState(false)
   return (
     <>
-      <button
-        className="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors border border-outline-variant"
-        title="Editar términos"
-        onClick={() => setAbierto(true)}
-      >
-        <span className="material-symbols-outlined">edit</span>
-      </button>
+      {!esRolDeApoyo && (
+        <button
+          className="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors border border-outline-variant"
+          title="Editar términos"
+          onClick={() => setAbierto(true)}
+        >
+          <span className="material-symbols-outlined">edit</span>
+        </button>
+      )}
       {/* El botón "share" del prototipo no tenía onClick — se elimina en vez de
           dejar un control que no responde. */}
       {esAdmin && (
@@ -341,12 +356,14 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
   const financiadoras = useFinanciadoras()
   const modelos = useModelos()
   const actualizar = useActualizarOportunidad(o.id)
+  const empleado = useAuthStore((s) => s.empleado)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const [modalEditar, setModalEditar] = useState(false)
   const [modalFicha, setModalFicha] = useState(false)
   const modeloCompleto = modelos.data?.find((m) => m.id === o.id_modelo)
 
   const bruto = o.cantidad * Number(o.precio_unitario)
-  const descuentoMonto = (bruto * Number(o.dcto)) / 100
+  const descuentoMonto = calcularDescuento(o.cantidad, o.precio_unitario, o.dcto)
 
   const guardarCampo = (
     input: Parameters<typeof actualizar.mutateAsync>[0],
@@ -376,13 +393,15 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
             Ficha de Venta
           </a>
         ) : (
-          <button
-            className="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline"
-            onClick={() => setModalEditar(true)}
-          >
-            <span className="material-symbols-outlined text-[18px]">edit</span>
-            Editar términos
-          </button>
+          !esRolDeApoyo && (
+            <button
+              className="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline"
+              onClick={() => setModalEditar(true)}
+            >
+              <span className="material-symbols-outlined text-[18px]">edit</span>
+              Editar términos
+            </button>
+          )
         )}
       </div>
 
@@ -439,7 +458,7 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           <select
             className="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md"
             value={o.id_financiadora ?? ''}
-            disabled={actualizar.isPending || financiadoras.isLoading}
+            disabled={esRolDeApoyo || actualizar.isPending || financiadoras.isLoading}
             onChange={(e) => {
               // '' es el placeholder de "sin financiadora": no es una opción
               // seleccionable, así que nunca debe llegar aquí — pero si llega
@@ -468,7 +487,7 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           <select
             className="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md"
             value={o.garantia ? 'si' : 'no'}
-            disabled={actualizar.isPending}
+            disabled={esRolDeApoyo || actualizar.isPending}
             onChange={(e) => guardarCampo({ garantia: e.target.value === 'si' }, 'Garantía actualizada')}
           >
             <option value="si">Sí, con garantía</option>
@@ -478,8 +497,12 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
         <div className="flex flex-col gap-2">
           <label className="font-label-md text-label-md text-on-surface-variant">Fecha Cierre Estimado</label>
           <div
-            className="flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright cursor-pointer hover:bg-surface-container-low transition-colors"
-            onClick={() => setModalEditar(true)}
+            className={
+              esRolDeApoyo
+                ? 'flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright'
+                : 'flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright cursor-pointer hover:bg-surface-container-low transition-colors'
+            }
+            onClick={esRolDeApoyo ? undefined : () => setModalEditar(true)}
           >
             <span className="material-symbols-outlined text-primary">calendar_today</span>
             <span className="font-body-md">{formatoFecha(o.fecha_cierre_estimado)}</span>
@@ -490,7 +513,7 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           <select
             className="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md"
             value={o.finc_paralelo ? 'si' : 'no'}
-            disabled={actualizar.isPending}
+            disabled={esRolDeApoyo || actualizar.isPending}
             onChange={(e) =>
               guardarCampo({ finc_paralelo: e.target.value === 'si' }, 'Financiamiento actualizado')
             }
@@ -509,6 +532,7 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           placeholder="Registrar detalles de la última reunión o acuerdos específicos..."
           defaultValue={o.notas ?? ''}
           key={`notas-${o.id}-${o.notas ?? ''}`}
+          disabled={esRolDeApoyo}
           onBlur={(e) => {
             const nuevo = e.target.value.trim()
             if (nuevo !== (o.notas ?? '')) {

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { catalogoEventosApi, financiadorasApi, modelosApi } from '@/api/catalogos'
 import { empleadosApi } from '@/api/empleados'
@@ -42,12 +43,37 @@ export function useVendedoresAsignables(enabled = true) {
  * de una tarea (contrato §12: vendedor/analista solo pueden elegirse a sí
  * mismos; admin/gerencia/jdv pueden elegir a cualquier empleado activo).
  */
-export function useEmpleadosSeleccionables(): EmpleadoResumen[] {
+export interface EmpleadosSeleccionables {
+  datos: EmpleadoResumen[]
+  cargando: boolean
+  error: boolean
+}
+
+/**
+ * Devuelve además `cargando` y `error`: antes solo devolvía el array, así que
+ * un fallo de red dejaba el Select de "Responsable" vacío y sin explicación,
+ * indistinguible de "no hay empleados". La identidad del array se memoiza para
+ * no rehacer las opciones del Select en cada render del formulario padre.
+ */
+export function useEmpleadosSeleccionables(): EmpleadosSeleccionables {
   const empleadoActual = useAuthStore((s) => s.empleado)
   const soloSelf = tieneRol(empleadoActual, ['vendedor', 'analista'])
   const empleados = useEmpleados({ activo: true }, !soloSelf)
-  if (soloSelf) return empleadoActual ? [empleadoActual] : []
-  return empleados.data ?? []
+
+  return useMemo(() => {
+    if (soloSelf) {
+      return {
+        datos: empleadoActual ? [empleadoActual] : [],
+        cargando: false,
+        error: false,
+      }
+    }
+    return {
+      datos: empleados.data ?? [],
+      cargando: empleados.isLoading,
+      error: empleados.isError,
+    }
+  }, [soloSelf, empleadoActual, empleados.data, empleados.isLoading, empleados.isError])
 }
 
 export function useCrearEmpleado() {

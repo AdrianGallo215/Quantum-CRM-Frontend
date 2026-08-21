@@ -25,6 +25,7 @@ import { urlSegura } from '@/utils/url'
 import {
   useAuthStore,
   ROLES_ADMIN,
+  ROLES_APOYO,
   ROLES_BANDEJA_GERENCIA,
   ROLES_SUPERVISION,
   tieneRol,
@@ -71,6 +72,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
   const esSupervision = tieneRol(empleado, ROLES_SUPERVISION)
   const veCarteraMaestra = tieneRol(empleado, ROLES_BANDEJA_GERENCIA)
   const esAdmin = tieneRol(empleado, ROLES_ADMIN)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
 
   const [modalEditar, setModalEditar] = useState(false)
   const [modalContacto, setModalContacto] = useState(false)
@@ -151,18 +153,22 @@ function Contenido({ empresa }: { empresa: Empresa }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button
-              className="btn-circular px-6 py-2 border border-brand-cyan text-brand-cyan font-bold hover:bg-brand-cyan/5 transition-colors"
-              onClick={abrirEditar}
-            >
-              Editar Datos
-            </button>
-            <button
-              className="btn-circular px-6 py-2 bg-brand-cyan text-white font-bold hover:opacity-90 transition-opacity"
-              onClick={() => setModalOportunidad(true)}
-            >
-              Nueva Gestión
-            </button>
+            {!esRolDeApoyo && (
+              <button
+                className="btn-circular px-6 py-2 border border-brand-cyan text-brand-cyan font-bold hover:bg-brand-cyan/5 transition-colors"
+                onClick={abrirEditar}
+              >
+                Editar Datos
+              </button>
+            )}
+            {!esRolDeApoyo && (
+              <button
+                className="btn-circular px-6 py-2 bg-brand-cyan text-white font-bold hover:opacity-90 transition-opacity"
+                onClick={() => setModalOportunidad(true)}
+              >
+                Nueva Gestión
+              </button>
+            )}
             {veCarteraMaestra && !empresa.en_cartera_maestra && (
               <Popconfirm
                 title="¿Mover a la Cartera Maestra?"
@@ -276,9 +282,10 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                 </div>
                 <div>
                   <p className="text-label-md text-on-surface-variant uppercase mb-1">Estado de Cartera</p>
-                  {esDerivado ? (
+                  {esDerivado || esRolDeApoyo ? (
                     <span className="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-label-md font-bold uppercase">
-                      {ETIQUETA_CARTERA[empresa.estado_cartera]} (derivado)
+                      {ETIQUETA_CARTERA[empresa.estado_cartera]}
+                      {esDerivado ? ' (derivado)' : ''}
                     </span>
                   ) : (
                     <select
@@ -456,9 +463,14 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                   <span className="material-symbols-outlined">groups</span>
                   <h3 className="font-headline-sm text-headline-sm">Contactos Clave</h3>
                 </div>
-                <button className="text-brand-cyan" onClick={() => setModalContacto(true)}>
-                  <span className="material-symbols-outlined">person_add</span>
-                </button>
+                {/* Vincular contacto a empresa responde 403 para roles de
+                    apoyo desde el PR #11 de backend — antes era la única
+                    escritura sobre empresa que sí les estaba permitida. */}
+                {!esRolDeApoyo && (
+                  <button className="text-brand-cyan" onClick={() => setModalContacto(true)}>
+                    <span className="material-symbols-outlined">person_add</span>
+                  </button>
+                )}
               </div>
               <div className="flex flex-col gap-4">
                 {empresa.contactos.length === 0 && (
@@ -494,21 +506,26 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                           <span className="material-symbols-outlined">mail</span>
                         </a>
                       )}
-                      <Popconfirm
-                        title="¿Desvincular contacto de esta empresa?"
-                        okText="Desvincular"
-                        cancelText="Cancelar"
-                        onConfirm={() =>
-                          desvincular.mutate(c.id, {
-                            onSuccess: () => message.success('Contacto desvinculado'),
-                            onError: (e) => message.error(mensajeDeError(e)),
-                          })
-                        }
-                      >
-                        <button className="text-on-surface-variant hover:text-error">
-                          <span className="material-symbols-outlined">link_off</span>
-                        </button>
-                      </Popconfirm>
+                      {/* Desvincular también responde 403 para roles de
+                          apoyo desde el PR #11 — mismo motivo que el botón
+                          "Agregar contacto" de arriba. */}
+                      {!esRolDeApoyo && (
+                        <Popconfirm
+                          title="¿Desvincular contacto de esta empresa?"
+                          okText="Desvincular"
+                          cancelText="Cancelar"
+                          onConfirm={() =>
+                            desvincular.mutate(c.id, {
+                              onSuccess: () => message.success('Contacto desvinculado'),
+                              onError: (e) => message.error(mensajeDeError(e)),
+                            })
+                          }
+                        >
+                          <button className="text-on-surface-variant hover:text-error">
+                            <span className="material-symbols-outlined">link_off</span>
+                          </button>
+                        </Popconfirm>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -703,7 +720,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
         onSave={(input) => actualizarTarea.mutateAsync({ id: tareaSel!.id, input })}
         guardando={actualizarTarea.isPending}
         contactos={empresa.contactos}
-        empleados={empleadosTareas}
+        empleados={empleadosTareas.datos}
       />
       <EventoDetalleModal
         evento={eventoSel}

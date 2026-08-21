@@ -18,7 +18,7 @@ import type { EntidadNotificacion, Notificacion } from '@/types'
  * estado, evento, tarea, traspaso) terminaba en el inicio.
  * Un mapa explícito hace imposible que vuelva a pasar en silencio.
  */
-const RUTA_ENTIDAD: Record<Exclude<EntidadNotificacion, 'solicitud' | 'meta'>, string> = {
+const RUTA_ENTIDAD: Record<Exclude<EntidadNotificacion, 'solicitud' | 'meta_venta'>, string> = {
   oportunidad: 'oportunidades',
   empresa: 'empresas',
 }
@@ -38,7 +38,7 @@ export function NotificacionesDropdown() {
   const irANotificacion = (n: Notificacion) => {
     if (!n.leida) marcarLeida.mutate(n.id)
     setAbierto(false)
-    if (n.entidad_tipo === 'solicitud' || n.entidad_tipo === 'meta') {
+    if (n.entidad_tipo === 'solicitud' || n.entidad_tipo === 'meta_venta') {
       // solicitud_creada / meta_propuesta llegan al aprobador; el resto al
       // solicitante/JDV. En ambos casos su vista vive en /gerencia
       // (gerencia/admin) o /solicitudes (jdv, incluye la pestaña Metas).

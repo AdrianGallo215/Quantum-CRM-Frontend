@@ -1,4 +1,4 @@
-import type { EstadoOportunidad } from './enums'
+import type { Aplicacion, EstadoOportunidad } from './enums'
 
 export interface Financiadora {
   id: number
@@ -29,7 +29,7 @@ export interface Modelo {
   max_asientos: number | null
   precio_base: string
   ficha_tecnica: string | null
-  aplicaciones: string[]
+  aplicaciones: Aplicacion[]
 }
 
 export interface ModeloInput {
@@ -39,7 +39,7 @@ export interface ModeloInput {
   max_asientos?: number | null
   precio_base: string
   ficha_tecnica?: string | null
-  aplicaciones: string[]
+  aplicaciones: Aplicacion[]
 }
 
 export interface CatalogoEvento {

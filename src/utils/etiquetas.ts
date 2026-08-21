@@ -6,6 +6,7 @@ import type {
   EstadoSolicitud,
   MesMeta,
   OrigenLead,
+  Rol,
   RolAprobador,
   Segmento,
   TipoAccion,
@@ -31,7 +32,7 @@ export const ETIQUETA_CARTERA: Record<EstadoCartera, string> = {
 export const ETIQUETA_TIPO_ACCION: Record<TipoAccion, string> = {
   llamada: 'Llamada',
   reunion: 'Reunión',
-  email: 'Email',
+  correo: 'Correo',
   whatsapp: 'WhatsApp',
   otro: 'Otro',
 }
@@ -42,12 +43,17 @@ export const ETIQUETA_ESTADO_ACCION: Record<EstadoAccion, string> = {
   cancelada: 'Cancelada',
 }
 
-export const ETIQUETA_ROL: Record<string, string> = {
+/**
+ * `Record<Rol, string>` a propósito, igual que ETIQUETA_SEGMENTO: si mañana se
+ * añade un valor al enum `Rol`, TypeScript falla aquí hasta que se le dé etiqueta.
+ */
+export const ETIQUETA_ROL: Record<Rol, string> = {
   admin: 'Administrador',
   gerencia: 'Gerencia',
   jdv: 'Jefe de Ventas',
   vendedor: 'Vendedor',
   analista: 'Analista',
+  otro: 'Otro',
 }
 
 export const ETIQUETA_TIPO_SOLICITUD: Record<TipoSolicitud, string> = {

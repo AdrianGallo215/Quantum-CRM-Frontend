@@ -18,7 +18,8 @@ export type TipoNotificacion =
   | 'meta_rechazada'
   | 'meta_modificada'
 
-export type EntidadNotificacion = 'oportunidad' | 'empresa' | 'solicitud' | 'meta'
+/** `entidad_notificacion_enum` del contrato §23. Es `meta_venta`, NO `meta`. */
+export type EntidadNotificacion = 'oportunidad' | 'empresa' | 'solicitud' | 'meta_venta'
 
 export interface Notificacion {
   id: number

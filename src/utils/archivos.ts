@@ -4,12 +4,17 @@ import { codigoDeError, estadoHttpDeError, mensajeDeError } from '@/api/client'
  * Límite de subida. Se valida en el cliente para no gastar una subida larga que
  * terminará en 413. Constante configurable — nunca escribir el número suelto en la UI.
  *
- * Confirmado con el equipo de backend (2026-07-31): el límite del servidor es
- * 104_857_600 bytes, es decir MiB (100 × 1024 × 1024), no MB decimales — por eso
- * el cálculo de abajo coincide byte a byte. Además, el framing del multipart
- * (boundary, headers, CRLFs) NO cuenta contra ese límite: el backend mide el
- * contenido ya desenmarcado, así que comparar contra `file.size` es exacto y no
- * hace falta reservar margen.
+ * `100` es el valor POR DEFECTO de la propiedad configurable del backend
+ * `app.drive.max-file-size-bytes` (ver `docs/contrato_api.md §24`), es decir MiB
+ * (100 × 1024 × 1024), no MB decimales — por eso el cálculo de abajo coincide byte a
+ * byte con ese valor por defecto. La validación de cliente es solo UX (ahorra una
+ * subida larga condenada al 413); la autoridad real es el backend. Si el equipo de
+ * ops cambia esa propiedad, este número queda desalineado y hay que actualizarlo a
+ * mano — el backend no expone el límite vigente por ningún endpoint.
+ *
+ * Además, el framing del multipart (boundary, headers, CRLFs) NO cuenta contra ese
+ * límite: el backend mide el contenido ya desenmarcado, así que comparar contra
+ * `file.size` es exacto y no hace falta reservar margen.
  */
 export const MAX_TAMANO_ARCHIVO_MB = 100
 export const MAX_TAMANO_ARCHIVO_BYTES = MAX_TAMANO_ARCHIVO_MB * 1024 * 1024

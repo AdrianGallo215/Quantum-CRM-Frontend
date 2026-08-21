@@ -153,7 +153,7 @@ export function TareasCard({ oportunidad: o }: { oportunidad: OportunidadDetalle
         onSave={(input) => actualizar.mutateAsync({ id: tareaSel!.id, input })}
         guardando={actualizar.isPending}
         contactos={o.contactos}
-        empleados={empleados}
+        empleados={empleados.datos}
       />
 
       <Modal
@@ -183,10 +183,21 @@ export function TareasCard({ oportunidad: o }: { oportunidad: OportunidadDetalle
             />
           </Form.Item>
           <Form.Item name="id_asignado" label="Responsable">
-            <EmpleadoSelect empleados={empleados} allowClear placeholder="Te asignas a ti mismo si lo dejas vacío" />
+            <EmpleadoSelect
+              empleados={empleados.datos}
+              cargando={empleados.cargando}
+              error={empleados.error}
+              allowClear
+              placeholder="Te asignas a ti mismo si lo dejas vacío"
+            />
           </Form.Item>
           <Form.Item name="ids_colaboradores" label="Colaboradores">
-            <EmpleadoMultiSelect empleados={empleados} placeholder="Sin colaboradores" />
+            <EmpleadoMultiSelect
+              empleados={empleados.datos}
+              cargando={empleados.cargando}
+              error={empleados.error}
+              placeholder="Sin colaboradores"
+            />
           </Form.Item>
         </Form>
       </Modal>

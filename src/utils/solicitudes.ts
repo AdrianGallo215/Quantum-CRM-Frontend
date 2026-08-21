@@ -8,13 +8,18 @@ import { nombreCompleto } from './formato'
 export function limiteDctoDirecto(rol: Rol): number | null {
   switch (rol) {
     case 'vendedor':
-    case 'analista':
       return 3
     case 'jdv':
       return 7
     case 'gerencia':
     case 'admin':
       return null // sin límite
+    case 'analista':
+    case 'otro':
+      // Roles de apoyo (contrato §25, PR backend #9, 2026-08-20): no aplican
+      // descuento por ninguna vía, ni directo ni por solicitud. `analista`
+      // tenía 3 antes de ese cambio; perdió el margen al pasar a rol de apoyo.
+      return 0
   }
 }
 

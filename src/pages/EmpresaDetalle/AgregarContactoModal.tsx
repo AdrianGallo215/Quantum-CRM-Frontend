@@ -127,6 +127,10 @@ export function AgregarContactoModal({ idEmpresa, open, onClose }: Props) {
                   <div style={{ fontWeight: 600 }}>
                     {c.nombres} {c.apellidos}
                   </div>
+                  {/* Para roles de apoyo, el backend ya redacta esta llamada
+                      (contexto=vincular): solo llega id/nombres/apellidos, sin
+                      tlf_1 ni empresas — no hace falta ningún chequeo de rol
+                      aquí, se muestra lo que el servidor decida enviar. */}
                   <div style={{ fontSize: 12, color: '#747781' }}>
                     {c.tlf_1 ?? 'Sin teléfono'}
                     {c.empresas && c.empresas.length > 0 &&

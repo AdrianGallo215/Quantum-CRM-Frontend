@@ -14,6 +14,11 @@ import { Cargando, ErrorCarga } from '@/components/Estados'
 import { PositivoTag, NeutralTag } from '@/components/EstadoTag'
 import { Icono } from '@/components/Icono'
 
+/**
+ * Roles asignables desde el panel de administración. NO incluye `otro`: existe
+ * en el enum del backend y la app sabe mostrarlo, pero no es un rol que un
+ * admin deba poder conceder desde la UI.
+ */
 const ROLES: Rol[] = ['admin', 'gerencia', 'jdv', 'vendedor', 'analista']
 
 interface FormValues {

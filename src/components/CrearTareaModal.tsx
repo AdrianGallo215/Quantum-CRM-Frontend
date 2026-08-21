@@ -84,7 +84,7 @@ export function CrearTareaModal({ open, onClose, empresaPreseleccionada, contact
 
   // Si solo hay una candidata, elegirla por el usuario. Se depende del id (un
   // número estable), no del objeto, para no reintroducir el bucle de render.
-  const idUnicaActiva = activas.length === 1 ? activas[0].id : null
+  const idUnicaActiva = activas.length === 1 ? (activas[0]?.id ?? null) : null
   useEffect(() => {
     if (open && idUnicaActiva !== null) {
       form.setFieldValue('id_oportunidad', idUnicaActiva)
@@ -206,11 +206,22 @@ export function CrearTareaModal({ open, onClose, empresaPreseleccionada, contact
         </Form.Item>
 
         <Form.Item name="id_asignado" label="Responsable">
-          <EmpleadoSelect empleados={empleados} allowClear placeholder="Te asignas a ti mismo si lo dejas vacío" />
+          <EmpleadoSelect
+            empleados={empleados.datos}
+            cargando={empleados.cargando}
+            error={empleados.error}
+            allowClear
+            placeholder="Te asignas a ti mismo si lo dejas vacío"
+          />
         </Form.Item>
 
         <Form.Item name="ids_colaboradores" label="Colaboradores">
-          <EmpleadoMultiSelect empleados={empleados} placeholder="Sin colaboradores" />
+          <EmpleadoMultiSelect
+            empleados={empleados.datos}
+            cargando={empleados.cargando}
+            error={empleados.error}
+            placeholder="Sin colaboradores"
+          />
         </Form.Item>
       </Form>
     </Modal>

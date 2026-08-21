@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { Link, useParams } from 'react-router-dom'
 import { useCambiarEstadoOportunidad, useOportunidad } from '@/hooks/useOportunidades'
 import { mensajeDeError } from '@/api/client'
-import { useAuthStore, ROLES_FACTURA, tieneRol } from '@/store/authStore'
+import { useAuthStore, ROLES_FACTURA, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import { ETAPAS_PIPELINE, type EstadoOportunidad, type OportunidadDetalle } from '@/types'
 import { ETIQUETA_ETAPA } from '@/utils/etiquetas'
 import { formatoFecha, nombreCompleto } from '@/utils/formato'
@@ -39,6 +39,7 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
   const { message, notification } = App.useApp()
   const empleado = useAuthStore((s) => s.empleado)
   const puedeFacturar = tieneRol(empleado, ROLES_FACTURA)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
 
   const cambiarEstado = useCambiarEstadoOportunidad(o.id, o.id_empresa)
   const [modalCierre, setModalCierre] = useState(false)
@@ -130,17 +131,20 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
               const done = !estaCerrada && idx < indiceActual
               const activo = !estaCerrada && idx === indiceActual
               const deshabilitadoFactura = etapa === 'facturado' && !puedeFacturar
+              const deshabilitado = deshabilitadoFactura || esRolDeApoyo
               return (
                 <button
                   key={etapa}
                   type="button"
                   className="relative z-10 flex flex-col items-center gap-3 bg-white px-6 cursor-pointer disabled:cursor-not-allowed"
                   onClick={() => solicitarCambio(etapa)}
-                  disabled={deshabilitadoFactura}
+                  disabled={deshabilitado}
                   title={
-                    deshabilitadoFactura
-                      ? 'Solo admin, gerencia o analista pueden confirmar Facturado'
-                      : `Mover a ${ETIQUETA_ETAPA[etapa]}`
+                    esRolDeApoyo
+                      ? 'Tu rol es de apoyo: solo puedes ver esta oportunidad, no editarla'
+                      : deshabilitadoFactura
+                        ? 'Solo admin o gerencia pueden confirmar Facturado'
+                        : `Mover a ${ETIQUETA_ETAPA[etapa]}`
                   }
                 >
                   {done ? (
@@ -178,7 +182,7 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
               )
             })}
           </div>
-          {!estaCerrada && (
+          {!estaCerrada && !esRolDeApoyo && (
             <div className="flex justify-end mt-4">
               <button
                 className="btn-circular px-5 py-1.5 border border-error text-error text-label-md font-bold hover:bg-error-container/40 transition-colors"

@@ -6,6 +6,7 @@ import {
 } from '@/hooks/useOportunidades'
 import { useEmpresa } from '@/hooks/useEmpresas'
 import { mensajeDeError } from '@/api/client'
+import { useAuthStore, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import type { ContactoEnOportunidad, OportunidadDetalle } from '@/types'
 
 /** Tarjeta "Contactos Relacionados" del prototipo detalle_de_oportunidad_simplificado */
@@ -18,6 +19,8 @@ export function ContactosCard({ oportunidad: o }: { oportunidad: OportunidadDeta
   const empresa = useEmpresa(o.id_empresa)
   const vincular = useVincularContactoOportunidad(o.id)
   const desvincular = useDesvincularContactoOportunidad(o.id)
+  const empleado = useAuthStore((s) => s.empleado)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
 
   const yaVinculados = new Set(o.contactos.map((c) => c.id))
   const contactosEmpresa = empresa.data?.contactos ?? []
@@ -44,12 +47,14 @@ export function ContactosCard({ oportunidad: o }: { oportunidad: OportunidadDeta
           <span className="material-symbols-outlined text-primary">group</span>
           Contactos Relacionados
         </h2>
-        <button
-          className="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors"
-          onClick={() => setModalVincular(true)}
-        >
-          <span className="material-symbols-outlined">person_add</span>
-        </button>
+        {!esRolDeApoyo && (
+          <button
+            className="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors"
+            onClick={() => setModalVincular(true)}
+          >
+            <span className="material-symbols-outlined">person_add</span>
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -94,24 +99,31 @@ export function ContactosCard({ oportunidad: o }: { oportunidad: OportunidadDeta
                 >
                   <span className="material-symbols-outlined text-[20px]">mail</span>
                 </a>
-                <Popconfirm
-                  title="¿Desvincular contacto de la oportunidad?"
-                  okText="Desvincular"
-                  cancelText="Cancelar"
-                  onConfirm={() =>
-                    desvincular.mutate(c.id, {
-                      onSuccess: () => message.success('Contacto desvinculado'),
-                      onError: (e) => message.error(mensajeDeError(e)),
-                    })
-                  }
-                >
-                  <button
-                    className="flex-1 py-2 bg-surface-container rounded-full text-error hover:bg-error hover:text-white transition-all flex justify-center items-center"
-                    onClick={(e) => e.stopPropagation()}
+                {/* DELETE /oportunidades/:id/contactos/:contacto_id no tiene rol
+                    documentado en el contrato (vacío real, no una omisión de este
+                    archivo). Se asume bloqueado para roles de apoyo por ser el mismo
+                    recurso que POST (sí documentado, línea 1201) — pendiente de que
+                    backend lo confirme por escrito. Ver plan 2026-08-18, T7.6. */}
+                {!esRolDeApoyo && (
+                  <Popconfirm
+                    title="¿Desvincular contacto de la oportunidad?"
+                    okText="Desvincular"
+                    cancelText="Cancelar"
+                    onConfirm={() =>
+                      desvincular.mutate(c.id, {
+                        onSuccess: () => message.success('Contacto desvinculado'),
+                        onError: (e) => message.error(mensajeDeError(e)),
+                      })
+                    }
                   >
-                    <span className="material-symbols-outlined text-[20px]">link_off</span>
-                  </button>
-                </Popconfirm>
+                    <button
+                      className="flex-1 py-2 bg-surface-container rounded-full text-error hover:bg-error hover:text-white transition-all flex justify-center items-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">link_off</span>
+                    </button>
+                  </Popconfirm>
+                )}
               </div>
             </div>
           )

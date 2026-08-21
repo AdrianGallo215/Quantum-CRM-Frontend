@@ -14,6 +14,20 @@ export const contactosApi = {
     return res.data
   },
 
+  /**
+   * Variante de `buscar` para el flujo de "vincular contacto existente" a una
+   * empresa (`AgregarContactoModal`). `contexto=vincular` le pide al backend
+   * buscar en TODO el CRM —no solo en la cartera visible del usuario— para no
+   * bloquear el chequeo anti-duplicados (PRD §9.7); a cambio, para roles de
+   * apoyo la respuesta llega redactada a solo `id`/`nombres`/`apellidos`.
+   * NO usar en el listado general de /contactos, que no necesita (ni debe
+   * recibir) este parámetro — ver respuesta de backend, PR #11.
+   */
+  buscarParaVincular: async (params: { q: string }): Promise<Contacto[]> => {
+    const res = await get<Contacto[]>('/contactos', { ...params, contexto: 'vincular' })
+    return res.data
+  },
+
   listar: async (filtros?: ContactosFiltros): Promise<ApiResponse<ContactoListItem[]>> => {
     return get<ContactoListItem[]>('/contactos', filtros as Record<string, unknown>)
   },

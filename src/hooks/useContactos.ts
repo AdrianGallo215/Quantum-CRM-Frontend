@@ -18,6 +18,12 @@ export function useContacto(id: number) {
   })
 }
 
+/**
+ * Sincronización 360: el contacto aparece embebido en la ficha de cada empresa
+ * a la que está vinculado (`Empresa.contactos`) y en las oportunidades. Como no
+ * sabemos aquí a qué empresas pertenece, se invalida el prefijo `empresas`
+ * completo, que tras la jerarquía de queryKeys alcanza también a los detalles.
+ */
 export function useActualizarContactoDetalle(id: number) {
   const qc = useQueryClient()
   return useMutation({

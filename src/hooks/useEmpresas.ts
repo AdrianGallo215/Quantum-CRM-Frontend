@@ -74,10 +74,16 @@ export function useCambiarCarteraMaestra(id: number) {
   })
 }
 
+/**
+ * Único uso hoy: el buscador de `AgregarContactoModal` (vincular contacto
+ * existente a una empresa). Usa `buscarParaVincular` —no `buscar`— porque
+ * necesita alcanzar todo el CRM para el chequeo anti-duplicados; el backend
+ * redacta la respuesta a solo nombre para roles de apoyo (PR #11).
+ */
 export function useBuscarContactos(q: string, enabled = true) {
   return useQuery({
-    queryKey: [...qk.contactos, { q }],
-    queryFn: () => contactosApi.buscar({ q }),
+    queryKey: [...qk.contactos, 'vincular', { q }],
+    queryFn: () => contactosApi.buscarParaVincular({ q }),
     enabled: enabled && q.trim().length >= 2,
   })
 }
@@ -105,6 +111,8 @@ export function useActualizarContacto(idEmpresa: number) {
   })
 }
 
+// `qk.contactos` alcanza también a los detalles de contacto (ver la invariante
+// de prefijos en queryKeys.ts), que listan las empresas a las que pertenecen.
 export function useVincularContacto(idEmpresa: number) {
   const qc = useQueryClient()
   return useMutation({

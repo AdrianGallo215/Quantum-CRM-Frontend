@@ -26,8 +26,24 @@ export function tieneRol(empleado: Empleado | null, roles: Rol[]): boolean {
   return empleado !== null && roles.includes(empleado.rol)
 }
 
-/** Roles que pueden confirmar el paso a facturado */
-export const ROLES_FACTURA: Rol[] = ['admin', 'gerencia', 'analista']
+/**
+ * Roles que pueden confirmar el paso a facturado. `analista` perdió este
+ * privilegio el 2026-08-18 al pasar a rol de apoyo (contrato §3.7, §25).
+ */
+export const ROLES_FACTURA: Rol[] = ['admin', 'gerencia']
+
+/**
+ * Roles de apoyo (2026-08-18, contrato §25): sin cartera propia. Su
+ * visibilidad sobre empresas/oportunidades se reduce a donde colaboran vía
+ * tarea (`ids_colaboradores`), y NINGUNA escritura sobre esos dos recursos
+ * les está permitida — el backend responde `403 PERMISO_INSUFICIENTE` a
+ * crear, editar, cambiar estado, subir archivos a Drive, vincular contacto a
+ * una oportunidad, aplicar descuento (por ninguna vía) o crear una solicitud.
+ * Eventos y la vinculación de contactos a una EMPRESA (no a una oportunidad)
+ * quedan exentos — no tienen guard de escritura propio en el backend
+ * (asimetría documentada, no un descuido; ver `matriz_permisos.md §2.3/§2.5`).
+ */
+export const ROLES_APOYO: Rol[] = ['analista', 'otro']
 /** Roles con acceso a reportes */
 export const ROLES_REPORTES: Rol[] = ['admin', 'gerencia', 'jdv']
 /** Roles de supervisión (reasignar, traspasar, ver equipo) */

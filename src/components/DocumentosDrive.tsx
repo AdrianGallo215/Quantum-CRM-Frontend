@@ -13,6 +13,7 @@ import { formatoTamanoArchivo } from '@/utils/formato'
 import { urlSegura } from '@/utils/url'
 import { Icono } from '@/components/Icono'
 import { ErrorCarga } from '@/components/Estados'
+import { useAuthStore, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import type { TipoEntidadArchivo } from '@/types'
 
 /**
@@ -43,6 +44,8 @@ export function DocumentosDrive({ tipo, id, driveFolderId, nombreFile }: Documen
   const archivos = useArchivos(tipo, id)
   const subir = useSubirArchivo(tipo, id)
   const crearCarpeta = useCrearCarpetaDrive(tipo, id)
+  const empleado = useAuthStore((s) => s.empleado)
+  const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
 
   const [errorSubida, setErrorSubida] = useState<ErrorSubida | null>(null)
   const [errorCarpeta, setErrorCarpeta] = useState<ErrorSubida | null>(null)
@@ -112,13 +115,19 @@ export function DocumentosDrive({ tipo, id, driveFolderId, nombreFile }: Documen
           Abrir {nombreFile}
         </Button>
       ) : (
-        <Tooltip title="Aún no existe la carpeta en Drive. Créala para empezar a guardar documentos.">
+        <Tooltip
+          title={
+            esRolDeApoyo
+              ? 'Tu rol es de solo lectura: no puedes crear la carpeta de Drive'
+              : 'Aún no existe la carpeta en Drive. Créala para empezar a guardar documentos.'
+          }
+        >
           <span className="block">
             <Button
               type="primary"
               block
               loading={crearCarpeta.isPending}
-              disabled={crearCarpeta.isPending}
+              disabled={crearCarpeta.isPending || esRolDeApoyo}
               onClick={() => void onCrearCarpeta()}
               icon={<Icono nombre="create_new_folder" tamano={18} />}
             >
@@ -202,7 +211,7 @@ export function DocumentosDrive({ tipo, id, driveFolderId, nombreFile }: Documen
         <Upload.Dragger
           maxCount={1}
           showUploadList={false}
-          disabled={subir.isPending}
+          disabled={subir.isPending || esRolDeApoyo}
           // return false → AntD no sube nada por su cuenta; la subida la hace el hook.
           beforeUpload={(file) => {
             void enviar(file)

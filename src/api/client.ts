@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios'
 import type { ApiError, ApiResponse } from '@/types'
+import { useAuthStore } from '@/store/authStore'
 
 // El token vive en cookie httpOnly — el JS nunca lo lee ni lo guarda.
 // withCredentials hace que el navegador adjunte la cookie en cada request.
@@ -14,10 +15,6 @@ interface RetriableConfig extends AxiosRequestConfig {
 }
 
 let refreshPromise: Promise<void> | null = null
-
-/** Formulario de cambio obligatorio. El backend bloquea el resto de la app. */
-const RUTA_CAMBIO_CONTRASENA = '/cambiar-contrasena'
-let redirigiendoACambioContrasena = false
 
 async function refreshSession(): Promise<void> {
   // Un solo refresh en vuelo; el refresh_token viaja en cookie httpOnly.
@@ -42,7 +39,14 @@ apiClient.interceptors.response.use(
     const config = error.config as RetriableConfig | undefined
     const status = error.response?.status
     const url = config?.url ?? ''
-    const esAuth = url.includes('/auth/login') || url.includes('/auth/refresh')
+    // Endpoints de credenciales: un 401 aquí significa "las credenciales que
+    // acabas de escribir son incorrectas", no "tu sesión caducó". Refrescar y
+    // reintentar reenviaría la contraseña equivocada y duplicaría el intento
+    // fallido contra el contador del servidor (contrato §6).
+    const esAuth =
+      url.includes('/auth/login') ||
+      url.includes('/auth/refresh') ||
+      url.includes('/auth/cambiar-contrasena')
 
     if (status === 401 && config && !config._retry && !esAuth) {
       config._retry = true
@@ -50,10 +54,11 @@ apiClient.interceptors.response.use(
         await refreshSession()
         return apiClient.request(config)
       } catch {
-        // Refresh falló → sesión terminada. Redirigir a login.
-        if (window.location.pathname !== '/login') {
-          window.location.assign('/login')
-        }
+        // Refresh falló → sesión terminada. Se limpia el store para que
+        // RequireAuth mande a /login por navegación SPA. `assign()` no servía
+        // aquí: es asíncrono, así que N peticiones fallando a la vez pasaban
+        // todas el chequeo de pathname y encadenaban N navegaciones.
+        useAuthStore.getState().limpiar()
       }
     }
 
@@ -70,17 +75,19 @@ apiClient.interceptors.response.use(
      *
      * Se distingue por `code`, no por el 403 a secas: un 403 normal
      * (PERMISO_INSUFICIENTE) debe seguir mostrando la pantalla "Sin acceso".
+     *
+     * Solo se marca el flag en el store — la navegación la hace RequireAuth, que
+     * ya redirige de forma declarativa leyendo ese mismo campo. Antes esto era
+     * `window.location.assign()` con una bandera de módulo que nunca se reseteaba:
+     * la recarga completa tiraba cualquier formulario abierto, y si el documento
+     * sobrevivía (bfcache al pulsar Atrás) la bandera quedaba trabada en `true` y
+     * desactivaba este bloque para siempre.
      */
-    if (
-      status === 403 &&
-      extraerApiError(error)?.code === 'CAMBIO_CONTRASENA_REQUERIDO' &&
-      !redirigiendoACambioContrasena &&
-      window.location.pathname !== RUTA_CAMBIO_CONTRASENA
-    ) {
-      // El flag evita que varias respuestas 403 en paralelo (el dashboard lanza
-      // muchas queries a la vez) disparen varias navegaciones encadenadas.
-      redirigiendoACambioContrasena = true
-      window.location.assign(RUTA_CAMBIO_CONTRASENA)
+    if (status === 403 && extraerApiError(error)?.code === 'CAMBIO_CONTRASENA_REQUERIDO') {
+      const { empleado, setEmpleado } = useAuthStore.getState()
+      if (empleado && !empleado.requiere_cambio_contrasena) {
+        setEmpleado({ ...empleado, requiere_cambio_contrasena: true })
+      }
     }
 
     return Promise.reject(error)

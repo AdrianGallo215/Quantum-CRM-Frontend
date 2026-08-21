@@ -89,12 +89,18 @@ export function useTraspasarOportunidad(id: number) {
   })
 }
 
+/**
+ * Vincular/desvincular toca las DOS puntas de la relación: la oportunidad
+ * (`OportunidadDetalle.contactos`) y el contacto (`ContactoDetalle.oportunidades`).
+ * Antes solo se invalidaba la oportunidad, así que la ficha del contacto seguía
+ * listando una oportunidad de la que ya no formaba parte.
+ */
 export function useVincularContactoOportunidad(id: number) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: { id_contacto: number; rol_en_oportunidad: string }) =>
       oportunidadesApi.vincularContacto(id, input),
-    onSuccess: () => invalidar(qc, qk.oportunidad(id)),
+    onSuccess: () => invalidar(qc, qk.oportunidad(id), qk.contactos),
   })
 }
 
@@ -102,7 +108,7 @@ export function useDesvincularContactoOportunidad(id: number) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (idContacto: number) => oportunidadesApi.desvincularContacto(id, idContacto),
-    onSuccess: () => invalidar(qc, qk.oportunidad(id)),
+    onSuccess: () => invalidar(qc, qk.oportunidad(id), qk.contactos),
   })
 }
 

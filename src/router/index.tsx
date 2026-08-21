@@ -3,6 +3,13 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/AppLayout'
 import { Cargando } from '@/components/Estados'
 import { RequireAuth, RequireRol } from './guards'
+import { RUTA_CAMBIO_CONTRASENA, RUTA_INICIO, RUTA_LOGIN } from './rutas'
+import {
+  ROLES_ADMIN,
+  ROLES_BANDEJA_GERENCIA,
+  ROLES_REPORTES,
+  ROLES_SOLICITANTES,
+} from '@/store/authStore'
 import { LoginPage } from '@/pages/Login/LoginPage'
 import { CambiarContrasenaPage } from '@/pages/Login/CambiarContrasenaPage'
 import { InicioPage } from '@/pages/Inicio/InicioPage'
@@ -57,8 +64,8 @@ export function AppRouter() {
   return (
     <Suspense fallback={<Cargando />}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/cambiar-contrasena" element={<CambiarContrasenaPage />} />
+        <Route path={RUTA_LOGIN} element={<LoginPage />} />
+        <Route path={RUTA_CAMBIO_CONTRASENA} element={<CambiarContrasenaPage />} />
 
         <Route
           element={
@@ -79,7 +86,7 @@ export function AppRouter() {
           <Route
             path="/reportes"
             element={
-              <RequireRol roles={['admin', 'gerencia', 'jdv']}>
+              <RequireRol roles={ROLES_REPORTES}>
                 <ReportesPage />
               </RequireRol>
             }
@@ -87,7 +94,7 @@ export function AppRouter() {
           <Route
             path="/admin/*"
             element={
-              <RequireRol roles={['admin']}>
+              <RequireRol roles={ROLES_ADMIN}>
                 <AdminPage />
               </RequireRol>
             }
@@ -95,7 +102,7 @@ export function AppRouter() {
           <Route
             path="/gerencia"
             element={
-              <RequireRol roles={['gerencia', 'admin']}>
+              <RequireRol roles={ROLES_BANDEJA_GERENCIA}>
                 <GerenciaPage />
               </RequireRol>
             }
@@ -103,14 +110,14 @@ export function AppRouter() {
           <Route
             path="/solicitudes"
             element={
-              <RequireRol roles={['vendedor', 'analista', 'jdv']}>
+              <RequireRol roles={ROLES_SOLICITANTES}>
                 <SolicitudesPage />
               </RequireRol>
             }
           />
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to={RUTA_INICIO} replace />} />
       </Routes>
     </Suspense>
   )

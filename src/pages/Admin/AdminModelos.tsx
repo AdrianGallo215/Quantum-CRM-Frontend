@@ -3,13 +3,12 @@ import { App, Button, Form, Input, InputNumber, Modal, Select, Table } from 'ant
 import type { ColumnsType } from 'antd/es/table'
 import { useActualizarModelo, useCrearModelo, useModelos } from '@/hooks/useCatalogos'
 import { mensajeDeError } from '@/api/client'
-import type { Modelo } from '@/types'
+import { APLICACIONES } from '@/types'
+import type { Aplicacion, Modelo } from '@/types'
 import { formatoMonto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NeutralTag } from '@/components/EstadoTag'
 import { Icono } from '@/components/Icono'
-
-const APLICACIONES = ['urbano', 'interprovincial', 'turismo', 'personal', 'otro']
 
 interface FormValues {
   codigo: string
@@ -18,7 +17,7 @@ interface FormValues {
   max_asientos?: number | null
   precio_base: number
   ficha_tecnica?: string | null
-  aplicaciones: string[]
+  aplicaciones: Aplicacion[]
 }
 
 export function AdminModelos() {

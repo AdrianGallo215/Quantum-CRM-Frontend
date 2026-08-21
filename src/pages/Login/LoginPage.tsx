@@ -8,6 +8,7 @@ import { authApi } from '@/api/auth'
 import { codigoDeError, estadoHttpDeError, mensajeDeError } from '@/api/client'
 import { useAuthStore } from '@/store/authStore'
 import { Cargando } from '@/components/Estados'
+import { RUTA_CAMBIO_CONTRASENA, RUTA_INICIO } from '@/router/rutas'
 
 const schema = z.object({
   email: z.string().min(1, 'Requerido').email('Email inválido'),
@@ -66,9 +67,9 @@ export function LoginPage() {
       // al restaurar la sesión: así ambos caminos dejan el store idéntico.
       setEmpleado({ ...res.empleado, requiere_cambio_contrasena: res.requiere_cambio_contrasena })
       if (res.requiere_cambio_contrasena) {
-        navigate('/cambiar-contrasena', { replace: true })
+        navigate(RUTA_CAMBIO_CONTRASENA, { replace: true })
       } else {
-        navigate('/', { replace: true })
+        navigate(RUTA_INICIO, { replace: true })
       }
     } catch (e) {
       // El 401 sigue sin revelar si falló el email o la contraseña (contrato §6);
@@ -83,7 +84,9 @@ export function LoginPage() {
   // formulario aquí provocaba un parpadeo de login a quien ya estaba dentro.
   if (cargandoSesion) return <Cargando mensaje="Verificando sesión…" />
   if (empleado) {
-    return <Navigate to={empleado.requiere_cambio_contrasena ? '/cambiar-contrasena' : '/'} replace />
+    return (
+      <Navigate to={empleado.requiere_cambio_contrasena ? RUTA_CAMBIO_CONTRASENA : RUTA_INICIO} replace />
+    )
   }
 
   return (
