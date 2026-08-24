@@ -54,3 +54,13 @@ export const ROLES_BANDEJA_GERENCIA: Rol[] = ['gerencia', 'admin']
 export const ROLES_SOLICITANTES: Rol[] = ['vendedor', 'analista', 'jdv']
 /** Único rol que puede eliminar empresas/oportunidades. Ocultar el botón es UX — el backend rechaza con 403 a cualquier no-admin */
 export const ROLES_ADMIN: Rol[] = ['admin']
+/**
+ * Roles que ven el FAB de los cotizadores externos. `admin` se añadió el
+ * 2026-08-24: opera el sistema y necesita cotizar igual que el resto. Los
+ * roles de apoyo (`ROLES_APOYO`) siguen fuera: no llevan cartera propia.
+ *
+ * Es puramente UX: los cotizadores son sistemas externos con su propia
+ * autenticación. Esta lista no protege nada, solo evita ofrecer un enlace
+ * inútil a quien no cotiza.
+ */
+export const ROLES_COTIZADOR: Rol[] = ['admin', 'vendedor', 'jdv', 'gerencia']
