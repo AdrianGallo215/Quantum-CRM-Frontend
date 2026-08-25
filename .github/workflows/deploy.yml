@@ -14,8 +14,9 @@
 # redesplegar la etiqueta del commit anterior, sin reconstruir nada.
 #
 # Configuración necesaria en el repositorio (Settings → Secrets and variables):
-#   Variables:  VITE_API_BASE_URL   (p. ej. https://api.tu-dominio.com/api/v1)
-#               VITE_COTIZADOR_URL  (opcional; vacío = el FAB no aparece)
+#   Variables:  VITE_API_BASE_URL           (p. ej. https://api.tu-dominio.com/api/v1)
+#               VITE_COTIZADOR_URL          (opcional; vacío = URL por defecto)
+#               VITE_COTIZADOR_LEASING_URL  (opcional; vacío = URL por defecto)
 # GITHUB_TOKEN es automático — no hay que crearlo.
 
 name: Deploy
@@ -114,6 +115,7 @@ jobs:
           build-args: |
             VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
             VITE_COTIZADOR_URL=${{ vars.VITE_COTIZADOR_URL }}
+            VITE_COTIZADOR_LEASING_URL=${{ vars.VITE_COTIZADOR_LEASING_URL }}
 
       - name: Resumen
         run: |

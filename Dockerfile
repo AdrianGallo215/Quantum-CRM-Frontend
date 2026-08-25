@@ -29,8 +29,10 @@ COPY . .
 # el fallback '/api/v1' del cliente solo sirve si la API va detrás del mismo dominio.
 ARG VITE_API_BASE_URL
 ARG VITE_COTIZADOR_URL=""
+ARG VITE_COTIZADOR_LEASING_URL=""
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_COTIZADOR_URL=$VITE_COTIZADOR_URL
+ENV VITE_COTIZADOR_LEASING_URL=$VITE_COTIZADOR_LEASING_URL
 
 # Falla temprano y con un mensaje claro en vez de publicar un bundle que apunta
 # a ninguna parte y solo se descubre roto en el navegador.
