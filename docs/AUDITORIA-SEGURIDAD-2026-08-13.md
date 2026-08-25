@@ -129,19 +129,29 @@ Los cinco renderizan una URL que se origina en input de usuario, sin validar el 
 
 **Corrección requerida:** un helper `urlSegura(url: string | null): string | undefined` en `src/utils/` que permita solo `http:`, `https:`, `mailto:` y `tel:`, y devuelva `undefined` en cualquier otro caso. Aplicarlo en los cinco puntos.
 
-#### M-2 — El cotizador externo se abre por HTTP plano
+#### M-2 — El cotizador de Quantum Investment se abre por HTTP plano
 
-**Archivo:** `src/components/CotizadorFab.tsx:18`
+**Archivo:** `src/utils/cotizadores.ts` — constante `URL_INVESTMENT_POR_DEFECTO`
+*(actualizado el 2026-08-24: la constante estaba en `src/components/CotizadorFab.tsx:18` hasta que se añadió el segundo cotizador)*
 
 ```ts
-'http://quantum.okserver43.com/app/modulos/cotizacion/'
+const URL_INVESTMENT_POR_DEFECTO = 'http://quantum.okserver43.com/app/modulos/cotizacion/'
 ```
 
 Navegación en texto plano desde un origen HTTPS con HSTS. Al ser navegación de primer nivel no la bloquea la regla de contenido mixto, pero las credenciales que el usuario introduzca en ese sistema viajan sin cifrar y son interceptables en la red corporativa. También acostumbra al usuario a aceptar el aviso de "sitio no seguro".
 
-El código ya documenta la deuda (líneas 12-15). `window.open(..., 'noopener,noreferrer')` está correctamente aplicado.
+**Alcance tras el cambio del 2026-08-24.** Ahora hay dos cotizadores enlazados y solo uno está afectado:
 
-**Corrección requerida:** TLS en el cotizador y cambiar la constante a `https://`. Mientras tanto, es una decisión de riesgo que conviene registrar explícitamente, no un detalle de implementación.
+| Cotizador | URL por defecto | Estado |
+|---|---|---|
+| Quantum Investment | `http://quantum.okserver43.com/...` | 🔴 Sin TLS — este hallazgo |
+| Quantum Leasing | `https://quantumleasing.okserver51.com/...` | 🟢 Con TLS |
+
+Un test de `src/utils/cotizadores.test.ts` fija que Leasing resuelve a un origen `https:`, para que no pierda el certificado en un cambio futuro sin que nadie se entere.
+
+El código documenta la deuda en el encabezado de `src/utils/cotizadores.ts`. `window.open(..., 'noopener,noreferrer')` está correctamente aplicado en ambos.
+
+**Corrección requerida:** TLS en el servidor de Investment y cambiar `URL_INVESTMENT_POR_DEFECTO` a `https://` (o definir `VITE_COTIZADOR_URL` con https:// sin tocar código). Mientras tanto, es una decisión de riesgo que conviene registrar explícitamente, no un detalle de implementación.
 
 #### M-3 — Analítica de terceros recibe rutas con identificadores de negocio
 
@@ -228,7 +238,7 @@ Ledger: `docs/superpowers/plans/2026-08-13-fixes-auditoria-seguridad.progress.md
 
 | ID | Estado | Qué falta |
 |---|---|---|
-| **M-2** | Abierto | El cotizador (`quantum.okserver43.com`) sigue sin TLS. Depende de un sistema externo; no hay acción posible desde el frontend más allá de la constante ya documentada. |
+| **M-2** | Abierto (alcance reducido) | El cotizador de **Investment** (`quantum.okserver43.com`) sigue sin TLS. El de **Leasing** (`quantumleasing.okserver51.com`, añadido el 2026-08-24) sí lo tiene y hay un test que lo fija. Depende de un sistema externo; no hay acción posible desde el frontend más allá de la constante ya documentada. |
 | **Retry-After** | Pendiente de backend | Se envía en el 429 pero falta `Access-Control-Expose-Headers: Retry-After`; el navegador no puede leerla. Sin ella no se puede mostrar cuenta atrás. |
 | **`requiere_cambio_contrasena`** | Pendiente de backend | Aclarar si vive en `data` o dentro de `empleado` en la respuesta de login. El código lo lee de `empleado` y funciona. |
 | **react-router-dom** | Aceptado con riesgo | Vulnerabilidad de open redirect moderada; el parche está en 7.x (salto mayor). **Verificado no explotable**: no hay navegaciones con valores controlados por el usuario. Migración a v7 como proyecto aparte. |
