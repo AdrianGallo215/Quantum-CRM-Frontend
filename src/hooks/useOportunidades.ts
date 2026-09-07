@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { oportunidadesApi } from '@/api/oportunidades'
 import type {
+  ActualizarItemInput,
   ActualizarOportunidadInput,
   CambioEstadoInput,
   CrearOportunidadInput,
@@ -66,6 +67,29 @@ export function useActualizarOportunidad(id: number) {
     onSuccess: (data) => {
       invalidarOportunidad(qc, id)
       invalidar(qc, qk.empresa(data.id_empresa))
+    },
+  })
+}
+
+/**
+ * Edita un ítem de la oportunidad. No escribe la respuesta en la cache: el
+ * endpoint de ítems devuelve `cuota_quantum`/`cuota_total` en `null` siempre, y
+ * meter esos nulos en pantalla sería mentir. Se invalida y se repide (D6).
+ *
+ * Reutiliza `invalidarOportunidad`: cambiar cantidad, precio o descuento de un
+ * ítem cambia `monto_total`, que Inicio, Prospección, Reportes y Tareas también
+ * muestran (contrato §28, changelog 2026-09-04: los reportes leen
+ * `oportunidad_items` directamente). Invalidar solo tres claves —como hacía
+ * antes— dejaba esas vistas con el monto viejo hasta un remount (regresión B1
+ * de la auditoría de T7.1, `CLAUDE.md` regla 4).
+ */
+export function useActualizarItem(idOportunidad: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ idItem, input }: { idItem: number; input: ActualizarItemInput }) =>
+      oportunidadesApi.actualizarItem(idOportunidad, idItem, input),
+    onSuccess: () => {
+      invalidarOportunidad(qc, idOportunidad)
     },
   })
 }

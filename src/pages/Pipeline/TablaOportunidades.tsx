@@ -8,16 +8,12 @@ import { useAuthStore, ROLES_ADMIN, tieneRol } from '@/store/authStore'
 import type { EstadoOportunidad, Oportunidad } from '@/types'
 import { ETAPAS_PIPELINE } from '@/types/enums'
 import { EtapaTag } from '@/components/EstadoTag'
+import { EtiquetaModelos } from '@/components/EtiquetaModelos'
 import { Icono } from '@/components/Icono'
 import { ETIQUETA_ETAPA } from '@/utils/etiquetas'
-import {
-  nombreCompleto,
-  formatoMonto,
-  formatoPorcentaje,
-  formatoFecha,
-  formatoFechaHora,
-} from '@/utils/formato'
+import { nombreCompleto, formatoMonto, formatoFecha, formatoFechaHora } from '@/utils/formato'
 import { urlSegura } from '@/utils/url'
+import { etiquetaModelos, unidadesTotales } from '@/utils/oportunidades'
 
 const CLAVE_SESION_COLUMNAS = 'quantum_pipeline_tabla_columnas'
 
@@ -62,8 +58,8 @@ const DEFINICIONES: DefinicionColumna[] = [
       key: 'nombre',
       fixed: 'left',
       width: 220,
-      render: (_, o) => o.modelo.codigo,
-      sorter: (a, b) => compararTexto(a.modelo.codigo, b.modelo.codigo),
+      render: (_, o) => <EtiquetaModelos items={o.items} />,
+      sorter: (a, b) => compararTexto(etiquetaModelos(a.items), etiquetaModelos(b.items)),
     }),
   },
   {
@@ -104,9 +100,12 @@ const DEFINICIONES: DefinicionColumna[] = [
     visiblePorDefecto: true,
     construir: () => ({
       title: 'Unidades',
-      dataIndex: 'cantidad',
+      key: 'cantidad',
       align: 'center',
-      sorter: (a, b) => a.cantidad - b.cantidad,
+      // Suma de todos los ítems: una oportunidad con varios modelos vende varias
+      // cantidades a la vez, no una sola (D3).
+      render: (_, o) => unidadesTotales(o.items),
+      sorter: (a, b) => unidadesTotales(a.items) - unidadesTotales(b.items),
     }),
   },
   {
@@ -170,28 +169,12 @@ const DEFINICIONES: DefinicionColumna[] = [
       onFilter: (value, o) => (o.financiadora?.nombre ?? '—') === value,
     }),
   },
-  {
-    key: 'precio_unitario',
-    titulo: 'Precio Unitario',
-    visiblePorDefecto: false,
-    construir: () => ({
-      title: 'Precio Unitario',
-      dataIndex: 'precio_unitario',
-      render: (v: Oportunidad['precio_unitario']) => formatoMonto(v),
-      sorter: (a, b) => Number(a.precio_unitario) - Number(b.precio_unitario),
-    }),
-  },
-  {
-    key: 'dcto',
-    titulo: 'Descuento',
-    visiblePorDefecto: false,
-    construir: () => ({
-      title: 'Descuento',
-      dataIndex: 'dcto',
-      render: (v: Oportunidad['dcto']) => formatoPorcentaje(v),
-      sorter: (a, b) => Number(a.dcto) - Number(b.dcto),
-    }),
-  },
+  // Las columnas "Precio Unitario" y "Descuento" se eliminaron con V42: esos
+  // campos ya no viven en la raíz de la oportunidad, viven por ítem
+  // (`OportunidadItem.precio_venta`/`descuento`, contrato §10). Con varios
+  // ítems no hay un valor único que mostrar sin mentir — mismo principio que
+  // la columna "Modelo" (D3). Si hace falta ver esos datos, está el detalle de
+  // cada ítem en `OportunidadDetalle`.
   {
     key: 'garantia',
     titulo: 'Garantía',

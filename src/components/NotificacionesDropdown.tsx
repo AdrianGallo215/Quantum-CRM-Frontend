@@ -9,18 +9,38 @@ import {
 } from '@/hooks/useNotificaciones'
 import { useAuthStore, ROLES_BANDEJA_GERENCIA, tieneRol } from '@/store/authStore'
 import { formatoTiempoRelativo } from '@/utils/formato'
-import type { EntidadNotificacion, Notificacion } from '@/types'
+import type { Notificacion } from '@/types'
 
 /**
- * Ruta de detalle por tipo de entidad. Antes se derivaba con `${tipo}s`, que
- * generaba `/oportunidads/:id` — una ruta inexistente que el catch-all del
- * router mandaba a `/`. Es decir: TODA notificación de oportunidad (cambio de
- * estado, evento, tarea, traspaso) terminaba en el inicio.
- * Un mapa explícito hace imposible que vuelva a pasar en silencio.
+ * Ruta de detalle por tipo de entidad, o `null` si no hay una todavía.
+ *
+ * Antes era un `Record<Exclude<EntidadNotificacion, 'solicitud'|'meta_venta'>, string>`
+ * que no cubría todo el enum: cuando el backend agregó `entidad_tipo: 'simulacion'`
+ * (contrato §26, changelog 2026-09-07) sin que nadie tocara este archivo, el
+ * indexado sobre una clave ausente producía `navigate('/undefined/<id>')` —
+ * exactamente el patrón de bug K8 que `rutaDeSolicitud`
+ * (`src/utils/solicitudes.ts`) corrigió en las solicitudes; acá quedó vivo
+ * hasta que la auditoría de T7.1 lo encontró (hallazgo B3). El switch
+ * exhaustivo sin `default` es la misma cura: si el backend agrega un valor
+ * nuevo, `tsc` lo señala acá en vez de fallar en producción.
+ *
+ * `solicitud` y `meta_venta` devuelven `null` a propósito: su destino depende
+ * del rol (gerencia vs jdv) y se resuelve aparte en `irANotificacion`.
+ * `simulacion` devuelve `null` porque el módulo de Simulaciones todavía no
+ * tiene ruta propia — mejor no navegar que mandar a una ruta inexistente.
  */
-const RUTA_ENTIDAD: Record<Exclude<EntidadNotificacion, 'solicitud' | 'meta_venta'>, string> = {
-  oportunidad: 'oportunidades',
-  empresa: 'empresas',
+function rutaDeNotificacion(n: Notificacion): string | null {
+  switch (n.entidad_tipo) {
+    case 'oportunidad':
+      return `/oportunidades/${n.entidad_id}`
+    case 'empresa':
+      return `/empresas/${n.entidad_id}`
+    case 'solicitud':
+    case 'meta_venta':
+      return null
+    case 'simulacion':
+      return null
+  }
 }
 
 export function NotificacionesDropdown() {
@@ -45,7 +65,8 @@ export function NotificacionesDropdown() {
       navigate(tieneRol(empleado, ROLES_BANDEJA_GERENCIA) ? '/gerencia' : '/solicitudes')
       return
     }
-    navigate(`/${RUTA_ENTIDAD[n.entidad_tipo]}/${n.entidad_id}`)
+    const ruta = rutaDeNotificacion(n)
+    if (ruta) navigate(ruta)
   }
 
   return (

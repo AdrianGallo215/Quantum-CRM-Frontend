@@ -1,9 +1,9 @@
 /**
- * Cálculo en vivo de monto_total para mostrar en la UI.
+ * Monto de UN ítem (un modelo) para mostrar en la UI.
  * SOLO presentación: el valor autoritativo lo calcula y persiste el backend.
- * monto_total NUNCA se envía en ningún body.
+ * `monto_total` NUNCA se envía en ningún body (CLAUDE.md regla 10).
  */
-export function calcularMontoTotal(
+export function calcularMontoItem(
   cantidad: number | null | undefined,
   precioUnitario: string | number | null | undefined,
   dcto: string | number | null | undefined,
@@ -18,9 +18,10 @@ export function calcularMontoTotal(
 }
 
 /**
- * Importe (no porcentaje) que se descuenta del bruto. Vive aquí y no en el
- * componente para que use exactamente el mismo redondeo que `calcularMontoTotal`:
- * si divergen, el desglose no cuadra con el total que muestra al lado.
+ * Importe (no porcentaje) que se descuenta del bruto de un ítem. Vive aquí y no
+ * en el componente para que use exactamente el mismo redondeo que
+ * `calcularMontoItem`: si divergen, el desglose no cuadra con el total que
+ * muestra al lado.
  */
 export function calcularDescuento(
   cantidad: number | null | undefined,

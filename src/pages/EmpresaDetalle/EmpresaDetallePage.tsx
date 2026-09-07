@@ -39,6 +39,8 @@ import {
   type Tarea,
 } from '@/types'
 import { ETIQUETA_CARTERA, ETIQUETA_SEGMENTO, etiquetaEtapa } from '@/utils/etiquetas'
+import { unidadesTotales } from '@/utils/oportunidades'
+import { EtiquetaModelos } from '@/components/EtiquetaModelos'
 import { formatoFecha, formatoMonto, iniciales, nombreCompleto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NeutralTag } from '@/components/EstadoTag'
@@ -391,7 +393,7 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                       >
                         <td className="py-4">
                           <p className="font-semibold text-on-surface">
-                            {o.modelo.codigo} × {o.cantidad}
+                            <EtiquetaModelos items={o.items} /> × {unidadesTotales(o.items)}
                           </p>
                           <p className="text-label-md text-on-surface-variant">Ref: OP-{o.id}</p>
                         </td>

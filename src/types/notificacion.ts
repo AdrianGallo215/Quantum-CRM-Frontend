@@ -17,9 +17,14 @@ export type TipoNotificacion =
   | 'meta_aprobada'
   | 'meta_rechazada'
   | 'meta_modificada'
+  /**
+   * Aviso 3 días antes de que una simulación huérfana se purgue a los 30 días
+   * (contrato §26, changelog 2026-09-07, `reglas_simulaciones.md` §5).
+   */
+  | 'simulacion_por_expirar'
 
-/** `entidad_notificacion_enum` del contrato §23. Es `meta_venta`, NO `meta`. */
-export type EntidadNotificacion = 'oportunidad' | 'empresa' | 'solicitud' | 'meta_venta'
+/** `entidad_notificacion_enum` del contrato §26. Es `meta_venta`, NO `meta`. */
+export type EntidadNotificacion = 'oportunidad' | 'empresa' | 'solicitud' | 'meta_venta' | 'simulacion'
 
 export interface Notificacion {
   id: number

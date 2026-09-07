@@ -3,7 +3,13 @@ import type { PaginationParams } from './common'
 
 export type TipoSolicitud = 'descuento' | 'reasignacion_cliente'
 export type EstadoSolicitud = 'pendiente' | 'aprobada' | 'denegada'
-export type EntidadSolicitud = 'oportunidad' | 'empresa'
+/**
+ * Contrato §26. `oportunidad_item` es el valor que usa `tipo: 'descuento'` desde
+ * V42 — el descuento vive en el ítem, no en la oportunidad. `oportunidad` queda
+ * como valor legado del enum: el backend lo sigue devolviendo en solicitudes
+ * viejas, pero ya no lo acepta al crear un descuento.
+ */
+export type EntidadSolicitud = 'oportunidad' | 'empresa' | 'oportunidad_item'
 export type RolAprobador = 'jdv' | 'gerencia'
 
 export interface Solicitud {
@@ -27,7 +33,12 @@ export interface Solicitud {
 
 export interface CrearSolicitudDescuentoInput {
   tipo: 'descuento'
-  entidad_tipo: 'oportunidad'
+  /**
+   * Debe ser `oportunidad_item` (contrato §20, nota V42): cualquier otro valor
+   * en una solicitud de descuento responde `400 VALIDACION`.
+   */
+  entidad_tipo: 'oportunidad_item'
+  /** `id` del **ítem**, no el de la oportunidad (contrato §20). */
   entidad_id: number
   /** String con 2 decimales, igual que el resto de montos del contrato: "5.00" */
   dcto_solicitado: string

@@ -7,7 +7,11 @@ import { useAuthStore } from '@/store/authStore'
 import { codigoDeError, mensajeDeError } from '@/api/client'
 import type { EstadoSolicitud, Solicitud } from '@/types'
 import { ETIQUETA_ESTADO_SOLICITUD, ETIQUETA_TIPO_SOLICITUD } from '@/utils/etiquetas'
-import { descripcionPayloadSolicitud, puedeResolverSolicitud } from '@/utils/solicitudes'
+import {
+  descripcionPayloadSolicitud,
+  puedeResolverSolicitud,
+  rutaDeSolicitud,
+} from '@/utils/solicitudes'
 import { formatoFecha, nombreCompleto } from '@/utils/formato'
 import { SolicitudDetalleModal } from '@/components/SolicitudDetalleModal'
 import { MisMetasEquipo } from '@/components/MisMetasEquipo'
@@ -18,8 +22,15 @@ const COLOR_ESTADO: Record<Solicitud['estado'], string> = {
   denegada: 'red',
 }
 
-function rutaEntidad(s: Solicitud): string {
-  return s.entidad_tipo === 'oportunidad' ? `/oportunidades/${s.entidad_id}` : `/empresas/${s.entidad_id}`
+/**
+ * Celda "Entidad". Con `entidad_tipo: 'oportunidad_item'` no hay ruta honesta a
+ * la que ir (el DTO no trae `id_oportunidad`, contrato §20): se muestra la
+ * descripción como texto plano en vez de un enlace a la empresa equivocada.
+ */
+function celdaEntidad(s: Solicitud) {
+  const ruta = rutaDeSolicitud(s)
+  if (ruta === null) return <span>{s.entidad_descripcion}</span>
+  return <Link to={ruta}>{s.entidad_descripcion}</Link>
 }
 
 /**
@@ -99,7 +110,7 @@ export function SolicitudesPage() {
     {
       title: 'Entidad',
       key: 'entidad',
-      render: (_, s) => <Link to={rutaEntidad(s)}>{s.entidad_descripcion}</Link>,
+      render: (_, s) => celdaEntidad(s),
     },
     { title: 'Cambio solicitado', key: 'payload', render: (_, s) => descripcionPayloadSolicitud(s) },
     { title: 'Motivo', dataIndex: 'motivo' },

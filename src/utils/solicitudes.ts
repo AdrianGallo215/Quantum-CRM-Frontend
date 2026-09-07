@@ -49,3 +49,29 @@ export function descripcionPayloadSolicitud(s: Solicitud): string {
 export function puedeResolverSolicitud(s: Solicitud, rol: Rol | undefined): boolean {
   return s.estado === 'pendiente' && rol !== undefined && s.rol_aprobador === rol
 }
+
+/**
+ * Ruta a la que navega una fila de la bandeja, o `null` si no hay una honesta.
+ *
+ * `oportunidad_item` devuelve null a propósito: desde V42 el descuento vive en el
+ * ítem, y el DTO de Solicitud no expone `id_oportunidad` (contrato §20) — no hay
+ * forma de saber a qué oportunidad ir. Antes esto caía en el `else` y navegaba a
+ * /empresas/<id del ítem>: la empresa equivocada. Preferimos no navegar.
+ *
+ * Pedido abierto al backend para exponer `id_oportunidad`; ver
+ * `docs/solicitud-backend-simulaciones.md`.
+ *
+ * El `switch` es exhaustivo y sin `default` a propósito: si el backend añade un
+ * valor al enum, `tsc` lo señala acá. El ternario que reemplaza se lo tragaba en
+ * silencio — que es exactamente cómo nació este bug.
+ */
+export function rutaDeSolicitud(s: Solicitud): string | null {
+  switch (s.entidad_tipo) {
+    case 'oportunidad':
+      return `/oportunidades/${s.entidad_id}`
+    case 'empresa':
+      return `/empresas/${s.entidad_id}`
+    case 'oportunidad_item':
+      return null
+  }
+}
