@@ -15,6 +15,43 @@ export interface ContactoEnOportunidad {
   rol_en_oportunidad: string | null
 }
 
+/**
+ * Un modelo vendido dentro de una oportunidad (V42 — `oportunidad_items`).
+ * Antes estos campos vivían en la raíz de la oportunidad; el backend los movió acá
+ * el 2026-09-03 porque una oportunidad puede vender varios modelos a la vez.
+ * Contrato §10.
+ */
+export interface OportunidadItem {
+  id: number
+  id_modelo: number
+  modelo: Modelo
+  cantidad: number
+  precio_venta: string
+  descuento: string
+  /**
+   * Lo que el cliente paga a terceros (Calidda, cajas) por unidad y por mes.
+   * Editable por el vendedor, default 937.50. El CRM detalla la operación de
+   * Quantum, no la de terceros (`reglas_simulaciones.md` §1.2).
+   */
+  cuota_financiadora: string
+  /**
+   * Cuota mensual del financiamiento de Quantum para UNA unidad de este modelo.
+   * `null` es degradación esperada (ítem incompleto o precio incompatible con los
+   * parámetros por defecto), NUNCA un error — no dispares un toast por esto.
+   * Siempre `null` en las respuestas de POST/PUT de ítem: esos endpoints no la
+   * resuelven. Si la necesitas, repide la oportunidad (contrato §10).
+   */
+  cuota_quantum: string | null
+  /**
+   * `cuota_quantum + cuota_financiadora`, para UNA unidad de este modelo.
+   * OJO: no confundir con `Oportunidad.cuota_total`, que es el total mensual de
+   * toda la operación ya multiplicado por cantidades.
+   */
+  cuota_total: string | null
+  monto_item: string
+  advertencias: string[]
+}
+
 export interface Oportunidad {
   id: number
   id_empresa: number
@@ -23,13 +60,20 @@ export interface Oportunidad {
   vendedor: EmpleadoResumen
   id_financiadora: number | null
   financiadora: Financiadora | null
-  id_modelo: number
-  modelo: Modelo
   estado: EstadoOportunidad
-  cantidad: number
-  precio_unitario: string
-  dcto: string
+  items: OportunidadItem[]
   monto_total: string
+  /**
+   * Σ (cuota_quantum × cantidad) de todos los ítems.
+   * Los TRES campos de cuota de este nivel son `null` CONJUNTAMENTE si cualquier
+   * ítem no tiene cuota calculable. Se muestra como "todavía no se puede calcular",
+   * jamás como cero ni como un guion que parezca un monto (contrato §10).
+   */
+  cuota_quantum_total: string | null
+  /** Σ (cuota_total_item × cantidad). Total mensual de TODA la operación. */
+  cuota_total: string | null
+  /** `cuota_total / 22`. */
+  cuota_diaria_total: string | null
   garantia: boolean
   finc_paralelo: boolean
   ficha_venta: string | null
@@ -64,7 +108,7 @@ export interface CrearOportunidadInput {
   id_modelo: number
   id_financiadora?: number | null
   cantidad: number
-  dcto?: number
+  descuento?: number
   garantia?: boolean
   finc_paralelo?: boolean
   ficha_venta?: string | null
@@ -76,11 +120,6 @@ export interface CrearOportunidadInput {
 }
 
 export interface ActualizarOportunidadInput {
-  id_modelo?: number
-  id_financiadora?: number
-  cantidad?: number
-  precio_unitario?: string
-  dcto?: string
   garantia?: boolean
   finc_paralelo?: boolean
   ficha_venta?: string | null
@@ -104,4 +143,13 @@ export interface OportunidadLogEntry {
   estado_nuevo: EstadoOportunidad
   changed_at: string
   changed_by: EmpleadoResumen
+}
+
+/** Body de `PUT /oportunidades/:id/items/:item_id`. Todos opcionales (contrato §10). */
+export interface ActualizarItemInput {
+  id_modelo?: number
+  cantidad?: number
+  precio_venta?: string
+  descuento?: string
+  cuota_financiadora?: string
 }
