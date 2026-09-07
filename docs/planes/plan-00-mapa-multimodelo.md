@@ -277,6 +277,13 @@ Pipeline y tablas hoy muestran una columna "Modelo". Con N ítems:
 
 Nunca `items[0]` a secas: sería mentir en pantalla.
 
+> Nota de ejecución (T4.1): el helper `etiquetaModelos` en `src/utils/oportunidades.ts`
+> lee `items[0]` puertas adentro para componer `"K12 +2"`, detrás de un guard de
+> `items.length === 0`. No es una excepción a esta regla: el caller nunca ve `items[0]`
+> desnudo, solo la etiqueta ya honesta. El grep de control de la auditoría final (T7.1)
+> la va a encontrar — es esperado, y el hallazgo debe cerrarse como "cumple" al revisar
+> el contexto, no como violación.
+
 ### D4 — `utils/monto.ts` pasa a operar por ítem, conservando el redondeo
 
 Se agrega `calcularMontoItem(cantidad, precioVenta, descuento)` — idéntica a la actual,

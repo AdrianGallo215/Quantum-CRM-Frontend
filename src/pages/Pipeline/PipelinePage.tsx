@@ -231,7 +231,9 @@ function Tarjeta({ oportunidad: o, esFacturado }: { oportunidad: Oportunidad; es
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <p className="text-on-surface-variant text-xs">{o.cantidad} unidades</p>
+        <p className="text-on-surface-variant text-xs">
+          {o.items.reduce((acc, it) => acc + it.cantidad, 0)} unidades
+        </p>
         <p className="text-on-surface-variant text-[10px] opacity-70">
           Creada hace {dias} día{dias === 1 ? '' : 's'}
         </p>
