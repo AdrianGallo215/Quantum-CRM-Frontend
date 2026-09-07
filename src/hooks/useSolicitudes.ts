@@ -36,8 +36,14 @@ function invalidarResolucion(qc: ReturnType<typeof useQueryClient>, s: Solicitud
   invalidar(qc, qk.solicitudes, qk.oportunidades, qk.empresas, qk.inicio, qk.prospeccion, qk.reportes)
   if (s.entidad_tipo === 'oportunidad') {
     invalidar(qc, qk.oportunidad(s.entidad_id), qk.oportunidadLog(s.entidad_id))
-  } else {
+  } else if (s.entidad_tipo === 'empresa') {
     invalidar(qc, qk.empresa(s.entidad_id))
+  } else {
+    // oportunidad_item: `entidad_id` es el ítem y no sabemos su oportunidad
+    // (el DTO no trae `id_oportunidad`, contrato §20). Se invalida la colección
+    // entera: menos preciso, pero correcto. Aprobar un descuento cambia monto y
+    // cuotas, y no puede quedar valor viejo en pantalla (CLAUDE.md regla 4).
+    invalidar(qc, qk.oportunidades, qk.empresas)
   }
 }
 

@@ -7,7 +7,11 @@ import type { Solicitud } from '@/types'
 export type SolicitudPendiente =
   | {
       tipo: 'descuento'
-      idOportunidad: number
+      /**
+       * `id` del ÍTEM de la oportunidad, no el de la oportunidad: desde V42 el
+       * descuento vive en el ítem (contrato §20).
+       */
+      idOportunidadItem: number
       /** dcto que el usuario intentó aplicar (numérico, del formulario) */
       dctoSolicitado: number
       /** message del 422 del backend — se muestra tal cual (autoridad) */
@@ -47,8 +51,8 @@ export function SolicitudModal({ solicitud, onClose, onEnviada }: Props) {
         solicitud.tipo === 'descuento'
           ? {
               tipo: 'descuento',
-              entidad_tipo: 'oportunidad',
-              entidad_id: solicitud.idOportunidad,
+              entidad_tipo: 'oportunidad_item',
+              entidad_id: solicitud.idOportunidadItem,
               dcto_solicitado: solicitud.dctoSolicitado.toFixed(2),
               motivo,
             }

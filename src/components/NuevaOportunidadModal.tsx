@@ -141,9 +141,21 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
           })
           message.success(`Oportunidad creada con ${limite}% de descuento`)
           setIdCreadaConSolicitud(creada.id)
+          // items[0] es seguro acá y solo acá: POST /oportunidades crea exactamente un
+          // ítem (K6). En cualquier otra vista, usar etiquetaModelos (D3).
+          // El descuento se solicita sobre el ÍTEM desde V42 (contrato §20): mandar
+          // aquí `creada.id` apuntaría a un ítem ajeno, no al recién creado.
+          const itemCreado = creada.items[0]
+          if (!itemCreado) {
+            // No debería ocurrir; si ocurre, no inventamos un id de ítem.
+            message.warning(
+              'La oportunidad se creó, pero no se pudo abrir la solicitud de descuento. Edita los términos para pedirlo.',
+            )
+            return
+          }
           setSolicitudPendiente({
             tipo: 'descuento',
-            idOportunidad: creada.id,
+            idOportunidadItem: itemCreado.id,
             dctoSolicitado: v.descuento ?? 0,
             mensajeBackend: extraerApiError(e)?.message ?? 'El descuento requiere aprobación',
           })

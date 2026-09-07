@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { aprobadorParaDcto, limiteDctoDirecto } from './solicitudes'
+import type { Solicitud } from '@/types'
+import { aprobadorParaDcto, limiteDctoDirecto, rutaDeSolicitud } from './solicitudes'
 
 describe('limiteDctoDirecto', () => {
   it('da 3 a vendedor', () => {
@@ -50,5 +51,23 @@ describe('aprobadorParaDcto', () => {
   // Un rol sin límite propio definido escala directo a gerencia, la autoridad máxima.
   it('escala cualquier dcto positivo del rol otro directo a gerencia, no a jdv', () => {
     expect(aprobadorParaDcto('otro', 1)).toBe('gerencia')
+  })
+})
+
+describe('rutaDeSolicitud', () => {
+  it('no navega a /empresas cuando la entidad es un ítem de oportunidad', () => {
+    // Regresión de K8: el ternario viejo mandaba `oportunidad_item` al `else` y
+    // navegaba a /empresas/<id del ítem> — la empresa equivocada, no un 404.
+    const s = { entidad_tipo: 'oportunidad_item', entidad_id: 502 } as Solicitud
+    expect(rutaDeSolicitud(s)).toBeNull()
+  })
+
+  it('mantiene la ruta de empresa y de oportunidad', () => {
+    expect(rutaDeSolicitud({ entidad_tipo: 'empresa', entidad_id: 12 } as Solicitud)).toBe(
+      '/empresas/12',
+    )
+    expect(rutaDeSolicitud({ entidad_tipo: 'oportunidad', entidad_id: 101 } as Solicitud)).toBe(
+      '/oportunidades/101',
+    )
   })
 })
