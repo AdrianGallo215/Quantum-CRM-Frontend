@@ -2,66 +2,127 @@ import { useState } from 'react'
 import { App, Alert, DatePicker, Form, InputNumber, Input, Modal, Popconfirm, Select, Switch } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { useNavigate } from 'react-router-dom'
-import { useActualizarOportunidad, useEliminarOportunidad } from '@/hooks/useOportunidades'
-import { useFinanciadoras, useModelos } from '@/hooks/useCatalogos'
+import {
+  useActualizarItem,
+  useActualizarOportunidad,
+  useEliminarOportunidad,
+} from '@/hooks/useOportunidades'
+import { useModelos } from '@/hooks/useCatalogos'
 import { codigoDeError, extraerApiError, mensajeDeError } from '@/api/client'
 import { useAuthStore, ROLES_ADMIN, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import { aprobadorParaDcto } from '@/utils/solicitudes'
 import { ETIQUETA_ROL_APROBADOR } from '@/utils/etiquetas'
 import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudModal'
-import type { Modelo, OportunidadDetalle } from '@/types'
+import type { Modelo, OportunidadDetalle, OportunidadItem } from '@/types'
 import { formatoFecha, formatoMonto } from '@/utils/formato'
-import { calcularDescuento, calcularMontoTotal } from '@/utils/monto'
+import { calcularDescuento, calcularMontoItem } from '@/utils/monto'
 import { urlSegura } from '@/utils/url'
 
-interface FormValues {
+/**
+ * Términos comerciales de UN modelo vendido. Desde V42 viven en el ítem y se
+ * guardan por `PUT /oportunidades/:id/items/:item_id` — `PUT /oportunidades/:id`
+ * los acepta y los descarta en silencio (contrato §10).
+ */
+interface ValoresTerminos {
   id_modelo: number
-  id_financiadora?: number
   cantidad: number
-  precio_unitario: number
-  dcto: number
+  precio_venta: number
+  descuento: number
+  cuota_financiadora: number
+}
+
+/** Campos que siguen viviendo en la raíz de la oportunidad (contrato §10). */
+interface ValoresOportunidad {
   garantia: boolean
   finc_paralelo: boolean
   fecha_cierre_estimado?: Dayjs | null
   notas?: string | null
 }
 
-/** Modal de edición de términos (antd) con monto_total en vivo y read-only */
+type ValoresFormulario = ValoresTerminos & ValoresOportunidad
+
+/**
+ * Ítem sobre el que actúa el botón de edición del encabezado. Con un solo ítem
+ * —hoy, el 100% de las oportunidades— editar "los términos" no es ambiguo. Con
+ * varios no existe "el" ítem: se devuelve `null` y cada fila trae su propio
+ * botón, que sí sabe cuál. Nunca el primero a secas: sería editar un modelo
+ * haciéndolo pasar por toda la operación.
+ */
+function itemUnico(items: readonly OportunidadItem[]): OportunidadItem | null {
+  const [primero, ...resto] = items
+  return primero && resto.length === 0 ? primero : null
+}
+
+/**
+ * ¿Cambió algún campo de nivel oportunidad? Sin esta comprobación, editar solo
+ * el precio dispararía además un `PUT /oportunidades/:id` inútil — justo el
+ * endpoint que descarta los términos en silencio. Se llama solo si de verdad
+ * hay algo suyo que guardar.
+ */
+function hayCambiosDeOportunidad(v: ValoresOportunidad, o: OportunidadDetalle): boolean {
+  const fecha = v.fecha_cierre_estimado ? v.fecha_cierre_estimado.format('YYYY-MM-DD') : null
+  return (
+    v.garantia !== o.garantia ||
+    v.finc_paralelo !== o.finc_paralelo ||
+    fecha !== (o.fecha_cierre_estimado ?? null) ||
+    (v.notas ?? null) !== (o.notas ?? null)
+  )
+}
+
+/**
+ * Modal de edición de términos (antd) con monto del ítem en vivo y read-only.
+ * Opera sobre UN ítem: los términos van por el endpoint de ítems y el resto de
+ * campos por el de la oportunidad, cada uno al suyo.
+ */
 function EditarTerminosModal({
   oportunidad: o,
+  item,
   open,
   onClose,
 }: {
   oportunidad: OportunidadDetalle
+  item: OportunidadItem
   open: boolean
   onClose: () => void
 }) {
   const { message, notification } = App.useApp()
-  const [form] = Form.useForm<FormValues>()
+  const [form] = Form.useForm<ValoresFormulario>()
   const modelos = useModelos()
-  const financiadoras = useFinanciadoras()
   const actualizar = useActualizarOportunidad(o.id)
+  const actualizarItem = useActualizarItem(o.id)
   const empleado = useAuthStore((s) => s.empleado)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const [solicitudPendiente, setSolicitudPendiente] = useState<SolicitudPendiente | null>(null)
 
   const cantidad = Form.useWatch('cantidad', form)
-  const precioUnitario = Form.useWatch('precio_unitario', form)
-  const dcto = Form.useWatch('dcto', form)
-  const montoEnVivo = calcularMontoTotal(cantidad, precioUnitario, dcto)
+  const precioVenta = Form.useWatch('precio_venta', form)
+  const descuento = Form.useWatch('descuento', form)
+  const montoEnVivo = calcularMontoItem(cantidad, precioVenta, descuento)
 
   // UX proactiva (contrato §2): avisar ANTES de guardar. No bloquea el submit.
-  const aprobador = empleado ? aprobadorParaDcto(empleado.rol, dcto ?? 0) : null
+  const aprobador = empleado ? aprobadorParaDcto(empleado.rol, descuento ?? 0) : null
 
-  const onGuardar = async () => {
-    const v = await form.validateFields()
-    try {
-      const actualizada = await actualizar.mutateAsync({
+  /**
+   * Términos del ítem. El descuento se pasa aparte para poder reintentar con el
+   * vigente cuando el nuevo requiere aprobación.
+   */
+  const enviarItem = (v: ValoresFormulario, descuentoAEnviar: number) =>
+    actualizarItem.mutateAsync({
+      idItem: item.id,
+      input: {
         id_modelo: v.id_modelo,
-        id_financiadora: v.id_financiadora,
         cantidad: v.cantidad,
-        precio_unitario: v.precio_unitario.toFixed(2),
-        dcto: v.dcto.toFixed(2),
+        precio_venta: v.precio_venta.toFixed(2),
+        descuento: descuentoAEnviar.toFixed(2),
+        cuota_financiadora: v.cuota_financiadora.toFixed(2),
+      },
+    })
+
+  /** Guarda los campos de la raíz SOLO si cambiaron. `false` = falló el guardado. */
+  const guardarCamposDeOportunidad = async (v: ValoresFormulario): Promise<boolean> => {
+    if (!hayCambiosDeOportunidad(v, o)) return true
+    try {
+      await actualizar.mutateAsync({
         garantia: v.garantia,
         finc_paralelo: v.finc_paralelo,
         fecha_cierre_estimado: v.fecha_cierre_estimado
@@ -69,52 +130,59 @@ function EditarTerminosModal({
           : null,
         notas: v.notas ?? null,
       })
-      message.success('Términos actualizados')
-      for (const adv of actualizada.advertencias ?? []) {
-        notification.warning({ message: 'Advertencia', description: adv })
-      }
-      onClose()
+      return true
     } catch (e) {
-      if (codigoDeError(e) === 'APROBACION_REQUERIDA') {
-        // §3.1: el backend NO guardó nada. Guardamos el resto de campos con el
-        // dcto actual de la oportunidad y ofrecemos solicitar el dcto nuevo.
-        try {
-          await actualizar.mutateAsync({
-            id_modelo: v.id_modelo,
-            id_financiadora: v.id_financiadora,
-            cantidad: v.cantidad,
-            precio_unitario: v.precio_unitario.toFixed(2),
-            dcto: o.dcto, // el vigente — el nuevo queda pendiente de aprobación
-            garantia: v.garantia,
-            finc_paralelo: v.finc_paralelo,
-            fecha_cierre_estimado: v.fecha_cierre_estimado
-              ? v.fecha_cierre_estimado.format('YYYY-MM-DD')
-              : null,
-            notas: v.notas ?? null,
-          })
-        } catch (e2) {
-          // El modal de solicitud sigue siendo lo importante, pero el usuario
-          // TIENE que saber que el resto de campos no se guardó: si no, cierra
-          // el modal creyendo que cantidad, precio y notas quedaron persistidos.
-          notification.warning({
-            message: 'Los demás cambios no se guardaron',
-            description: mensajeDeError(
-              e2,
-              'Solo se registró la solicitud de descuento. Vuelve a editar los términos para guardar el resto.',
-            ),
-            duration: 8,
-          })
-        }
-        setSolicitudPendiente({
-          tipo: 'descuento',
-          idOportunidad: o.id,
-          dctoSolicitado: v.dcto,
-          mensajeBackend: extraerApiError(e)?.message ?? 'El descuento requiere aprobación',
-        })
+      message.error(mensajeDeError(e, 'No se pudieron guardar los datos de la oportunidad'))
+      return false
+    }
+  }
+
+  const onGuardar = async () => {
+    const v = await form.validateFields()
+    let itemGuardado: OportunidadItem
+    try {
+      itemGuardado = await enviarItem(v, v.descuento)
+    } catch (e) {
+      if (codigoDeError(e) !== 'APROBACION_REQUERIDA') {
+        message.error(mensajeDeError(e, 'No se pudieron guardar los términos'))
         return
       }
-      message.error(mensajeDeError(e, 'No se pudieron guardar los términos'))
+      // §3.1: el backend NO guardó nada del ítem. Reintentamos con el descuento
+      // vigente para no perder cantidad ni precio, y ofrecemos solicitar el nuevo.
+      try {
+        await enviarItem(v, Number(item.descuento))
+      } catch (e2) {
+        // El modal de solicitud sigue siendo lo importante, pero el usuario
+        // TIENE que saber que el resto de campos no se guardó: si no, cierra
+        // el modal creyendo que cantidad y precio quedaron persistidos.
+        notification.warning({
+          message: 'Los demás cambios no se guardaron',
+          description: mensajeDeError(
+            e2,
+            'Solo se registró la solicitud de descuento. Vuelve a editar los términos para guardar el resto.',
+          ),
+          duration: 8,
+        })
+      }
+      await guardarCamposDeOportunidad(v)
+      setSolicitudPendiente({
+        tipo: 'descuento',
+        // El descuento vive en el ítem desde V42: la solicitud se hace sobre él,
+        // no sobre la oportunidad (contrato §20).
+        idOportunidadItem: item.id,
+        dctoSolicitado: v.descuento,
+        mensajeBackend: extraerApiError(e)?.message ?? 'El descuento requiere aprobación',
+      })
+      return
     }
+
+    if (!(await guardarCamposDeOportunidad(v))) return
+
+    message.success('Términos actualizados')
+    for (const adv of itemGuardado.advertencias ?? []) {
+      notification.warning({ message: 'Advertencia', description: adv })
+    }
+    onClose()
   }
 
   return (
@@ -126,7 +194,7 @@ function EditarTerminosModal({
       okText="Guardar"
       cancelText="Cancelar"
       okButtonProps={{ disabled: esRolDeApoyo }}
-      confirmLoading={actualizar.isPending}
+      confirmLoading={actualizarItem.isPending || actualizar.isPending}
       width={560}
       destroyOnHidden
     >
@@ -135,11 +203,11 @@ function EditarTerminosModal({
         layout="vertical"
         requiredMark={false}
         initialValues={{
-          id_modelo: o.id_modelo,
-          id_financiadora: o.id_financiadora ?? undefined,
-          cantidad: o.cantidad,
-          precio_unitario: Number(o.precio_unitario),
-          dcto: Number(o.dcto),
+          id_modelo: item.id_modelo,
+          cantidad: item.cantidad,
+          precio_venta: Number(item.precio_venta),
+          descuento: Number(item.descuento),
+          cuota_financiadora: Number(item.cuota_financiadora),
           garantia: o.garantia,
           finc_paralelo: o.finc_paralelo,
           fecha_cierre_estimado: o.fecha_cierre_estimado ? dayjs(o.fecha_cierre_estimado) : null,
@@ -155,30 +223,30 @@ function EditarTerminosModal({
             }))}
           />
         </Form.Item>
-        <Form.Item name="id_financiadora" label="Financiadora">
-          <Select
-            allowClear
-            loading={financiadoras.isLoading}
-            options={(financiadoras.data ?? []).map((fi) => ({ value: fi.id, label: fi.nombre }))}
-          />
-        </Form.Item>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Form.Item name="cantidad" label="Cantidad" rules={[{ required: true, message: 'Requerido' }]}>
             <InputNumber style={{ width: '100%' }} min={1} precision={0} />
           </Form.Item>
-          <Form.Item name="precio_unitario" label="Precio unitario" rules={[{ required: true, message: 'Requerido' }]}>
+          <Form.Item name="precio_venta" label="Precio unitario" rules={[{ required: true, message: 'Requerido' }]}>
             <InputNumber style={{ width: '100%' }} min={0} precision={2} />
           </Form.Item>
-          <Form.Item name="dcto" label="Dcto. (%)">
+          <Form.Item name="descuento" label="Dcto. (%)">
             <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
           </Form.Item>
         </div>
+        <Form.Item
+          name="cuota_financiadora"
+          label="Cuota financiadora"
+          tooltip="Lo que el cliente paga a terceros (Calidda, cajas) por unidad y por mes. No es parte del financiamiento de Quantum."
+        >
+          <InputNumber style={{ width: '100%' }} min={0} step={0.01} precision={2} />
+        </Form.Item>
         {aprobador && (
           <Alert
             type="warning"
             showIcon
             style={{ marginBottom: 16 }}
-            message={`${dcto}% supera tu límite de descuento — al guardar podrás enviar una solicitud a ${ETIQUETA_ROL_APROBADOR[aprobador]}`}
+            message={`${descuento}% supera tu límite de descuento — al guardar podrás enviar una solicitud a ${ETIQUETA_ROL_APROBADOR[aprobador]}`}
           />
         )}
         <div
@@ -192,7 +260,7 @@ function EditarTerminosModal({
             alignItems: 'center',
           }}
         >
-          <span className="eyebrow">Monto total (calculado)</span>
+          <span className="eyebrow">Monto del modelo (calculado)</span>
           <span className="metric-value" style={{ fontSize: 20, fontWeight: 700, color: '#0799b6' }}>
             {formatoMonto(montoEnVivo)}
           </span>
@@ -303,14 +371,17 @@ function BotonEditar({ oportunidad }: { oportunidad: OportunidadDetalle }) {
   const esAdmin = tieneRol(empleado, ROLES_ADMIN)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
   const eliminar = useEliminarOportunidad()
-  const [abierto, setAbierto] = useState(false)
+  const [itemEnEdicion, setItemEnEdicion] = useState<OportunidadItem | null>(null)
+  const unico = itemUnico(oportunidad.items)
   return (
     <>
-      {!esRolDeApoyo && (
+      {/* Con varios modelos el lápiz del encabezado no sabría cuál editar: la
+          edición se hace desde el botón de cada fila del resumen. */}
+      {!esRolDeApoyo && unico && (
         <button
           className="p-2 hover:bg-surface-container rounded-full text-on-surface-variant transition-colors border border-outline-variant"
           title="Editar términos"
-          onClick={() => setAbierto(true)}
+          onClick={() => setItemEnEdicion(unico)}
         >
           <span className="material-symbols-outlined">edit</span>
         </button>
@@ -345,25 +416,94 @@ function BotonEditar({ oportunidad }: { oportunidad: OportunidadDetalle }) {
           </button>
         </Popconfirm>
       )}
-      <EditarTerminosModal oportunidad={oportunidad} open={abierto} onClose={() => setAbierto(false)} />
+      {itemEnEdicion && (
+        <EditarTerminosModal
+          oportunidad={oportunidad}
+          item={itemEnEdicion}
+          open
+          onClose={() => setItemEnEdicion(null)}
+        />
+      )}
     </>
+  )
+}
+
+/**
+ * Un modelo vendido dentro de la tarjeta. Con un solo ítem la fila es idéntica
+ * a la tarjeta de siempre; con varios se repite una por ítem y el total de la
+ * operación queda debajo, para no presentar un modelo como si fuera todo.
+ */
+function FilaItem({
+  item: it,
+  onFicha,
+  onEditar,
+}: {
+  item: OportunidadItem
+  onFicha: () => void
+  /** `null` = sin botón propio: con un solo ítem edita el botón del encabezado. */
+  onEditar: (() => void) | null
+}) {
+  const bruto = it.cantidad * Number(it.precio_venta)
+  const descuentoMonto = calcularDescuento(it.cantidad, it.precio_venta, it.descuento)
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 p-6 bg-white border border-outline-variant rounded">
+      <div>
+        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">MODELO</span>
+        <div className="flex items-center gap-2">
+          <span
+            className="font-bold text-body-lg text-primary cursor-pointer hover:underline"
+            onClick={onFicha}
+          >
+            {it.modelo.codigo}
+          </span>
+          {onEditar && (
+            <button
+              className="text-on-surface-variant hover:text-primary transition-colors"
+              title="Editar términos de este modelo"
+              onClick={onEditar}
+            >
+              <span className="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+          )}
+        </div>
+      </div>
+      <div>
+        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">CANTIDAD</span>
+        <span className="font-bold text-body-lg">{it.cantidad} unidades</span>
+      </div>
+      <div>
+        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">PRECIO UNIT.</span>
+        <span className="font-bold text-body-lg">{formatoMonto(it.precio_venta)}</span>
+      </div>
+      <div>
+        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">DESCUENTO</span>
+        <span className="font-bold text-error text-body-lg">
+          {Number(it.descuento) > 0 ? `-${formatoMonto(descuentoMonto)} (${Number(it.descuento)}%)` : '—'}
+        </span>
+      </div>
+      <div className="bg-surface-container-low p-2 rounded -m-2">
+        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">SUBTOTAL</span>
+        <span className="font-bold text-primary text-body-lg font-mono">{formatoMonto(bruto)}</span>
+      </div>
+    </div>
   )
 }
 
 /** Tarjeta "Información de la Oportunidad" del prototipo simplificado */
 function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
   const { message } = App.useApp()
-  const financiadoras = useFinanciadoras()
   const modelos = useModelos()
   const actualizar = useActualizarOportunidad(o.id)
   const empleado = useAuthStore((s) => s.empleado)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
-  const [modalEditar, setModalEditar] = useState(false)
-  const [modalFicha, setModalFicha] = useState(false)
-  const modeloCompleto = modelos.data?.find((m) => m.id === o.id_modelo)
-
-  const bruto = o.cantidad * Number(o.precio_unitario)
-  const descuentoMonto = calcularDescuento(o.cantidad, o.precio_unitario, o.dcto)
+  const [itemEnEdicion, setItemEnEdicion] = useState<OportunidadItem | null>(null)
+  const [itemFicha, setItemFicha] = useState<OportunidadItem | null>(null)
+  const unico = itemUnico(o.items)
+  // El modelo embebido en el ítem trae lo justo para el listado; la ficha del
+  // bus necesita el registro completo del catálogo.
+  const modeloDeLaFicha = itemFicha
+    ? modelos.data?.find((m) => m.id === itemFicha.id_modelo)
+    : undefined
 
   const guardarCampo = (
     input: Parameters<typeof actualizar.mutateAsync>[0],
@@ -393,10 +533,11 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
             Ficha de Venta
           </a>
         ) : (
-          !esRolDeApoyo && (
+          !esRolDeApoyo &&
+          unico && (
             <button
               className="text-primary font-bold font-label-md text-label-md flex items-center gap-1 hover:underline"
-              onClick={() => setModalEditar(true)}
+              onClick={() => setItemEnEdicion(unico)}
             >
               <span className="material-symbols-outlined text-[18px]">edit</span>
               Editar términos
@@ -405,35 +546,16 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
         )}
       </div>
 
-      {/* Campos (grid del prototipo) */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 p-6 bg-white border border-outline-variant rounded">
-        <div>
-          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">MODELO</span>
-          <span
-            className="font-bold text-body-lg text-primary cursor-pointer hover:underline"
-            onClick={() => setModalFicha(true)}
-          >
-            {o.modelo.codigo}
-          </span>
-        </div>
-        <div>
-          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">CANTIDAD</span>
-          <span className="font-bold text-body-lg">{o.cantidad} unidades</span>
-        </div>
-        <div>
-          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">PRECIO UNIT.</span>
-          <span className="font-bold text-body-lg">{formatoMonto(o.precio_unitario)}</span>
-        </div>
-        <div>
-          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">DESCUENTO</span>
-          <span className="font-bold text-error text-body-lg">
-            {Number(o.dcto) > 0 ? `-${formatoMonto(descuentoMonto)} (${Number(o.dcto)}%)` : '—'}
-          </span>
-        </div>
-        <div className="bg-surface-container-low p-2 rounded -m-2">
-          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">SUBTOTAL</span>
-          <span className="font-bold text-primary text-body-lg font-mono">{formatoMonto(bruto)}</span>
-        </div>
+      {/* Una fila por modelo vendido (grid del prototipo) */}
+      <div className="flex flex-col gap-4">
+        {o.items.map((it) => (
+          <FilaItem
+            key={it.id}
+            item={it}
+            onFicha={() => setItemFicha(it)}
+            onEditar={esRolDeApoyo || unico ? null : () => setItemEnEdicion(it)}
+          />
+        ))}
       </div>
 
       {/* monto_total: read-only, calculado por el backend */}
@@ -455,32 +577,13 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
           <label className="font-label-md text-label-md text-on-surface-variant">Financiadora</label>
-          <select
-            className="w-full border border-outline-variant rounded p-3 bg-surface-bright focus:ring-2 focus:ring-primary outline-none font-body-md"
-            value={o.id_financiadora ?? ''}
-            disabled={esRolDeApoyo || actualizar.isPending || financiadoras.isLoading}
-            onChange={(e) => {
-              // '' es el placeholder de "sin financiadora": no es una opción
-              // seleccionable, así que nunca debe llegar aquí — pero si llega
-              // (autofill del navegador), no mandamos un id 0 inventado.
-              if (e.target.value === '') return
-              guardarCampo({ id_financiadora: Number(e.target.value) }, 'Financiadora actualizada')
-            }}
-          >
-            {/* Sin este placeholder, una oportunidad sin financiadora mostraba
-                la PRIMERA del catálogo: el usuario veía asignada una
-                financiadora que no estaba guardada en ningún sitio. */}
-            {o.id_financiadora === null && (
-              <option value="" disabled>
-                Sin financiadora asignada
-              </option>
-            )}
-            {(financiadoras.data ?? []).map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.nombre}
-              </option>
-            ))}
-          </select>
+          {/* Solo lectura: `PUT /oportunidades/:id` ya no acepta `id_financiadora`
+              (contrato §10). El <select> editable que había aquí lo enviaba y el
+              backend lo descartaba en silencio — el mismo modo de fallo que el
+              que corrige esta migración. Ver la nota de escalación de T3.1. */}
+          <div className="w-full border border-outline-variant rounded p-3 bg-surface-container-low font-body-md">
+            {o.financiadora?.nombre ?? 'Sin financiadora asignada'}
+          </div>
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-label-md text-label-md text-on-surface-variant">Aplica Garantía</label>
@@ -498,11 +601,11 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
           <label className="font-label-md text-label-md text-on-surface-variant">Fecha Cierre Estimado</label>
           <div
             className={
-              esRolDeApoyo
+              esRolDeApoyo || !unico
                 ? 'flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright'
                 : 'flex items-center gap-3 border border-outline-variant rounded p-3 bg-surface-bright cursor-pointer hover:bg-surface-container-low transition-colors'
             }
-            onClick={esRolDeApoyo ? undefined : () => setModalEditar(true)}
+            onClick={esRolDeApoyo || !unico ? undefined : () => setItemEnEdicion(unico)}
           >
             <span className="material-symbols-outlined text-primary">calendar_today</span>
             <span className="font-body-md">{formatoFecha(o.fecha_cierre_estimado)}</span>
@@ -542,8 +645,19 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
         ></textarea>
       </div>
 
-      <EditarTerminosModal oportunidad={o} open={modalEditar} onClose={() => setModalEditar(false)} />
-      <FichaBusModal modelo={modeloCompleto} open={modalFicha} onClose={() => setModalFicha(false)} />
+      {itemEnEdicion && (
+        <EditarTerminosModal
+          oportunidad={o}
+          item={itemEnEdicion}
+          open
+          onClose={() => setItemEnEdicion(null)}
+        />
+      )}
+      <FichaBusModal
+        modelo={modeloDeLaFicha}
+        open={itemFicha !== null}
+        onClose={() => setItemFicha(null)}
+      />
     </div>
   )
 }

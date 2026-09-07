@@ -210,6 +210,36 @@ reporte), **no** por el shape de oportunidad.
 disparo de solicitud de descuento y la ficha del bus, todo acoplado a los campos planos.
 Es el archivo que más cambia y el que más fácil rompe.
 
+### K36 — `id_financiadora` nunca fue editable por `PUT /oportunidades/:id`, ni antes de V42
+
+Hallazgo escalado por el ejecutor de T3.1, verificado contra el contrato **pre-sync**
+(el `docs/contrato_api.md` de este repo antes de T1.1, recuperado con
+`git show <commit-de-T1.1>^:docs/contrato_api.md`):
+
+> **Body:** `id_modelo`, `cantidad`, `precio_unitario`, `dcto`, `garantia`,
+> `finc_paralelo`, `ficha_venta`, `notas`, `fecha_cierre_estimado` — todos opcionales.
+
+`id_financiadora` **nunca estuvo** en ese body, ni antes ni después de V42. Y no existe
+ningún otro endpoint (`PATCH /oportunidades/:id/financiadora` o similar) que la edite tras
+la creación — verificado contra el índice completo de endpoints de oportunidad en el
+contrato sincronizado (§10).
+
+**No es una regresión de este plan.** Es un bug de la misma familia que K5 —un `<select>`
+de financiadora en `PropiedadesCard` que llamaba `guardarCampo({ id_financiadora })` vía
+`PUT /oportunidades/:id`, y el backend lo descartaba en silencio— que **ya existía en
+producción antes de V42** y que T3.1 destapó al corregir K5 en el mismo archivo.
+
+**Resolución aplicada en T3.1:** el `<select>` se convirtió en texto de solo lectura
+(`o.financiadora?.nombre`), con un comentario que cita el contrato §10. Es la lectura
+correcta del mismo principio que motiva este plan entero: un control que finge guardar es
+peor que un dato visible que no se puede editar.
+
+**No se pide un endpoint nuevo al backend.** No hay evidencia de que la financiadora deba
+ser editable tras la creación — podría ser una decisión de negocio deliberada (se fija al
+crear la oportunidad). Si el negocio necesita poder cambiarla después, es una pregunta
+para el equipo de producto/backend, no una inferencia del frontend (§1.7 del encargo:
+"no infieras comportamiento de negocio").
+
 ### K15 — Cobertura de tests actual: 11 archivos
 
 `npm run test` (Vitest) con MSW disponible. `TESTING-frontend.md` §9 regla 4: *"MSW para
