@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { oportunidadesApi } from '@/api/oportunidades'
 import type {
+  ActualizarItemInput,
   ActualizarOportunidadInput,
   CambioEstadoInput,
   CrearOportunidadInput,
@@ -66,6 +67,24 @@ export function useActualizarOportunidad(id: number) {
     onSuccess: (data) => {
       invalidarOportunidad(qc, id)
       invalidar(qc, qk.empresa(data.id_empresa))
+    },
+  })
+}
+
+/**
+ * Edita un ítem de la oportunidad. No escribe la respuesta en la cache: el
+ * endpoint de ítems devuelve `cuota_quantum`/`cuota_total` en `null` siempre, y
+ * meter esos nulos en pantalla sería mentir. Se invalida y se repide (D6).
+ */
+export function useActualizarItem(idOportunidad: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ idItem, input }: { idItem: number; input: ActualizarItemInput }) =>
+      oportunidadesApi.actualizarItem(idOportunidad, idItem, input),
+    onSuccess: () => {
+      // Sincronización 360 (CLAUDE.md regla 4): el monto y las cuotas cambian, y
+      // se muestran también en el Pipeline y en la ficha de la empresa.
+      invalidar(qc, qk.oportunidad(idOportunidad), qk.oportunidades, qk.empresas)
     },
   })
 }
