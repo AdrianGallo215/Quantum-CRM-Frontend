@@ -54,6 +54,8 @@ docs/            # referencia (ver abajo)
 |---|---|
 | `PRD-frontend.md` | Visión, pantallas, criterios de aceptación, fases |
 | `contrato_api.md` | Endpoints que consumes. **Copia de referencia — dueño es el backend** |
+| `reglas_simulaciones.md` | Reglas del módulo de Simulaciones. **Copia de referencia — dueño es el backend** |
+| `matriz_permisos.md` | Permisos por rol y operación. **Copia de referencia — dueño es el backend** |
 | `DESIGN.md` | Sistema de diseño normativo. La estética se sigue con precisión |
 | `stitch-prototypes/` | Prototipos HTML. Referencia de layout, NO definitivos (ver abajo) |
 | `TESTING-frontend.md` | **Cómo escribir tests. TDD obligatorio** |

@@ -120,6 +120,21 @@ edición de términos descarta los cambios en silencio (K5). Eso cambia la prior
 **No continuar a la OLA 1 sin esta respuesta.**
 
 ---
+
+### Respuesta registrada (2026-09-07)
+
+**V42 está desplegado en producción** (`https://api.quantuminvest.com.pe`, confirmado
+por el usuario). Backend `main` tiene el merge de PR #12
+(`feat/oportunidades-multi-modelo-simulaciones`) desde 2026-09-05 — sin pipeline de
+deploy automático visible en el repo del backend, pero el usuario confirma que ya corre
+en prod.
+
+**Consecuencia: este plan es un HOTFIX.** El frontend en producción está, ahora mismo,
+leyendo campos que el backend ya no envía (K2) y descartando en silencio la edición de
+términos de oportunidad (K5). Se ejecuta completo con prioridad máxima y se despliega en
+cuanto cierre, sin esperar al resto del trabajo de Simulaciones.
+
+---
 ---
 
 # OLA 1
