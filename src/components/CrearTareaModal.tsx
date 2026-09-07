@@ -9,6 +9,7 @@ import { mensajeDeError } from '@/api/client'
 import type { TipoAccion } from '@/types'
 import { ETIQUETA_ETAPA, ETIQUETA_TIPO_ACCION } from '@/utils/etiquetas'
 import { nombreCompleto } from '@/utils/formato'
+import { etiquetaModelos } from '@/utils/oportunidades'
 import { EmpleadoMultiSelect, EmpleadoSelect } from './EmpleadoSelect'
 
 export interface EmpresaPreseleccionada {
@@ -174,7 +175,7 @@ export function CrearTareaModal({ open, onClose, empresaPreseleccionada, contact
                 loading={oportunidades.isLoading}
                 options={activas.map((o) => ({
                   value: o.id,
-                  label: `OP-${o.id} · ${o.modelo.codigo} × ${o.cantidad} · ${ETIQUETA_ETAPA[o.estado]}`,
+                  label: `OP-${o.id} · ${etiquetaModelos(o.items)} · ${ETIQUETA_ETAPA[o.estado]}`,
                 }))}
               />
             </Form.Item>

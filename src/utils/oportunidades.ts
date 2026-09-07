@@ -6,7 +6,9 @@ import type { OportunidadItem } from '@/types'
  * presentar un modelo como si fuera toda la operación (D3).
  */
 export function etiquetaModelos(items: readonly OportunidadItem[]): string {
-  if (items.length === 0) return '—'
-  const primero = items[0].modelo.codigo
-  return items.length === 1 ? primero : `${primero} +${items.length - 1}`
+  // Desestructurar en vez de indexar: con `noUncheckedIndexedAccess`, `items[0]`
+  // tipa como `OportunidadItem | undefined` y el guard de `.length` no lo estrecha.
+  const [primero, ...resto] = items
+  if (!primero) return '—'
+  return resto.length === 0 ? primero.modelo.codigo : `${primero.modelo.codigo} +${resto.length}`
 }

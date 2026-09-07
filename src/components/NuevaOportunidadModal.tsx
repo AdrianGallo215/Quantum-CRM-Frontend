@@ -10,7 +10,7 @@ import { codigoDeError, extraerApiError, mensajeDeError } from '@/api/client'
 import { aprobadorParaDcto, limiteDctoDirecto } from '@/utils/solicitudes'
 import { ETIQUETA_ROL_APROBADOR } from '@/utils/etiquetas'
 import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudModal'
-import { calcularMontoTotal } from '@/utils/monto'
+import { calcularMontoItem } from '@/utils/monto'
 import { formatoMonto } from '@/utils/formato'
 
 interface FormValues {
@@ -18,7 +18,7 @@ interface FormValues {
   id_modelo: number
   id_financiadora?: number
   cantidad: number
-  dcto?: number
+  descuento?: number
   id_vendedor?: number
   garantia?: boolean
   finc_paralelo?: boolean
@@ -53,7 +53,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
   const idModelo = Form.useWatch('id_modelo', form)
   const idEmpresa = Form.useWatch('id_empresa', form)
   const cantidad = Form.useWatch('cantidad', form)
-  const dcto = Form.useWatch('dcto', form)
+  const descuento = Form.useWatch('descuento', form)
 
   const modeloSeleccionado = useMemo(
     () => (modelos.data ?? []).find((m) => m.id === idModelo),
@@ -73,10 +73,11 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
   const vendedores = useVendedoresAsignables(pedirVendedor && open)
 
   // UX proactiva (contrato §2): avisar ANTES de guardar. No bloquea el submit.
-  const aprobador = empleado ? aprobadorParaDcto(empleado.rol, dcto ?? 0) : null
+  const aprobador = empleado ? aprobadorParaDcto(empleado.rol, descuento ?? 0) : null
 
   // Cálculo EN VIVO, solo presentación. monto_total nunca viaja al backend.
-  const montoTotal = calcularMontoTotal(cantidad, modeloSeleccionado?.precio_base, dcto)
+  // Alta de un solo modelo: calcularMontoItem (un ítem) es correcto acá.
+  const montoTotal = calcularMontoItem(cantidad, modeloSeleccionado?.precio_base, descuento)
 
   const financiadoraDefault = (financiadoras.data ?? []).find((f) => f.es_default)
 
@@ -105,7 +106,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
         id_modelo: v.id_modelo,
         id_financiadora: v.id_financiadora ?? null,
         cantidad: v.cantidad,
-        dcto: v.dcto ?? 0,
+        descuento: v.descuento ?? 0,
         garantia: v.garantia ?? false,
         finc_paralelo: v.finc_paralelo ?? false,
         fecha_cierre_estimado: v.fecha_cierre_estimado
@@ -129,7 +130,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
             id_modelo: v.id_modelo,
             id_financiadora: v.id_financiadora ?? null,
             cantidad: v.cantidad,
-            dcto: limite,
+            descuento: limite,
             garantia: v.garantia ?? false,
             finc_paralelo: v.finc_paralelo ?? false,
             fecha_cierre_estimado: v.fecha_cierre_estimado
@@ -143,7 +144,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
           setSolicitudPendiente({
             tipo: 'descuento',
             idOportunidad: creada.id,
-            dctoSolicitado: v.dcto ?? 0,
+            dctoSolicitado: v.descuento ?? 0,
             mensajeBackend: extraerApiError(e)?.message ?? 'El descuento requiere aprobación',
           })
         } catch (e2) {
@@ -177,7 +178,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
         initialValues={{
           id_empresa: empresaPreseleccionada?.id,
           cantidad: 1,
-          dcto: 0,
+          descuento: 0,
           garantia: false,
           finc_paralelo: false,
         }}
@@ -244,7 +245,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
           >
             <InputNumber style={{ width: '100%' }} min={1} precision={0} />
           </Form.Item>
-          <Form.Item name="dcto" label="Descuento (%)">
+          <Form.Item name="descuento" label="Descuento (%)">
             <InputNumber style={{ width: '100%' }} min={0} max={100} precision={2} />
           </Form.Item>
         </div>
@@ -254,7 +255,7 @@ export function NuevaOportunidadModal({ open, onClose, empresaPreseleccionada }:
             type="warning"
             showIcon
             style={{ marginBottom: 16 }}
-            message={`${dcto}% supera tu límite — la oportunidad se creará con tu límite y podrás solicitar el ${dcto}% a ${ETIQUETA_ROL_APROBADOR[aprobador]}`}
+            message={`${descuento}% supera tu límite — la oportunidad se creará con tu límite y podrás solicitar el ${descuento}% a ${ETIQUETA_ROL_APROBADOR[aprobador]}`}
           />
         )}
 

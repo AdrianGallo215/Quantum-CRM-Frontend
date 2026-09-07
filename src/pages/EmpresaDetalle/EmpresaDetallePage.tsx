@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { App, Form, Input, Modal, Popconfirm, Select } from 'antd'
+import { App, Form, Input, Modal, Popconfirm, Select, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
@@ -39,6 +39,7 @@ import {
   type Tarea,
 } from '@/types'
 import { ETIQUETA_CARTERA, ETIQUETA_SEGMENTO, etiquetaEtapa } from '@/utils/etiquetas'
+import { etiquetaModelos } from '@/utils/oportunidades'
 import { formatoFecha, formatoMonto, iniciales, nombreCompleto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NeutralTag } from '@/components/EstadoTag'
@@ -391,7 +392,17 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                       >
                         <td className="py-4">
                           <p className="font-semibold text-on-surface">
-                            {o.modelo.codigo} × {o.cantidad}
+                            {/* Con un ítem, el código a secas. Con varios, "K12 +2" con tooltip:
+                                mostrar solo el primero presentaría un modelo como si fuera toda
+                                la operación (D3). */}
+                            {o.items.length > 1 ? (
+                              <Tooltip title={o.items.map((it) => it.modelo.codigo).join(', ')}>
+                                {etiquetaModelos(o.items)}
+                              </Tooltip>
+                            ) : (
+                              etiquetaModelos(o.items)
+                            )}{' '}
+                            × {o.items.reduce((acc, it) => acc + it.cantidad, 0)}
                           </p>
                           <p className="text-label-md text-on-surface-variant">Ref: OP-{o.id}</p>
                         </td>
