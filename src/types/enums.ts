@@ -1,5 +1,5 @@
 /**
- * `rol_empleado` del contrato §23 (verificado contra el schema de producción).
+ * `rol_empleado` del contrato §26 (verificado contra el schema de producción).
  * `otro` existe en el enum del backend aunque la UI no lo asigne: un empleado
  * puede llegar con ese rol y toda la app debe saber representarlo.
  */
@@ -23,7 +23,7 @@ export type EstadoEvento = 'pendiente' | 'ocurrido' | 'descartado'
 
 export type EstadoAccion = 'pendiente' | 'completada' | 'cancelada'
 
-/** `tipo_accion_enum` del contrato §23. Es `correo`, NO `email`. */
+/** `tipo_accion_enum` del contrato §26. Es `correo`, NO `email`. */
 export type TipoAccion = 'llamada' | 'reunion' | 'correo' | 'whatsapp' | 'otro'
 
 export type OrigenLead = 'cartera' | 'visita_fria' | 'referido_calidda' | 'red_contactos' | 'otro'
@@ -31,7 +31,7 @@ export type OrigenLead = 'cartera' | 'visita_fria' | 'referido_calidda' | 'red_c
 export type Segmento = 'urbano' | 'interprovincial' | 'turismo' | 'personal' | 'otro'
 
 /**
- * `aplicacion_enum` del contrato §23 — las aplicaciones de un `Modelo`.
+ * `aplicacion_enum` del contrato §26 — las aplicaciones de un `Modelo`.
  * OJO: se parece a `Segmento` pero NO admite `otro`. Son enums distintos.
  */
 export type Aplicacion = 'urbano' | 'interprovincial' | 'turismo' | 'personal'

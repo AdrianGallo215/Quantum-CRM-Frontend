@@ -1,7 +1,8 @@
 import { describe, expect, it, beforeEach } from 'vitest'
 import { http, HttpResponse } from 'msw'
-import { renderConProviders, screen, userEvent, waitFor } from '@/test/utilidades'
+import { crearQueryClientDePrueba, renderConProviders, screen, userEvent, waitFor } from '@/test/utilidades'
 import { servidorMock, BASE_API } from '@/test/servidor-mock'
+import { qk } from '@/hooks/queryKeys'
 import { PropiedadesCard } from './PropiedadesCard'
 import { useAuthStore } from '@/store/authStore'
 import type { Financiadora, Modelo, OportunidadDetalle, OportunidadItem } from '@/types'
@@ -155,6 +156,54 @@ describe('PropiedadesCard', () => {
       expect(cuerpoDelItem.precio_venta).toBe('95000.00')
       // Lo importante del bug: no se toca el endpoint que descarta en silencio.
       expect(llamadas).not.toContain('oportunidad')
+    },
+    TIMEOUT_INTERACTIVO,
+  )
+
+  it(
+    'invalida Inicio, Prospección, Reportes y Tareas al editar un ítem, no solo la oportunidad',
+    async () => {
+      // Regresión B1 (auditoría T7.1): useActualizarItem invalidaba solo
+      // oportunidad/oportunidades/empresas. Cambiar precio o cantidad de un
+      // ítem cambia monto_total, que Inicio, Prospección, Reportes y Tareas
+      // también muestran (contrato §28, changelog 2026-09-04: los reportes
+      // leen oportunidad_items directamente). Sin esto, esas vistas quedaban
+      // con el monto viejo hasta un remount — CLAUDE.md regla 4.
+      servidorMock.use(
+        handlerDeModelos(),
+        http.put(`${BASE_API}/oportunidades/:id/items/:itemId`, () =>
+          HttpResponse.json({ data: item({ precio_venta: '95000.00' }), meta: null, error: null }),
+        ),
+      )
+
+      const queryClient = crearQueryClientDePrueba()
+      const invalidadas: unknown[][] = []
+      const invalidateQueriesOriginal = queryClient.invalidateQueries.bind(queryClient)
+      queryClient.invalidateQueries = (filtro?: { queryKey?: readonly unknown[] }) => {
+        if (filtro?.queryKey) invalidadas.push([...filtro.queryKey])
+        return invalidateQueriesOriginal(filtro)
+      }
+
+      const usuario = userEvent.setup({ delay: null })
+
+      renderConProviders(<PropiedadesCard oportunidad={oportunidad()} />, { queryClient })
+
+      await usuario.click(screen.getByRole('button', { name: /editar términos/i }))
+      const precio = await screen.findByLabelText(/precio unitario/i)
+      await usuario.clear(precio)
+      await usuario.type(precio, '95000')
+      await usuario.click(screen.getByRole('button', { name: /^guardar$/i }))
+
+      await waitFor(() => expect(invalidadas.length).toBeGreaterThan(0))
+
+      const tocaPrefijo = (prefijo: readonly unknown[]) =>
+        invalidadas.some((key) => prefijo.every((parte, i) => key[i] === parte))
+
+      expect(tocaPrefijo(qk.inicio)).toBe(true)
+      expect(tocaPrefijo(qk.prospeccion)).toBe(true)
+      expect(tocaPrefijo(qk.reportes)).toBe(true)
+      expect(tocaPrefijo(qk.tareas)).toBe(true)
+      expect(tocaPrefijo(qk.oportunidad(101))).toBe(true)
     },
     TIMEOUT_INTERACTIVO,
   )

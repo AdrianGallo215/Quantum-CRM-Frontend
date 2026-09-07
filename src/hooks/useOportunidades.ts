@@ -75,6 +75,13 @@ export function useActualizarOportunidad(id: number) {
  * Edita un ítem de la oportunidad. No escribe la respuesta en la cache: el
  * endpoint de ítems devuelve `cuota_quantum`/`cuota_total` en `null` siempre, y
  * meter esos nulos en pantalla sería mentir. Se invalida y se repide (D6).
+ *
+ * Reutiliza `invalidarOportunidad`: cambiar cantidad, precio o descuento de un
+ * ítem cambia `monto_total`, que Inicio, Prospección, Reportes y Tareas también
+ * muestran (contrato §28, changelog 2026-09-04: los reportes leen
+ * `oportunidad_items` directamente). Invalidar solo tres claves —como hacía
+ * antes— dejaba esas vistas con el monto viejo hasta un remount (regresión B1
+ * de la auditoría de T7.1, `CLAUDE.md` regla 4).
  */
 export function useActualizarItem(idOportunidad: number) {
   const qc = useQueryClient()
@@ -82,9 +89,7 @@ export function useActualizarItem(idOportunidad: number) {
     mutationFn: ({ idItem, input }: { idItem: number; input: ActualizarItemInput }) =>
       oportunidadesApi.actualizarItem(idOportunidad, idItem, input),
     onSuccess: () => {
-      // Sincronización 360 (CLAUDE.md regla 4): el monto y las cuotas cambian, y
-      // se muestran también en el Pipeline y en la ficha de la empresa.
-      invalidar(qc, qk.oportunidad(idOportunidad), qk.oportunidades, qk.empresas)
+      invalidarOportunidad(qc, idOportunidad)
     },
   })
 }

@@ -7,7 +7,7 @@ import { APLICACIONES, SEGMENTOS } from './enums'
  * de modelos ofreciera una opción que el backend rechaza con 400.
  */
 describe('APLICACIONES', () => {
-  it('coincide exactamente con aplicacion_enum del contrato §23', () => {
+  it('coincide exactamente con aplicacion_enum del contrato §26', () => {
     expect([...APLICACIONES].sort()).toEqual(
       ['interprovincial', 'personal', 'turismo', 'urbano'].sort(),
     )
