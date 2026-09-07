@@ -287,11 +287,18 @@ Nunca `items[0]` a secas: sería mentir en pantalla.
 ### D4 — `utils/monto.ts` pasa a operar por ítem, conservando el redondeo
 
 Se agrega `calcularMontoItem(cantidad, precioVenta, descuento)` — idéntica a la actual,
-solo renombrada por claridad — y `calcularMontoOportunidad(items)` que redondea **por
-ítem** (`Math.round(x*100)/100`) y luego suma. Redondear solo al final daría un centavo
-de diferencia contra `monto_total` del backend, que suma `monto_item` ya redondeados.
+solo renombrada por claridad.
 
 Se conserva `calcularDescuento` con la misma firma, aplicada por ítem.
+
+> **Actualización (auditoría T7.1, hallazgo B6):** este mapa preveía también
+> `calcularMontoOportunidad(items)`, que redondearía por ítem y sumaría, para un total en
+> vivo del modal de edición. Se implementó, pero **quedó sin ningún call site**: el modal
+> edita **un** ítem a la vez y ya muestra el monto de *ese* ítem con `calcularMontoItem`;
+> el total de la operación se lee de `o.monto_total` de la raíz (autoritativo del backend,
+> K11). Un total en vivo que mezclara ítems ya guardados con la edición a medio hacer de
+> otro sería más confuso que útil. **Decisión del arquitecto (2026-09-07): eliminada**, con
+> sus tests. K12 queda resuelto con `calcularMontoItem` a secas.
 
 ### D5 — La edición de términos pasa a ser edición **de un ítem**
 

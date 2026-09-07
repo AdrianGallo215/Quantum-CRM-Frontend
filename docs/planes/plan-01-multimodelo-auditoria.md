@@ -458,3 +458,16 @@ Sanear los 50 errores es un trabajo propio, ajeno a este plan.
 4. **B5**, **B6**, **B8**: refactor, sin urgencia.
 5. **B7**, **B11**, **B13**: necesitan una decisión (pregunta al backend, alcance de producto,
    o esperar a que se levante D8). No las resuelva el frontend por su cuenta.
+
+---
+
+## 7. Resolución (2026-09-07, con aprobación del usuario)
+
+| # | Resolución |
+|---|---|
+| B1, B2, B3, B4 | **Corregidos** — commit `c27bdac` |
+| B5, B8, B9, B10, B12 | **Corregidos** — commit `0fd2a42`. Mecánicos, sin ambigüedad de producto ni de contrato |
+| B6 | **Eliminada** `calcularMontoOportunidad` con sus tests. Ver `plan-00-mapa-multimodelo.md` D4 (nota de actualización) |
+| B7 | **Diferido.** Ya está en `docs/solicitud-backend-simulaciones.md` como pendiente de agregar a T6.1; no se toca el tipo hasta que el backend responda si el body de ítems acepta string, number, o ambos (§2 del encargo: no se resuelve por inferencia) |
+| B11 | **Diferido, sin acción.** Las columnas "Precio Unitario"/"Descuento" quedan eliminadas del Pipeline. Decisión de producto: con N ítems no hay un valor único que mostrar sin mentir (mismo criterio que la columna Modelo), y son columnas opcionales — con los datos de hoy (1 ítem por oportunidad) no se pierde nada observable |
+| B13 | **Diferido, sin acción.** Impacto hoy: cero (ninguna oportunidad tiene más de un ítem en producción — D8 no está levantado). Arreglarlo ahora sería diseñar UI para un caso que no existe todavía. Queda anotado para revisar cuando D8 (agregar/eliminar ítems) se implemente |

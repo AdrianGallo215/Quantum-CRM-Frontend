@@ -18,26 +18,6 @@ export function calcularMontoItem(
 }
 
 /**
- * Monto de toda la oportunidad: suma de los montos de sus ítems.
- * Redondea POR ÍTEM antes de sumar, igual que el backend, que suma `monto_item`
- * ya redondeados. Redondear solo al final daría céntimos de diferencia contra
- * `monto_total` — y el usuario vería dos totales distintos en la misma pantalla.
- */
-export function calcularMontoOportunidad(
-  items: readonly {
-    cantidad: number | null | undefined
-    precio_venta: string | number | null | undefined
-    descuento: string | number | null | undefined
-  }[],
-): number {
-  const total = items.reduce(
-    (acc, it) => acc + calcularMontoItem(it.cantidad, it.precio_venta, it.descuento),
-    0,
-  )
-  return Math.round(total * 100) / 100
-}
-
-/**
  * Importe (no porcentaje) que se descuenta del bruto de un ítem. Vive aquí y no
  * en el componente para que use exactamente el mismo redondeo que
  * `calcularMontoItem`: si divergen, el desglose no cuadra con el total que
