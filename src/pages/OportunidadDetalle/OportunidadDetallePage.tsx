@@ -8,8 +8,9 @@ import { useAuthStore, ROLES_FACTURA, ROLES_APOYO, tieneRol } from '@/store/auth
 import { ETAPAS_PIPELINE, type EstadoOportunidad, type OportunidadDetalle } from '@/types'
 import { ETIQUETA_ETAPA } from '@/utils/etiquetas'
 import { formatoFecha, nombreCompleto } from '@/utils/formato'
-import { etiquetaModelos } from '@/utils/oportunidades'
+import { unidadesTotales } from '@/utils/oportunidades'
 import { Cargando, ErrorCarga } from '@/components/Estados'
+import { EtiquetaModelos } from '@/components/EtiquetaModelos'
 import { PropiedadesCard } from './PropiedadesCard'
 import { TareasCard } from './TareasCard'
 import { EventosCard } from './EventosCard'
@@ -102,9 +103,10 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
           </div>
           <div className="flex flex-wrap justify-between items-end gap-3">
             <h1 className="font-headline text-headline-lg-mobile md:text-headline-lg text-primary">
-              {/* etiquetaModelos ya resume "K12 +2" cuando hay varios ítems (D3); la
-                  cantidad total sigue sumando todos los ítems, como en el Pipeline. */}
-              {etiquetaModelos(o.items)} × {o.items.reduce((acc, it) => acc + it.cantidad, 0)} —{' '}
+              {/* EtiquetaModelos resume "K12 +2" con tooltip cuando hay varios ítems
+                  (D3); la cantidad total sigue sumando todos los ítems, como en el
+                  Pipeline. Antes le faltaba el tooltip (hallazgo B9, T7.1). */}
+              <EtiquetaModelos items={o.items} /> × {unidadesTotales(o.items)} —{' '}
               {o.empresa.razon_social}
             </h1>
             <div className="flex gap-2">

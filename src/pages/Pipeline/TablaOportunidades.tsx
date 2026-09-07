@@ -8,11 +8,12 @@ import { useAuthStore, ROLES_ADMIN, tieneRol } from '@/store/authStore'
 import type { EstadoOportunidad, Oportunidad } from '@/types'
 import { ETAPAS_PIPELINE } from '@/types/enums'
 import { EtapaTag } from '@/components/EstadoTag'
+import { EtiquetaModelos } from '@/components/EtiquetaModelos'
 import { Icono } from '@/components/Icono'
 import { ETIQUETA_ETAPA } from '@/utils/etiquetas'
 import { nombreCompleto, formatoMonto, formatoFecha, formatoFechaHora } from '@/utils/formato'
 import { urlSegura } from '@/utils/url'
-import { etiquetaModelos } from '@/utils/oportunidades'
+import { etiquetaModelos, unidadesTotales } from '@/utils/oportunidades'
 
 const CLAVE_SESION_COLUMNAS = 'quantum_pipeline_tabla_columnas'
 
@@ -57,16 +58,7 @@ const DEFINICIONES: DefinicionColumna[] = [
       key: 'nombre',
       fixed: 'left',
       width: 220,
-      // Con un ítem, el código a secas. Con varios, "K12 +2" con tooltip: mostrar
-      // solo el primero presentaría un modelo como si fuera toda la operación (D3).
-      render: (_, o) =>
-        o.items.length > 1 ? (
-          <Tooltip title={o.items.map((it) => it.modelo.codigo).join(', ')}>
-            {etiquetaModelos(o.items)}
-          </Tooltip>
-        ) : (
-          etiquetaModelos(o.items)
-        ),
+      render: (_, o) => <EtiquetaModelos items={o.items} />,
       sorter: (a, b) => compararTexto(etiquetaModelos(a.items), etiquetaModelos(b.items)),
     }),
   },
@@ -112,10 +104,8 @@ const DEFINICIONES: DefinicionColumna[] = [
       align: 'center',
       // Suma de todos los ítems: una oportunidad con varios modelos vende varias
       // cantidades a la vez, no una sola (D3).
-      render: (_, o) => o.items.reduce((acc, it) => acc + it.cantidad, 0),
-      sorter: (a, b) =>
-        a.items.reduce((acc, it) => acc + it.cantidad, 0) -
-        b.items.reduce((acc, it) => acc + it.cantidad, 0),
+      render: (_, o) => unidadesTotales(o.items),
+      sorter: (a, b) => unidadesTotales(a.items) - unidadesTotales(b.items),
     }),
   },
   {

@@ -9,7 +9,7 @@ import { mensajeDeError } from '@/api/client'
 import type { TipoAccion } from '@/types'
 import { ETIQUETA_ETAPA, ETIQUETA_TIPO_ACCION } from '@/utils/etiquetas'
 import { nombreCompleto } from '@/utils/formato'
-import { etiquetaModelos } from '@/utils/oportunidades'
+import { etiquetaModelos, unidadesTotales } from '@/utils/oportunidades'
 import { EmpleadoMultiSelect, EmpleadoSelect } from './EmpleadoSelect'
 
 export interface EmpresaPreseleccionada {
@@ -175,7 +175,11 @@ export function CrearTareaModal({ open, onClose, empresaPreseleccionada, contact
                 loading={oportunidades.isLoading}
                 options={activas.map((o) => ({
                   value: o.id,
-                  label: `OP-${o.id} · ${etiquetaModelos(o.items)} · ${ETIQUETA_ETAPA[o.estado]}`,
+                  // La cantidad se había perdido al migrar a items[] sin que ninguna
+                  // tarea lo pidiera (hallazgo B10, T7.1): con dos oportunidades del
+                  // mismo modelo para la misma empresa, el selector dejaba de
+                  // distinguirlas.
+                  label: `OP-${o.id} · ${etiquetaModelos(o.items)} × ${unidadesTotales(o.items)} · ${ETIQUETA_ETAPA[o.estado]}`,
                 }))}
               />
             </Form.Item>

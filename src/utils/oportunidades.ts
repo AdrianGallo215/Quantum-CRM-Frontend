@@ -12,3 +12,14 @@ export function etiquetaModelos(items: readonly OportunidadItem[]): string {
   if (!primero) return '—'
   return resto.length === 0 ? primero.modelo.codigo : `${primero.modelo.codigo} +${resto.length}`
 }
+
+/**
+ * Suma de unidades de todos los ítems: "cuántos buses vende esta oportunidad",
+ * agregando sobre N modelos. Hermana de `etiquetaModelos` — misma razón para
+ * vivir en utils (`CLAUDE.md` regla 11): es lógica, no markup, y estaba
+ * copiada seis veces en cinco componentes antes de esta extracción (hallazgo
+ * B5 de la auditoría de T7.1).
+ */
+export function unidadesTotales(items: readonly OportunidadItem[]): number {
+  return items.reduce((acc, it) => acc + it.cantidad, 0)
+}

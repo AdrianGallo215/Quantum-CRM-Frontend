@@ -1,6 +1,6 @@
 import type { EstadoOportunidad } from './enums'
 import type { EmpleadoResumen } from './empleado'
-import type { Financiadora, Modelo } from './catalogos'
+import type { Financiadora, ModeloRef } from './catalogos'
 
 export interface EmpresaRef {
   id: number
@@ -24,7 +24,7 @@ export interface ContactoEnOportunidad {
 export interface OportunidadItem {
   id: number
   id_modelo: number
-  modelo: Modelo
+  modelo: ModeloRef
   cantidad: number
   precio_venta: string
   descuento: string

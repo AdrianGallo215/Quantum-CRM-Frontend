@@ -7,6 +7,7 @@ import { mensajeDeError } from '@/api/client'
 import { useAuthStore, ROLES_ADMIN, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import type { EstadoOportunidad, Oportunidad } from '@/types'
 import { Cargando, ErrorCarga } from '@/components/Estados'
+import { unidadesTotales } from '@/utils/oportunidades'
 import { NuevaOportunidadModal } from '@/components/NuevaOportunidadModal'
 import { TablaOportunidades } from './TablaOportunidades'
 
@@ -232,7 +233,7 @@ function Tarjeta({ oportunidad: o, esFacturado }: { oportunidad: Oportunidad; es
       </div>
       <div className="flex flex-col gap-1">
         <p className="text-on-surface-variant text-xs">
-          {o.items.reduce((acc, it) => acc + it.cantidad, 0)} unidades
+          {unidadesTotales(o.items)} unidades
         </p>
         <p className="text-on-surface-variant text-[10px] opacity-70">
           Creada hace {dias} día{dias === 1 ? '' : 's'}
