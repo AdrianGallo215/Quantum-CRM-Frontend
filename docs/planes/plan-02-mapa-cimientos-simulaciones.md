@@ -327,6 +327,17 @@ Cada mutación invalida: `qk.simulaciones`, `qk.simulacion(id)`,
 Esto es exactamente el caso que `TESTING-frontend.md` §4.4 llama "el principio crítico":
 tras editar un dato, ninguna otra vista puede mostrar el valor viejo.
 
+> **Verificación (T3.1, 2026-09-07):** el ejecutor de T3.1 señaló, sin desviarse del
+> plan, si este conjunto no repite el error de B1 (Plan 00/01) — invalidar de menos
+> porque otra vista también muestra el dato mutado. Se verificó contra el contrato:
+> `GET /inicio` (§17), `GET /prospeccion` (§16) y `GET /reportes/*` (§18) **no exponen
+> ningún campo `cuota_*`** — usan `monto_total`/`monto`, no las cuotas nuevas de §10.
+> A diferencia de `monto_total` (que sí se propaga a reportes, motivo de B1), los tres
+> campos de cuota son exclusivos de `GET /oportunidades` y `GET /oportunidades/:id`.
+> El conjunto de D18 es correcto tal como está — **no es un B1 repetido**. Si algún día
+> Inicio/Prospección/Reportes empiezan a mostrar cuotas, este análisis hay que
+> rehacerlo.
+
 ### D19 — Los defaults viven en una constante exportada
 
 Por K23. `DEFAULTS_SIMULACION` en `utils/simulaciones.ts`, con un comentario que cita
