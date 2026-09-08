@@ -3,13 +3,20 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/AppLayout'
 import { Cargando } from '@/components/Estados'
 import { RequireAuth, RequireRol } from './guards'
-import { RUTA_CAMBIO_CONTRASENA, RUTA_INICIO, RUTA_LOGIN } from './rutas'
+import {
+  RUTA_CALCULADORA,
+  RUTA_CAMBIO_CONTRASENA,
+  RUTA_INICIO,
+  RUTA_LOGIN,
+  RUTA_SIMULACIONES,
+} from './rutas'
 import {
   ROLES_ADMIN,
   ROLES_BANDEJA_GERENCIA,
   ROLES_REPORTES,
   ROLES_SOLICITANTES,
 } from '@/store/authStore'
+import type { Rol } from '@/types'
 import { LoginPage } from '@/pages/Login/LoginPage'
 import { CambiarContrasenaPage } from '@/pages/Login/CambiarContrasenaPage'
 import { InicioPage } from '@/pages/Inicio/InicioPage'
@@ -59,6 +66,23 @@ const GerenciaPage = lazy(() =>
 const SolicitudesPage = lazy(() =>
   import('@/pages/Solicitudes/SolicitudesPage').then((m) => ({ default: m.SolicitudesPage })),
 )
+const EnConstruccionPage = lazy(() =>
+  import('@/pages/EnConstruccion/EnConstruccionPage').then((m) => ({ default: m.EnConstruccionPage })),
+)
+
+/**
+ * Roles del módulo de Simulaciones y de la Calculadora (matriz_permisos.md
+ * §2.15). Se rearman acá en vez de importarse de `simulacionPermisos.ts` a
+ * propósito: ese módulo expone predicados por `Empleado` (`puedeVer...`,
+ * `puedeUsar...`), no arrays de `Rol` — que es lo que pide `RequireRol` — y
+ * sus constantes están deliberadamente sin exportar (comentario en el propio
+ * archivo) para que nadie las confunda con `ROLES_APOYO`/`ROLES_SUPERVISION`
+ * de `authStore`. `RequireRol` es un guard de UX (`CLAUDE.md` regla 8), igual
+ * que las funciones que filtran `navItems.ts` — la fuente de verdad real es
+ * el backend.
+ */
+const ROLES_MODULO_SIMULACIONES: Rol[] = ['admin', 'gerencia', 'analista']
+const ROLES_CALCULADORA: Rol[] = ['admin', 'gerencia', 'analista', 'vendedor']
 
 export function AppRouter() {
   return (
@@ -112,6 +136,37 @@ export function AppRouter() {
             element={
               <RequireRol roles={ROLES_SOLICITANTES}>
                 <SolicitudesPage />
+              </RequireRol>
+            }
+          />
+          {/*
+            Plan 05, T2.2 (resolución H0): SimulacionesPage, SimulacionDetallePage
+            y CalculadoraPage (T3.1/T5.1) están bloqueadas por el hito de diseño
+            pendiente. Las tres rutas ya quedan cableadas contra el mismo
+            placeholder — cuando esas páginas existan, se reemplaza únicamente
+            el `lazy(() => import(...))` de cada una.
+          */}
+          <Route
+            path={RUTA_SIMULACIONES}
+            element={
+              <RequireRol roles={ROLES_MODULO_SIMULACIONES}>
+                <EnConstruccionPage titulo="Módulo Simulaciones" />
+              </RequireRol>
+            }
+          />
+          <Route
+            path={`${RUTA_SIMULACIONES}/:id`}
+            element={
+              <RequireRol roles={ROLES_MODULO_SIMULACIONES}>
+                <EnConstruccionPage titulo="Detalle de Simulación" />
+              </RequireRol>
+            }
+          />
+          <Route
+            path={RUTA_CALCULADORA}
+            element={
+              <RequireRol roles={ROLES_CALCULADORA}>
+                <EnConstruccionPage titulo="Calculadora Financiera" />
               </RequireRol>
             }
           />
