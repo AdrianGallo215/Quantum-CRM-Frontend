@@ -35,6 +35,22 @@ export const qk = {
   solicitud: (id: number) => ['solicitudes', 'detalle', id] as const,
   metasVenta: ['metas-venta'] as const,
   archivos: (tipo: TipoEntidadArchivo, id: number) => ['archivos', tipo, id] as const,
+  /**
+   * Simulaciones (D17). Siguen el invariante de arriba: cronograma e historial
+   * cuelgan del detalle, y el detalle de la lista. Por eso `invalidar(qc,
+   * qk.simulaciones)` alcanza a TODAS las simulaciones abiertas y a sus
+   * cronogramas — necesario porque marcar una como principal cambia el
+   * `es_principal` de las demás del mismo item (K25, K26).
+   */
+  simulaciones: ['simulaciones'] as const,
+  simulacion: (id: number) => ['simulaciones', 'detalle', id] as const,
+  simulacionCronograma: (id: number) => ['simulaciones', 'detalle', id, 'cronograma'] as const,
+  simulacionHistorial: (id: number) => ['simulaciones', 'detalle', id, 'historial'] as const,
+  /**
+   * Dato global sin recurso propio ni detalle: una sola fila diaria (§22).
+   * No lo invalida ninguna mutacion del CRM — lo repuebla un job del backend.
+   */
+  tipoCambio: ['tipo-cambio'] as const,
 }
 
 export function invalidar(qc: QueryClient, ...keys: readonly (readonly unknown[])[]): void {

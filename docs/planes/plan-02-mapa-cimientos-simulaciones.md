@@ -254,9 +254,14 @@ nada, lo protege el backend.
 
 ### D12 — Un formateador de cuota que distingue "null" de "cero"
 
-`utils/formato.ts` gana `formatoCuota(valor: string | null): string` que devuelve
-`'—'`… **no**. Un guion suelto parece un monto vacío, y el encargo §4.1 lo prohíbe
-explícitamente.
+`formatoCuota(valor: string | null): string` que devuelve `'—'`… **no**. Un guion
+suelto parece un monto vacío, y el encargo §4.1 lo prohíbe explícitamente.
+
+> **Corrección (auditoría T6.1, hallazgo C4):** este párrafo decía originalmente
+> `utils/formato.ts`. T2.2 lo puso en `utils/simulaciones.ts`, y ahí se queda — es la
+> ubicación correcta, coherente con D14/D15 (que insisten en no unificar estos
+> formateadores específicos del módulo con los genéricos "por DRY"). Era un error de
+> este mapa, no del código ni del ejecutor.
 
 Devuelve el texto `'Sin calcular'` para `null`, y el monto formateado para el resto. Los
 tres campos de nivel oportunidad se renderizan con un componente
@@ -326,6 +331,17 @@ Cada mutación invalida: `qk.simulaciones`, `qk.simulacion(id)`,
 
 Esto es exactamente el caso que `TESTING-frontend.md` §4.4 llama "el principio crítico":
 tras editar un dato, ninguna otra vista puede mostrar el valor viejo.
+
+> **Verificación (T3.1, 2026-09-07):** el ejecutor de T3.1 señaló, sin desviarse del
+> plan, si este conjunto no repite el error de B1 (Plan 00/01) — invalidar de menos
+> porque otra vista también muestra el dato mutado. Se verificó contra el contrato:
+> `GET /inicio` (§17), `GET /prospeccion` (§16) y `GET /reportes/*` (§18) **no exponen
+> ningún campo `cuota_*`** — usan `monto_total`/`monto`, no las cuotas nuevas de §10.
+> A diferencia de `monto_total` (que sí se propaga a reportes, motivo de B1), los tres
+> campos de cuota son exclusivos de `GET /oportunidades` y `GET /oportunidades/:id`.
+> El conjunto de D18 es correcto tal como está — **no es un B1 repetido**. Si algún día
+> Inicio/Prospección/Reportes empiezan a mostrar cuotas, este análisis hay que
+> rehacerlo.
 
 ### D19 — Los defaults viven en una constante exportada
 

@@ -51,9 +51,8 @@ OLA 2 (2 agentes en PARALELO)
 OLA 3 (1 agente — toca queryKeys, que todo lo demás lee)
   └─ T3.1  Query keys + hooks de TanStack Query  (K25, K26, D17, D18)
 
-OLA 4 (2 agentes en PARALELO)
-  ├─ T4.1  Indicador de tipo de cambio en AppLayout  (§5.7, K21, K22, D16)
-  └─ T4.2  Enums de notificación + degradación  (K24, D20)
+OLA 4 (1 agente — T4.2 ya resuelta por B3 del Plan 00/01, ver nota en la tarea)
+  └─ T4.1  Indicador de tipo de cambio en AppLayout  (§5.7, K21, K22, D16)
 
 OLA 5 (1 agente — la modificación visible del encargo §4.1)
   └─ T5.1  Los 5 campos de cuota en la vista de oportunidad  (§4.1, D12, D13)
@@ -902,6 +901,16 @@ npm run test -- IndicadorTipoCambio && npm run lint && npm run build
 ---
 
 ## T4.2 — Enums de notificación y degradación
+
+> ✅ **YA RESUELTA — no ejecutar.** El hallazgo B3 de la auditoría de
+> `plan-01-multimodelo-tareas.md` (T7.1) encontró exactamente este mismo problema por
+> adelantado —la sync del contrato de T1.1 (Plan 00/01) trajo `simulacion_por_expirar` /
+> `simulacion` al enum, y `NotificacionesDropdown` no los cubría— y lo corrigió en el commit
+> `c27bdac` (mergeado a `main` en PR #6). `TipoNotificacion` y `EntidadNotificacion` ya
+> tienen los dos valores; `rutaDeNotificacion(n)` en `NotificacionesDropdown.tsx` ya es el
+> switch exhaustivo sin `default` que devuelve `null` para `'simulacion'` — el mismo diseño
+> que D20 pedía acá. Verificado en `src/types/notificacion.ts` y
+> `src/components/NotificacionesDropdown.tsx` antes de arrancar este plan.
 
 - **Modelo:** Sonnet 5 · **Effort:** bajo
 - **Depende de:** T1.1

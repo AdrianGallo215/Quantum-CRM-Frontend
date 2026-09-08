@@ -78,3 +78,13 @@ export const APLICACIONES: Aplicacion[] = [
   'turismo',
   'personal',
 ]
+
+/** Modos de simulación. Inmutable tras la creación (contrato §23, reglas §2). */
+export type ModoSimulacion = 'leasing' | 'credito_directo'
+
+/**
+ * Solo los eventos CON snapshot aparecen en `GET /simulaciones/:id/historial`.
+ * `marcada_principal`, `enlazada_a_item` y `eliminada` existen en la bitácora del
+ * backend pero no se devuelven acá (contrato §23).
+ */
+export type TipoEventoSimulacion = 'creada' | 'editada' | 'restaurada'
