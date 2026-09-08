@@ -6,6 +6,7 @@ import { useLogout } from '@/hooks/useAuth'
 import { iniciales, nombreCompleto } from '@/utils/formato'
 import { ETIQUETA_ROL } from '@/utils/etiquetas'
 import { NotificacionesDropdown } from './NotificacionesDropdown'
+import { IndicadorTipoCambio } from './IndicadorTipoCambio'
 import { CotizadorFab } from './CotizadorFab'
 import { useNavItems } from './navItems'
 import { BottomNavBar } from './BottomNavBar'
@@ -152,6 +153,7 @@ export function AppLayout() {
             </form>
           </div>
           <div className="flex items-center gap-6">
+            <IndicadorTipoCambio />
             <div className="flex items-center gap-2">
               <NotificacionesDropdown />
             </div>
