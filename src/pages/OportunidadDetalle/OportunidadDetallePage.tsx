@@ -12,6 +12,7 @@ import { unidadesTotales } from '@/utils/oportunidades'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { EtiquetaModelos } from '@/components/EtiquetaModelos'
 import { PropiedadesCard } from './PropiedadesCard'
+import { SimuladorCard } from './SimuladorCard'
 import { TareasCard } from './TareasCard'
 import { EventosCard } from './EventosCard'
 import { ContactosCard } from './ContactosCard'
@@ -242,6 +243,10 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
           {/* Left: detalles + actividades */}
           <div className="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
             <PropiedadesCard oportunidad={o} />
+            {/* Encargo §5.2 (T4.1): el simulador va justo debajo de las cuotas
+                que muestra PropiedadesCard — es lo que las produce. Se oculta
+                solo (`null`) para quien no puede simular acá (§2.15). */}
+            <SimuladorCard oportunidad={o} />
             <EventosCard oportunidad={o} />
             <TareasCard oportunidad={o} />
           </div>
