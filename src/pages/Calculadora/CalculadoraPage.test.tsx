@@ -7,6 +7,20 @@ import type { Oportunidad } from '@/types/oportunidad'
 import { CalculadoraPage } from './CalculadoraPage'
 
 /**
+ * Cableado post-T7.2: "Exportar Excel". Se mockea `descargarCronogramaExcel`
+ * para no ejercitar la carga real de `exceljs` acá — esa lógica ya está
+ * probada aparte en `utils/exportarCronograma.test.ts`. Esta página solo
+ * necesita demostrar que el botón existe, se habilita con el resultado en
+ * pantalla y llama a la función con los argumentos correctos.
+ */
+const { mockDescargarCronogramaExcel } = vi.hoisted(() => ({
+  mockDescargarCronogramaExcel: vi.fn().mockResolvedValue(undefined),
+}))
+vi.mock('@/utils/exportarCronograma', () => ({
+  descargarCronogramaExcel: mockDescargarCronogramaExcel,
+}))
+
+/**
  * T3.1 (`plan-05-vistas-simulaciones-tareas.md`), encargo §5.3.
  *
  * Reglas fijadas acá:
@@ -17,7 +31,9 @@ import { CalculadoraPage } from './CalculadoraPage'
  *    (§5.3/§6.2);
  *  - "Enlazar a Oportunidad" se habilita con el resultado en pantalla, y es
  *    literalmente `POST /simulaciones` con `id_oportunidad_item` (§24);
- *  - "Ver Propuesta" queda deshabilitado hasta T7.1.
+ *  - "Ver Propuesta" se habilita con el resultado en pantalla y abre la MISMA
+ *    `<PropuestaFinanciera/>` que usa el módulo Simulaciones (§5.6, D26), vía
+ *    el adaptador `propuestaDesdeCalculadora` (cableado post-T7.1).
  */
 
 function envelope(data: unknown) {
@@ -174,9 +190,10 @@ describe('CalculadoraPage', () => {
     expect(boton).toBeEnabled()
   }, 15000)
 
-  it('el botón "Ver Propuesta" está deshabilitado', async () => {
-    // T7.1 todavía no existe (<PropuestaFinanciera/>). Cableado con TODO en el
-    // componente, deshabilitado hasta que exista.
+  it('el botón "Ver Propuesta" está habilitado tras calcular y abre la propuesta', async () => {
+    // Post-T7.1: el botón ya no queda deshabilitado. Al hacer clic se monta la
+    // MISMA <PropuestaFinanciera/> del módulo Simulaciones (§5.6, D26), vía el
+    // adaptador `propuestaDesdeCalculadora`.
     servidorMock.use(
       ...handlersBase(),
       http.post(`${BASE_API}/calculadora`, () => envelope(resultadoCalculadora())),
@@ -186,7 +203,13 @@ describe('CalculadoraPage', () => {
 
     await calcular(user)
 
-    expect(await screen.findByRole('button', { name: 'Ver Propuesta' })).toBeDisabled()
+    const boton = await screen.findByRole('button', { name: 'Ver Propuesta' })
+    expect(boton).toBeEnabled()
+
+    await user.click(boton)
+
+    expect(await screen.findByText('Cronograma de pagos')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /descargar pdf/i })).toBeInTheDocument()
   }, 15000)
 
   it('enlaza a la oportunidad con id_oportunidad_item cuando tiene un solo ítem (D24)', async () => {
@@ -219,5 +242,33 @@ describe('CalculadoraPage', () => {
 
     await waitFor(() => expect(bodyRecibido).not.toBeNull())
     expect((bodyRecibido as { id_oportunidad_item: number }).id_oportunidad_item).toBe(77)
+  }, 15000)
+
+  it('el botón "Exportar Excel" está habilitado tras calcular y descarga el cronograma', async () => {
+    // Cableado post-T7.2: el botón exporta el MISMO cronograma calculado, con
+    // el modo que efectivamente se usó (§5.4/§5.6).
+    servidorMock.use(
+      ...handlersBase(),
+      http.post(`${BASE_API}/calculadora`, () => envelope(resultadoCalculadora())),
+    )
+    const user = userEvent.setup()
+    renderConProviders(<CalculadoraPage />)
+
+    // Antes de calcular no hay resultado, así que el botón no aparece.
+    expect(screen.queryByRole('button', { name: 'Exportar Excel' })).not.toBeInTheDocument()
+
+    await calcular(user)
+
+    const boton = await screen.findByRole('button', { name: 'Exportar Excel' })
+    expect(boton).toBeEnabled()
+
+    await user.click(boton)
+
+    await waitFor(() => expect(mockDescargarCronogramaExcel).toHaveBeenCalledTimes(1))
+    const [cronogramaRecibido, modoRecibido, nombreArchivo] =
+      mockDescargarCronogramaExcel.mock.calls[0] as [unknown, string, string]
+    expect(cronogramaRecibido).toEqual(resultadoCalculadora().cronograma)
+    expect(modoRecibido).toBe('leasing')
+    expect(nombreArchivo).toMatch(/^cronograma-calculadora-.*\.xlsx$/)
   }, 15000)
 })

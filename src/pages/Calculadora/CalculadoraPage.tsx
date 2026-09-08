@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { App, Button, Card, Col, Divider, Modal, Row, Select, Space, Typography } from 'antd'
 import { FormularioParametros } from '@/components/simulaciones/FormularioParametros'
 import { CronogramaTabla } from '@/components/simulaciones/CronogramaTabla'
+import { PropuestaFinanciera } from '@/components/simulaciones/PropuestaFinanciera'
 import { mensajeDeError } from '@/api/client'
 import { useCalculadora } from '@/hooks/useCalculadora'
 import { useEmpresas } from '@/hooks/useEmpresas'
 import { useModelos } from '@/hooks/useCatalogos'
 import { useOportunidades } from '@/hooks/useOportunidades'
 import { useCrearSimulacion } from '@/hooks/useSimulaciones'
+import { descargarCronogramaExcel } from '@/utils/exportarCronograma'
 import { formatoMonto } from '@/utils/formato'
+import { propuestaDesdeCalculadora } from '@/utils/propuesta'
 import type { Oportunidad } from '@/types/oportunidad'
 import type { CalculadoraInput, CalculadoraResultado } from '@/types/calculadora'
 import type { CrearSimulacionInput } from '@/types/simulacion'
@@ -24,11 +27,19 @@ import type { CrearSimulacionInput } from '@/types/simulacion'
  * `id_oportunidad_item` elegido (§24).
  */
 export function CalculadoraPage() {
+  const { message } = App.useApp()
   const [idEmpresa, setIdEmpresa] = useState<number | null>(null)
   const [idModelo, setIdModelo] = useState<number | null>(null)
   const [resultado, setResultado] = useState<CalculadoraResultado | null>(null)
   const [ultimosValores, setUltimosValores] = useState<CrearSimulacionInput | null>(null)
+  // El input REAL enviado a `POST /calculadora` (con id_empresa/id_modelo ya
+  // resueltos): es lo que necesita `propuestaDesdeCalculadora` para reconstruir
+  // los parámetros mostrados en la propuesta. `ultimosValores` (arriba) es el de
+  // "Enlazar a Oportunidad", que usa la forma de `CrearSimulacionInput`.
+  const [ultimoInput, setUltimoInput] = useState<CalculadoraInput | null>(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [propuestaAbierta, setPropuestaAbierta] = useState(false)
+  const [exportando, setExportando] = useState(false)
 
   const calculadora = useCalculadora()
   const empresas = useEmpresas()
@@ -54,6 +65,31 @@ export function CalculadoraPage() {
     const data = await calculadora.mutateAsync(input)
     setResultado(data)
     setUltimosValores(valores)
+    setUltimoInput(input)
+  }
+
+  /**
+   * Cableado post-T7.2: exporta el MISMO cronograma que se ve en pantalla
+   * (§5.4/§5.6, `descargarCronogramaExcel` de `utils/exportarCronograma.ts`).
+   * El modo es el mismo que ya resuelve `<CronogramaTabla/>` acá abajo
+   * (`ultimosValores?.modo`, con 'leasing' de respaldo si por algún motivo
+   * `ultimosValores` no llegó a fijarse).
+   */
+  const handleExportarExcel = async () => {
+    if (!resultado) return
+    setExportando(true)
+    try {
+      const fecha = new Date().toISOString().slice(0, 10)
+      await descargarCronogramaExcel(
+        resultado.cronograma,
+        ultimosValores?.modo ?? 'leasing',
+        `cronograma-calculadora-${fecha}.xlsx`,
+      )
+    } catch (e) {
+      message.error(mensajeDeError(e, 'No se pudo exportar el cronograma a Excel'))
+    } finally {
+      setExportando(false)
+    }
   }
 
   return (
@@ -138,12 +174,10 @@ export function CalculadoraPage() {
                 <Button type="primary" onClick={() => setModalAbierto(true)}>
                   Enlazar a Oportunidad
                 </Button>
-                {/*
-                  TODO(T7.1): habilitar cuando exista <PropuestaFinanciera/>
-                  (encargo §5.6). Es la MISMA propuesta que usa el módulo
-                  Simulaciones — un solo componente para ambos orígenes.
-                */}
-                <Button disabled>Ver Propuesta</Button>
+                <Button onClick={() => setPropuestaAbierta(true)}>Ver Propuesta</Button>
+                <Button loading={exportando} onClick={() => void handleExportarExcel()}>
+                  Exportar Excel
+                </Button>
               </Space>
             </Card>
           ) : (
@@ -161,6 +195,24 @@ export function CalculadoraPage() {
         valores={ultimosValores}
         onClose={() => setModalAbierto(false)}
       />
+
+      {/*
+        §5.6: la MISMA <PropuestaFinanciera/> que usa el módulo Simulaciones, vía el
+        adaptador `propuestaDesdeCalculadora` (D26) — el resultado efímero de la
+        Calculadora no finge ser una `Simulacion`.
+      */}
+      <Modal
+        title="Propuesta financiera"
+        open={propuestaAbierta}
+        onCancel={() => setPropuestaAbierta(false)}
+        footer={null}
+        width={900}
+        destroyOnClose
+      >
+        {resultado && ultimoInput && (
+          <PropuestaFinanciera datos={propuestaDesdeCalculadora(resultado, ultimoInput)} />
+        )}
+      </Modal>
     </div>
   )
 }

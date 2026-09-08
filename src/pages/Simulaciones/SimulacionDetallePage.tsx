@@ -3,6 +3,7 @@ import { App, Alert, Button, Card, Descriptions, Modal, Space, Tag, Typography }
 import { useNavigate, useParams } from 'react-router-dom'
 import { CronogramaTabla } from '@/components/simulaciones/CronogramaTabla'
 import { FormularioParametros } from '@/components/simulaciones/FormularioParametros'
+import { PropuestaFinanciera } from '@/components/simulaciones/PropuestaFinanciera'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { HistorialModal } from './HistorialModal'
 import { codigoDeError, estadoHttpDeError, mensajeDeError } from '@/api/client'
@@ -14,8 +15,11 @@ import {
   useMarcarPrincipal,
   useSimulacion,
 } from '@/hooks/useSimulaciones'
+import { useOportunidad } from '@/hooks/useOportunidades'
+import { descargarCronogramaExcel } from '@/utils/exportarCronograma'
 import { formatoFecha, formatoFechaHora, formatoMonto } from '@/utils/formato'
 import { formatoTea } from '@/utils/simulaciones'
+import { propuestaDesdeSimulacion } from '@/utils/propuesta'
 import { RUTA_SIMULACIONES } from '@/router/rutas'
 import type {
   ActualizarSimulacionInput,
@@ -66,6 +70,8 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
   const [bifurcacionPendiente, setBifurcacionPendiente] = useState<CrearSimulacionInput | null>(
     null,
   )
+  const [propuestaAbierta, setPropuestaAbierta] = useState(false)
+  const [exportando, setExportando] = useState(false)
 
   const cronograma = useCronograma(simulacion.id)
   const actualizar = useActualizarSimulacion(simulacion.id)
@@ -75,6 +81,27 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
 
   // Sin ítem, `id_oportunidad_item` es null (reglas §5): es huérfana.
   const esHuerfana = simulacion.id_oportunidad_item === null
+
+  /**
+   * `cantidad` y `empresa` de la propuesta salen de la oportunidad, que esta
+   * página NO tiene cargada (solo trae `id_oportunidad`). `useOportunidad`
+   * (Plan 02/03) no acepta un `enabled` propio, así que el gating "solo con el
+   * modal abierto" (mismo patrón que `ModalEnlazarAOportunidad` en
+   * CalculadoraPage) se logra pasándole `0` cuando el modal está cerrado o la
+   * simulación es huérfana: su propio `enabled: id > 0` la deja inactiva.
+   */
+  const idOportunidadParaPropuesta =
+    propuestaAbierta && !esHuerfana && simulacion.id_oportunidad
+      ? simulacion.id_oportunidad
+      : 0
+  const oportunidadParaPropuesta = useOportunidad(idOportunidadParaPropuesta)
+  const itemParaPropuesta = oportunidadParaPropuesta.data?.items.find(
+    (item) => item.id === simulacion.id_oportunidad_item,
+  )
+  const cantidadParaPropuesta = esHuerfana ? null : (itemParaPropuesta?.cantidad ?? null)
+  const empresaParaPropuesta = esHuerfana
+    ? null
+    : (oportunidadParaPropuesta.data?.empresa.razon_social ?? null)
 
   const handleGuardar = async (valores: CrearSimulacionInput) => {
     try {
@@ -114,6 +141,29 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
     }
   }
 
+  /**
+   * Cableado post-T7.2: exporta el MISMO cronograma que muestra
+   * `<CronogramaTabla/>` acá abajo (§5.4/§5.6, `descargarCronogramaExcel` de
+   * `utils/exportarCronograma.ts`). Mismo guard que "Ver Propuesta"
+   * (`disabled={!cronograma.data}`): sin cronograma cargado no hay nada que
+   * exportar.
+   */
+  const handleExportarExcel = async () => {
+    if (!cronograma.data) return
+    setExportando(true)
+    try {
+      await descargarCronogramaExcel(
+        cronograma.data,
+        simulacion.modo,
+        `cronograma-simulacion-${simulacion.id}.xlsx`,
+      )
+    } catch (e) {
+      message.error(mensajeDeError(e, 'No se pudo exportar el cronograma a Excel'))
+    } finally {
+      setExportando(false)
+    }
+  }
+
   const handleEliminar = async () => {
     try {
       await eliminar.mutateAsync({ id: simulacion.id, idOportunidad: simulacion.id_oportunidad })
@@ -147,6 +197,16 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
             </Button>
           )}
           <Button onClick={() => setHistorialAbierto(true)}>Historial</Button>
+          <Button disabled={!cronograma.data} onClick={() => setPropuestaAbierta(true)}>
+            Ver Propuesta
+          </Button>
+          <Button
+            disabled={!cronograma.data}
+            loading={exportando}
+            onClick={() => void handleExportarExcel()}
+          >
+            Exportar Excel
+          </Button>
           <Button danger loading={eliminar.isPending} onClick={() => void handleEliminar()}>
             Eliminar
           </Button>
@@ -233,6 +293,34 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
         open={historialAbierto}
         onClose={() => setHistorialAbierto(false)}
       />
+
+      {/*
+        §5.6: la MISMA <PropuestaFinanciera/> que usa la Calculadora, vía el
+        adaptador `propuestaDesdeSimulacion` (D26).
+      */}
+      <Modal
+        title="Propuesta financiera"
+        open={propuestaAbierta}
+        onCancel={() => setPropuestaAbierta(false)}
+        footer={null}
+        width={900}
+        destroyOnClose
+      >
+        {!esHuerfana && oportunidadParaPropuesta.isLoading ? (
+          <Cargando />
+        ) : (
+          cronograma.data && (
+            <PropuestaFinanciera
+              datos={propuestaDesdeSimulacion(
+                simulacion,
+                cronograma.data,
+                cantidadParaPropuesta,
+                empresaParaPropuesta,
+              )}
+            />
+          )
+        )}
+      </Modal>
     </div>
   )
 }

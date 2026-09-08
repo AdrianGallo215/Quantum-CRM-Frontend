@@ -132,13 +132,21 @@ describe('propuestaDesdeSimulacion', () => {
     expect(datos.modelo).toBeNull()
   })
 
-  it('deja la empresa en null: el DTO de simulación no la trae', () => {
+  it('deja la empresa en null por default: sin 4º argumento no se inventa', () => {
     // `Simulacion` (src/types/simulacion.ts) no tiene razón social: solo el ítem y
-    // la oportunidad. La firma de D26 no recibe la empresa, así que este origen no
-    // la muestra en vez de inventarla.
+    // la oportunidad la tienen. Si quien llama no pasa el 4º argumento (ej. un
+    // llamador que todavía no la resolvió), se omite en vez de inventarla.
     const datos = propuestaDesdeSimulacion(simulacion(), cronograma(), 8)
 
     expect(datos.empresa).toBeNull()
+  })
+
+  it('propaga la empresa cuando quien llama la pasa', () => {
+    // La oportunidad ya cargada trae `empresa.razon_social`: quien arma el
+    // llamador la pasa acá sin un request extra (ver SimulacionDetallePage).
+    const datos = propuestaDesdeSimulacion(simulacion(), cronograma(), 8, 'Transportes del Sur S.A.C.')
+
+    expect(datos.empresa).toBe('Transportes del Sur S.A.C.')
   })
 
   it('usa el cronograma que recibe, sin recalcular nada', () => {

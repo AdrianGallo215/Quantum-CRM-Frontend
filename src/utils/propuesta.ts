@@ -59,18 +59,23 @@ export const ETIQUETA_MODO_SIMULACION: Record<ModoSimulacion, string> = {
  * falta un request extra. En una **huérfana** se pasa `null` y la propuesta omite el
  * total por N unidades.
  *
- * `empresa` queda en `null`: el DTO `Simulacion` no trae razón social (solo el ítem y
- * la oportunidad la tienen) y la firma fijada por D26 no la recibe. Se omite el bloque
- * de cliente antes que inventarlo.
+ * `empresa` llega por parámetro, igual que `cantidad`: el DTO `Simulacion` no trae
+ * razón social (solo el ítem y la oportunidad la tienen), pero quien llama ya tiene
+ * la oportunidad cargada en el flujo real del módulo (la misma que resuelve
+ * `cantidad`) y puede pasar `oportunidad.empresa.razon_social` sin un request extra.
+ * Es opcional y por default `null` para no romper llamadores existentes que todavía
+ * no la pasan; en ese caso la propuesta omite el bloque de cliente antes que
+ * inventarlo.
  */
 export function propuestaDesdeSimulacion(
   s: Simulacion,
   c: Cronograma,
   cantidad: number | null,
+  empresa: string | null = null,
 ): DatosPropuesta {
   return {
     titulo: s.nombre,
-    empresa: null,
+    empresa,
     modelo: s.modelo?.codigo ?? null,
     cantidad,
     parametros: {

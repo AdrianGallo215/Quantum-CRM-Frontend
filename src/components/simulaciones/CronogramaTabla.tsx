@@ -1,7 +1,8 @@
 import { formatoMonto } from '@/utils/formato'
 import { formatoTasa } from '@/utils/simulaciones'
+import { columnasCronogramaPorModo, valorCrudoCronograma } from '@/utils/columnasCronograma'
 import type { ModoSimulacion } from '@/types/enums'
-import type { Cronograma, FilaCronograma } from '@/types/simulacion'
+import type { Cronograma } from '@/types/simulacion'
 
 /**
  * El mes 0 es la fila de la cuota inicial: `interes`, `igv`, `cuota` y
@@ -17,95 +18,12 @@ function celda(valor: string | null | undefined): string {
   return formatoMonto(valor)
 }
 
-interface Columna {
-  clave: string
-  titulo: string
-  /** El `#` va a la izquierda; los montos, a la derecha (mockup H0 aprobado). */
-  numerica: boolean
-  valor: (fila: FilaCronograma) => string
-}
-
-const COL_MES: Columna = {
-  clave: 'mes',
-  titulo: '#',
-  numerica: false,
-  valor: (f) => String(f.mes),
-}
-const COL_SALDO_INICIAL: Columna = {
-  clave: 'saldo_inicial',
-  titulo: 'Saldo Inicial',
-  numerica: true,
-  valor: (f) => celda(f.saldo_inicial),
-}
-const COL_AMORTIZACION: Columna = {
-  clave: 'amortizacion',
-  titulo: 'Amortización',
-  numerica: true,
-  valor: (f) => celda(f.amortizacion),
-}
-const COL_INTERES: Columna = {
-  clave: 'interes',
-  titulo: 'Interés',
-  numerica: true,
-  valor: (f) => celda(f.interes),
-}
-const COL_IGV: Columna = {
-  clave: 'igv',
-  titulo: 'IGV',
-  numerica: true,
-  valor: (f) => celda(f.igv),
-}
-const COL_SALDO_FINAL: Columna = {
-  clave: 'saldo_final',
-  titulo: 'Saldo Final',
-  numerica: true,
-  valor: (f) => celda(f.saldo_final),
-}
-const COL_CUOTA: Columna = {
-  clave: 'cuota',
-  titulo: 'Cuota',
-  numerica: true,
-  valor: (f) => celda(f.cuota),
-}
-
 /**
- * ⚠ Las columnas DEPENDEN DEL MODO (§5.4, D23). No es la misma tabla con celdas
- * vacías: leasing no desglosa IGV y su tabla NO LLEVA esa columna. Por eso son dos
- * arrays y no uno con `hidden` condicional — con `hidden` la columna seguiría en el
- * DOM y se colaría en la exportación a Excel (T7.2).
- *
- * La última columna también se rotula distinto en cada modo: no unificarlas.
+ * Las columnas (cuáles hay, en qué orden, según el modo) viven en
+ * `utils/columnasCronograma.ts` — módulo compartido con `exportarCronograma`
+ * (T7.2) para que tabla y Excel no puedan divergir (§5.4, D23). Ver el
+ * comentario de ese archivo para el porqué de los dos arrays.
  */
-const COLUMNAS_LEASING: readonly Columna[] = [
-  COL_MES,
-  COL_SALDO_INICIAL,
-  COL_AMORTIZACION,
-  COL_INTERES,
-  COL_SALDO_FINAL,
-  COL_CUOTA,
-  {
-    clave: 'cuota_con_igv',
-    titulo: 'Cuota con IGV',
-    numerica: true,
-    valor: (f) => celda(f.cuota_con_igv),
-  },
-]
-
-const COLUMNAS_CREDITO: readonly Columna[] = [
-  COL_MES,
-  COL_SALDO_INICIAL,
-  COL_AMORTIZACION,
-  COL_INTERES,
-  COL_IGV,
-  COL_SALDO_FINAL,
-  COL_CUOTA,
-  {
-    clave: 'cuota_con_igv',
-    titulo: 'Cuota con IGV de Intereses',
-    numerica: true,
-    valor: (f) => celda(f.cuota_con_igv),
-  },
-]
 
 /**
  * Cronograma de amortización. **Componente tonto** (D23): recibe el `Cronograma` ya
@@ -131,7 +49,7 @@ export function CronogramaTabla({
   cronograma: Cronograma
   modo: ModoSimulacion
 }) {
-  const columnas = modo === 'leasing' ? COLUMNAS_LEASING : COLUMNAS_CREDITO
+  const columnas = columnasCronogramaPorModo(modo)
   const ultimoIndice = cronograma.filas.length - 1
 
   return (
@@ -175,7 +93,8 @@ export function CronogramaTabla({
                   // y va destacada (§5.4). Solo esa: si se destacaran todas, no
                   // destacaría ninguna.
                   const esBalloon = col.clave === 'saldo_final' && indice === ultimoIndice
-                  const texto = col.valor(fila)
+                  const crudo = valorCrudoCronograma(fila, col.clave)
+                  const texto = col.clave === 'mes' ? String(crudo) : celda(crudo as string | null)
                   return (
                     <td
                       key={col.clave}
