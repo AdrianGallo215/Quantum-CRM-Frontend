@@ -69,6 +69,9 @@ const SolicitudesPage = lazy(() =>
 const EnConstruccionPage = lazy(() =>
   import('@/pages/EnConstruccion/EnConstruccionPage').then((m) => ({ default: m.EnConstruccionPage })),
 )
+const CalculadoraPage = lazy(() =>
+  import('@/pages/Calculadora/CalculadoraPage').then((m) => ({ default: m.CalculadoraPage })),
+)
 
 /**
  * Roles del módulo de Simulaciones y de la Calculadora (matriz_permisos.md
@@ -140,11 +143,11 @@ export function AppRouter() {
             }
           />
           {/*
-            Plan 05, T2.2 (resolución H0): SimulacionesPage, SimulacionDetallePage
-            y CalculadoraPage (T3.1/T5.1) están bloqueadas por el hito de diseño
-            pendiente. Las tres rutas ya quedan cableadas contra el mismo
-            placeholder — cuando esas páginas existan, se reemplaza únicamente
-            el `lazy(() => import(...))` de cada una.
+            Plan 05, T2.2 (resolución H0): SimulacionesPage y
+            SimulacionDetallePage siguen bloqueadas por el hito de diseño
+            pendiente. CalculadoraPage (T3.1) ya se entregó — cuando las otras
+            dos existan, se reemplaza únicamente el `lazy(() => import(...))`
+            de cada una.
           */}
           <Route
             path={RUTA_SIMULACIONES}
@@ -166,7 +169,7 @@ export function AppRouter() {
             path={RUTA_CALCULADORA}
             element={
               <RequireRol roles={ROLES_CALCULADORA}>
-                <EnConstruccionPage titulo="Calculadora Financiera" />
+                <CalculadoraPage />
               </RequireRol>
             }
           />
