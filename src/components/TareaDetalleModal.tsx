@@ -19,6 +19,8 @@ interface Props {
   guardando: boolean
   /** Contactos seleccionables para `id_contacto`. Si no se pasan, el campo es de solo lectura. */
   contactos?: ContactoOpcion[]
+  /** Teléfono del contacto actual de la tarea, cuando no se pasa `contactos` (campo de solo lectura). */
+  telefonoContacto?: string | null
   /** Empleados que el usuario logueado puede elegir como responsable/colaborador (ver useEmpleadosSeleccionables). */
   empleados: EmpleadoResumen[]
   /** Navega al detalle relacionado (opcional, se muestra como enlace en el pie) */
@@ -102,6 +104,7 @@ export function TareaDetalleModal({
   onSave,
   guardando,
   contactos,
+  telefonoContacto,
   empleados,
   irADetalle,
 }: Props) {
@@ -182,7 +185,7 @@ export function TareaDetalleModal({
     if (!borrador.id_contacto) return '—'
     const c = contactos?.find((c) => c.id === borrador.id_contacto)
     const nombre = c ? nombreCompleto(c) : nombreCompleto(tarea.contacto)
-    const telefono = c?.tlf_1
+    const telefono = c?.tlf_1 ?? (borrador.id_contacto === tarea.id_contacto ? telefonoContacto : null)
     return telefono ? `${nombre} · ${telefono}` : nombre
   })()
 
