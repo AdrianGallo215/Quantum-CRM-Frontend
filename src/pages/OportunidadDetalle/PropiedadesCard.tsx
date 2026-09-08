@@ -15,6 +15,8 @@ import { ETIQUETA_ROL_APROBADOR } from '@/utils/etiquetas'
 import { SolicitudModal, type SolicitudPendiente } from '@/components/SolicitudModal'
 import type { Modelo, OportunidadDetalle, OportunidadItem } from '@/types'
 import { formatoFecha, formatoMonto } from '@/utils/formato'
+import { formatoCuota } from '@/utils/simulaciones'
+import { CuotaOportunidad } from '@/components/CuotaOportunidad'
 import { calcularDescuento, calcularMontoItem } from '@/utils/monto'
 import { urlSegura } from '@/utils/url'
 
@@ -446,44 +448,71 @@ function FilaItem({
   const bruto = it.cantidad * Number(it.precio_venta)
   const descuentoMonto = calcularDescuento(it.cantidad, it.precio_venta, it.descuento)
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 p-6 bg-white border border-outline-variant rounded">
-      <div>
-        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">MODELO</span>
-        <div className="flex items-center gap-2">
-          <span
-            className="font-bold text-body-lg text-primary cursor-pointer hover:underline"
-            onClick={onFicha}
-          >
-            {it.modelo.codigo}
-          </span>
-          {onEditar && (
-            <button
-              className="text-on-surface-variant hover:text-primary transition-colors"
-              title="Editar términos de este modelo"
-              onClick={onEditar}
+    <div className="flex flex-col gap-4 p-6 bg-white border border-outline-variant rounded">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div>
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">MODELO</span>
+          <div className="flex items-center gap-2">
+            <span
+              className="font-bold text-body-lg text-primary cursor-pointer hover:underline"
+              onClick={onFicha}
             >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-            </button>
-          )}
+              {it.modelo.codigo}
+            </span>
+            {onEditar && (
+              <button
+                className="text-on-surface-variant hover:text-primary transition-colors"
+                title="Editar términos de este modelo"
+                onClick={onEditar}
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+              </button>
+            )}
+          </div>
+        </div>
+        <div>
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">CANTIDAD</span>
+          <span className="font-bold text-body-lg">{it.cantidad} unidades</span>
+        </div>
+        <div>
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">PRECIO UNIT.</span>
+          <span className="font-bold text-body-lg">{formatoMonto(it.precio_venta)}</span>
+        </div>
+        <div>
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">DESCUENTO</span>
+          <span className="font-bold text-error text-body-lg">
+            {Number(it.descuento) > 0 ? `-${formatoMonto(descuentoMonto)} (${Number(it.descuento)}%)` : '—'}
+          </span>
+        </div>
+        <div className="bg-surface-container-low p-2 rounded -m-2">
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">SUBTOTAL</span>
+          <span className="font-bold text-primary text-body-lg font-mono">{formatoMonto(bruto)}</span>
         </div>
       </div>
-      <div>
-        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">CANTIDAD</span>
-        <span className="font-bold text-body-lg">{it.cantidad} unidades</span>
-      </div>
-      <div>
-        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">PRECIO UNIT.</span>
-        <span className="font-bold text-body-lg">{formatoMonto(it.precio_venta)}</span>
-      </div>
-      <div>
-        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">DESCUENTO</span>
-        <span className="font-bold text-error text-body-lg">
-          {Number(it.descuento) > 0 ? `-${formatoMonto(descuentoMonto)} (${Number(it.descuento)}%)` : '—'}
-        </span>
-      </div>
-      <div className="bg-surface-container-low p-2 rounded -m-2">
-        <span className="font-label-md text-label-md text-on-surface-variant block mb-1">SUBTOTAL</span>
-        <span className="font-bold text-primary text-body-lg font-mono">{formatoMonto(bruto)}</span>
+      {/*
+        Cuotas del ÍTEM: son de UNA unidad de este modelo (contrato §10). Las
+        etiquetas dicen "por unidad" a propósito — `cuota_total` existe en dos
+        niveles con significados distintos y las de la raíz dicen "total" (D13).
+        `cuota_quantum` en `null` es degradación esperada: se muestra discreta,
+        sin color de error y SIN toast (encargo §4.1).
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-outline-variant">
+        <div role="group" aria-label="Cuota Quantum por unidad">
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">
+            CUOTA QUANTUM POR UNIDAD
+          </span>
+          <span className="font-bold text-body-lg font-mono text-on-surface">
+            {formatoCuota(it.cuota_quantum)}
+          </span>
+        </div>
+        <div role="group" aria-label="Cuota mensual por unidad">
+          <span className="font-label-md text-label-md text-on-surface-variant block mb-1">
+            CUOTA MENSUAL POR UNIDAD
+          </span>
+          <span className="font-bold text-body-lg font-mono text-on-surface">
+            {formatoCuota(it.cuota_total)}
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -571,6 +600,18 @@ function PropiedadesCardBase({ oportunidad: o }: { oportunidad: OportunidadDetal
             <span className="text-body-md text-on-surface-variant italic">(calculado)</span>
           </div>
         </div>
+      </div>
+
+      {/*
+        Los tres campos de cuota de nivel oportunidad (encargo §4.1), junto al
+        monto total. Son `null` los tres a la vez si algún ítem no tiene cuota
+        calculable, y entonces el bloque dice que todavía no se puede calcular.
+      */}
+      <div className="pt-4 border-t border-outline-variant">
+        <span className="font-label-md text-label-md text-on-surface-variant uppercase block mb-3">
+          Cuotas de la operación
+        </span>
+        <CuotaOportunidad oportunidad={o} />
       </div>
 
       {/* Options */}

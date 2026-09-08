@@ -227,4 +227,57 @@ describe('PropiedadesCard', () => {
     expect(screen.getByText('8 unidades')).toBeInTheDocument()
     expect(screen.getByText('2 unidades')).toBeInTheDocument()
   })
+
+  it('no confunde la cuota por unidad del ítem con la cuota total de la operación', async () => {
+    // Encargo §4.1: `cuota_total` existe en DOS niveles con significados distintos.
+    // El ítem vale 2172.06 (una unidad); la raíz 17376.48 (toda la operación, ya
+    // multiplicada por cantidades). Es el único sitio donde ambas se ven juntas.
+    servidorMock.use(handlerDeModelos())
+
+    renderConProviders(
+      <PropiedadesCard
+        oportunidad={{
+          ...oportunidad([item({ cuota_quantum: '1234.56', cuota_total: '2172.06' })]),
+          cuota_quantum_total: '9876.48',
+          cuota_total: '17376.48',
+          cuota_diaria_total: '789.84',
+        }}
+      />,
+    )
+
+    const porUnidad = await screen.findByRole('group', { name: /cuota mensual por unidad/i })
+    const total = screen.getByRole('group', { name: /cuota mensual total/i })
+
+    expect(porUnidad).toHaveTextContent('2,172.06')
+    expect(total).toHaveTextContent('17,376.48')
+    // Lo que el encargo prohíbe explícitamente: mezclarlas.
+    expect(total).not.toHaveTextContent('2,172.06')
+    expect(porUnidad).not.toHaveTextContent('17,376.48')
+
+    expect(screen.getByRole('group', { name: /cuota quantum por unidad/i })).toHaveTextContent(
+      '1,234.56',
+    )
+    expect(screen.getByRole('group', { name: /cuota diaria/i })).toHaveTextContent('789.84')
+  })
+
+  it('con las cuotas en null lo dice, sin ceros y sin ningún toast de error', async () => {
+    // Encargo §4.1: los tres campos de raíz son `null` conjuntamente cuando algún
+    // ítem no tiene cuota calculable, y un `cuota_quantum` de ítem en `null` es
+    // "degradación silenciosa esperada, NUNCA un error".
+    servidorMock.use(handlerDeModelos())
+
+    // El fixture por defecto ya trae las cinco cuotas en `null`.
+    renderConProviders(<PropiedadesCard oportunidad={oportunidad()} />)
+
+    expect(await screen.findByText(/todavía no se puede calcular/i)).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /cuota quantum por unidad/i })).toHaveTextContent(
+      'Sin calcular',
+    )
+    expect(screen.queryByText(/\$\s*0[.,]00/)).not.toBeInTheDocument()
+
+    await waitFor(() => expect(screen.getByText('KinWin K12')).toBeInTheDocument())
+    expect(document.querySelector('.ant-message')).toBeNull()
+    expect(document.querySelector('.ant-notification')).toBeNull()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
 })
