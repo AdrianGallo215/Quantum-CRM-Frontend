@@ -232,11 +232,21 @@ describe('sincronización 360 de las mutaciones de simulación (D18)', () => {
     },
   )
 
-  it('no invalida ningún detalle de oportunidad cuando la simulación no está enlazada', async () => {
+  it('no construye una key de detalle con id null cuando la simulación no está enlazada', async () => {
     // Una simulación de la Calculadora guardada sin ítem tiene
     // `id_oportunidad: null` (§23). Invalidar `qk.oportunidad(null)` construiría
-    // una key basura; se omite ese detalle, pero la lista sí se refresca porque
-    // enlazar/desenlazar cambia lo que el Pipeline agrega.
+    // una key basura (`['oportunidades','detalle',null]`); se omite esa
+    // llamada puntual, pero la LISTA se invalida igual porque enlazar/
+    // desenlazar cambia lo que el Pipeline agrega.
+    //
+    // OJO — esto NO significa que ningún detalle de oportunidad quede
+    // invalidado: `qk.oportunidades` (`['oportunidades']`) es PREFIJO de
+    // `qk.oportunidad(id)` (`['oportunidades','detalle',id]`), e
+    // `invalidateQueries` matchea por prefijo — así que invalidar la lista ya
+    // alcanza a TODOS los detalles abiertos, incluido cualquiera que hubiera
+    // (hallazgo C2, auditoría T6.1). Lo único que este test garantiza es que
+    // no se llama explícitamente a `invalidar` con una key que contenga
+    // `null` — no que los detalles queden "menos invalidados".
     servidorMock.use(
       http.post(`${BASE_API}/simulaciones`, () =>
         envelope(simulacion({ id_oportunidad: null, id_oportunidad_item: null })),
@@ -257,9 +267,7 @@ describe('sincronización 360 de las mutaciones de simulación (D18)', () => {
     })
 
     await waitFor(() => expect(invalidadas.length).toBeGreaterThan(0))
-    expect(invalidadas.some((key) => key[0] === 'oportunidades' && key[1] === 'detalle')).toBe(
-      false,
-    )
+    expect(invalidadas.some((key) => key.includes(null))).toBe(false)
     expect(invalidadas).toContainEqual(['oportunidades'])
   })
 })

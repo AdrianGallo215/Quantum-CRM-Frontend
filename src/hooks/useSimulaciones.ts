@@ -74,6 +74,15 @@ export function useHistorialSimulacion(id: number) {
  * hay detalle de oportunidad que invalidar, y construir una key con `null`
  * sería basura en la cache. La LISTA sí se invalida igual, porque enlazar o
  * desenlazar cambia lo que el Pipeline agrega.
+ *
+ * ⚠ `invalidar(qc, qk.oportunidad(idOportunidad))` de abajo es, en los hechos,
+ * REDUNDANTE: `qk.oportunidades` (ya invalidada arriba) es *prefijo* de
+ * `qk.oportunidad(id)`, e `invalidateQueries` matchea por prefijo — así que la
+ * primera llamada ya alcanza el detalle. Se deja la línea explícita a
+ * propósito (defensiva y barata, y documenta la intención sin depender de que
+ * quien lea esto conozca el detalle del prefijo) — pero NO asumas que
+ * quitarla dejaría de invalidar el detalle: seguiría invalidándose igual, vía
+ * el prefijo (hallazgo C2, auditoría T6.1).
  */
 function invalidarTrasEscritura(qc: QueryClient, id: number, idOportunidad: number | null): void {
   invalidar(

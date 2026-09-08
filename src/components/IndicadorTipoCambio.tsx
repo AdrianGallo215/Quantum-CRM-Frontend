@@ -19,20 +19,37 @@ export function IndicadorTipoCambio() {
 
   if (!data) return null
 
+  // `compra`/`venta` son la única excepción del contrato a "montos como
+  // string" (§1 vs §22) — si esa excepción se normaliza algún día y empiezan
+  // a llegar como string, `Number(...)` los sigue leyendo bien; si llega
+  // cualquier otra cosa, no reventamos: este componente se monta en TODAS
+  // las páginas para TODOS los roles (K21) y el único ErrorBoundary de la
+  // app está en la raíz — un TypeError acá tumbaría el CRM entero por un
+  // dato accesorio. Mismo criterio que D16 aplica al `null` (hallazgo C3,
+  // auditoría T6.1).
+  const compra = Number(data.compra)
+  const venta = Number(data.venta)
+  if (!Number.isFinite(compra) || !Number.isFinite(venta)) return null
+
   return (
     <div
-      className="hidden lg:flex items-center gap-2 rounded-pill bg-surface-container-low px-3 py-1.5 text-xs text-on-surface-variant"
+      // md, no lg: el <header> que lo contiene (AppLayout.tsx) ya es "hidden
+      // md:flex". Con lg quedaba invisible en toda la franja md-lg —tablets y
+      // ventanas de escritorio angostas— aunque la topbar sí se viera ahí, y
+      // contradecía "permanente" (reglas_simulaciones.md §12). Hallazgo C1,
+      // auditoría T6.1.
+      className="hidden md:flex items-center gap-2 rounded-pill bg-surface-container-low px-3 py-1.5 text-xs text-on-surface-variant"
       title={`Tipo de cambio SUNAT del ${data.fecha}`}
     >
       <span className="material-symbols-outlined text-sm" aria-hidden>
         currency_exchange
       </span>
       <span>
-        Compra <span className="font-bold text-on-surface">{data.compra.toFixed(3)}</span>
+        Compra <span className="font-bold text-on-surface">{compra.toFixed(3)}</span>
       </span>
       <span className="text-outline-variant">·</span>
       <span>
-        Venta <span className="font-bold text-on-surface">{data.venta.toFixed(3)}</span>
+        Venta <span className="font-bold text-on-surface">{venta.toFixed(3)}</span>
       </span>
     </div>
   )

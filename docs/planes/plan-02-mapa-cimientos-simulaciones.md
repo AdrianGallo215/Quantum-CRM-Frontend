@@ -254,9 +254,14 @@ nada, lo protege el backend.
 
 ### D12 — Un formateador de cuota que distingue "null" de "cero"
 
-`utils/formato.ts` gana `formatoCuota(valor: string | null): string` que devuelve
-`'—'`… **no**. Un guion suelto parece un monto vacío, y el encargo §4.1 lo prohíbe
-explícitamente.
+`formatoCuota(valor: string | null): string` que devuelve `'—'`… **no**. Un guion
+suelto parece un monto vacío, y el encargo §4.1 lo prohíbe explícitamente.
+
+> **Corrección (auditoría T6.1, hallazgo C4):** este párrafo decía originalmente
+> `utils/formato.ts`. T2.2 lo puso en `utils/simulaciones.ts`, y ahí se queda — es la
+> ubicación correcta, coherente con D14/D15 (que insisten en no unificar estos
+> formateadores específicos del módulo con los genéricos "por DRY"). Era un error de
+> este mapa, no del código ni del ejecutor.
 
 Devuelve el texto `'Sin calcular'` para `null`, y el monto formateado para el resto. Los
 tres campos de nivel oportunidad se renderizan con un componente
