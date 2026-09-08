@@ -9,6 +9,7 @@ import {
   useTareas,
 } from '@/hooks/useEventosTareas'
 import { useInicio } from '@/hooks/usePantallas'
+import { useContacto } from '@/hooks/useContactos'
 import { useEmpleadosSeleccionables } from '@/hooks/useCatalogos'
 import { mensajeDeError } from '@/api/client'
 import type { Tarea } from '@/types'
@@ -32,6 +33,7 @@ export function ActividadesPage() {
   const completar = useCompletarTarea()
   const cancelar = useCancelarTarea()
   const actualizar = useActualizarTarea()
+  const contactoSel = useContacto(tareaSel?.id_contacto ?? 0)
 
   const pendientes = tareas.data ?? []
   const eventos = inicio.data?.eventos_por_seguir ?? []
@@ -80,7 +82,7 @@ export function ActividadesPage() {
                     onClick={() => setTareaSel(t)}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-label-md font-label-md text-text-muted">ID-{t.id}</span>
+                      <span className="text-label-md font-label-md text-text-muted">{t.empresa.razon_social}</span>
                       <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <button
                           className="material-symbols-outlined text-[18px] text-outline hover:text-primary"
@@ -118,9 +120,7 @@ export function ActividadesPage() {
                       </div>
                     </div>
                     <h3 className="font-bold text-on-surface mb-1">{ETIQUETA_TIPO_ACCION[t.tipo_accion]}</h3>
-                    <p className="text-body-md text-text-muted line-clamp-1">
-                      {t.descripcion} — {t.empresa.razon_social}
-                    </p>
+                    <p className="text-body-md text-text-muted line-clamp-1">{t.descripcion}</p>
                     <div className="mt-3 flex items-center justify-between">
                       {vencida ? (
                         <div className="flex items-center gap-1.5 text-label-md text-error">
@@ -267,6 +267,7 @@ export function ActividadesPage() {
         onClose={() => setTareaSel(null)}
         onSave={(input) => actualizar.mutateAsync({ id: tareaSel!.id, input })}
         guardando={actualizar.isPending}
+        telefonoContacto={contactoSel.data?.tlf_1}
         empleados={empleados.datos}
         irADetalle={
           tareaSel
