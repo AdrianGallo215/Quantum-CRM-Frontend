@@ -36,7 +36,7 @@ export function CuotaOportunidad({ oportunidad }: { oportunidad: Oportunidad }) 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Metrica
-        etiqueta="Cuota mensual total"
+        etiqueta="Cuota Total de la Op."
         // La cuota de TODA la operación, ya multiplicada por cantidades.
         valor={cuota_total}
         detalle="Toda la operación, al mes"
@@ -44,12 +44,12 @@ export function CuotaOportunidad({ oportunidad }: { oportunidad: Oportunidad }) 
       <Metrica
         etiqueta="Cuota Quantum total"
         valor={cuota_quantum_total}
-        detalle="Solo el financiamiento de Quantum"
+        detalle="Cuota Quantum para todas las unidades."
       />
       <Metrica
         etiqueta="Cuota diaria"
         valor={cuota_diaria_total}
-        detalle="Cuota mensual total entre 22 días trabajados"
+        detalle="Cuota mensual total entre 22 días trabajados (Toda la Op.)"
       />
     </div>
   )

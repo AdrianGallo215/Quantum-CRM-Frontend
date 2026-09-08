@@ -507,7 +507,7 @@ function FilaItem({
         </div>
         <div role="group" aria-label="Cuota mensual por unidad">
           <span className="font-label-md text-label-md text-on-surface-variant block mb-1">
-            CUOTA MENSUAL POR UNIDAD
+            CUOTA TOTAL POR UNIDAD
           </span>
           <span className="font-bold text-body-lg font-mono text-on-surface">
             {formatoCuota(it.cuota_total)}
