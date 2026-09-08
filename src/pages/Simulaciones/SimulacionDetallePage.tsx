@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { App, Alert, Button, Card, Descriptions, Modal, Space, Tag, Tooltip, Typography } from 'antd'
+import { App, Alert, Button, Card, Descriptions, Modal, Space, Tag, Typography } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CronogramaTabla } from '@/components/simulaciones/CronogramaTabla'
 import { FormularioParametros } from '@/components/simulaciones/FormularioParametros'
 import { Cargando, ErrorCarga } from '@/components/Estados'
+import { HistorialModal } from './HistorialModal'
 import { codigoDeError, estadoHttpDeError, mensajeDeError } from '@/api/client'
 import {
   useActualizarSimulacion,
@@ -61,6 +62,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
   const { message } = App.useApp()
   const navigate = useNavigate()
   const [editando, setEditando] = useState(false)
+  const [historialAbierto, setHistorialAbierto] = useState(false)
   const [bifurcacionPendiente, setBifurcacionPendiente] = useState<CrearSimulacionInput | null>(
     null,
   )
@@ -144,13 +146,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
               Marcar como principal
             </Button>
           )}
-          {/*
-            TODO(T6.1): habilitar cuando exista <HistorialModal/> (encargo
-            §5.5). Deshabilitado a propósito mientras esa tarea no se entregue.
-          */}
-          <Tooltip title="Disponible cuando se entregue T6.1 (Historial de versiones)">
-            <Button disabled>Historial</Button>
-          </Tooltip>
+          <Button onClick={() => setHistorialAbierto(true)}>Historial</Button>
           <Button danger loading={eliminar.isPending} onClick={() => void handleEliminar()}>
             Eliminar
           </Button>
@@ -231,6 +227,12 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
           simulación nueva, dejando la original intacta.
         </p>
       </Modal>
+
+      <HistorialModal
+        idSimulacion={simulacion.id}
+        open={historialAbierto}
+        onClose={() => setHistorialAbierto(false)}
+      />
     </div>
   )
 }
