@@ -22,16 +22,41 @@
 
 @media print {
   /**
-   * Todo lo que es cromo de la aplicación y no del documento: botones, sidebar,
-   * topbar, navegación inferior. `!important` porque compite con las utilidades
-   * de Tailwind y con los estilos inline de Ant Design.
+   * Auditoría T8.1 (C3): ocultar por clase (`.no-imprimir` en cada elemento de
+   * cromo) es frágil — depende de que CADA sidebar/topbar/FAB futuro se
+   * acuerde de llevarla, y hoy `AppLayout.tsx` no la lleva en ninguno. Se
+   * invierte la estrategia: se oculta TODO el árbol y se revela solo la
+   * propuesta, que además puede estar montada dentro de un `<Modal>` de AntD
+   * (sobre la página viva, no reemplazándola) — por eso hace falta ocultar
+   * también lo que quede fuera del modal.
+   */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .propuesta-impresa,
+  .propuesta-impresa * {
+    visibility: visible !important;
+  }
+
+  .propuesta-impresa {
+    position: absolute;
+    inset: 0;
+  }
+
+  /**
+   * Dentro de la propia propuesta, lo que es cromo de la aplicación y no del
+   * documento (el botón "Descargar PDF"). `!important` porque compite con las
+   * utilidades de Tailwind y con los estilos inline de Ant Design.
    */
   .no-imprimir,
+  .no-imprimir *,
   .ant-drawer,
   .ant-modal-mask,
   .ant-message,
   .ant-notification {
     display: none !important;
+    visibility: hidden !important;
   }
 
   @page {

@@ -90,9 +90,15 @@ describe('FormularioParametros', () => {
     ).toBeInTheDocument()
   })
 
-  it('avisa cuando el valor residual no es menor que el principal', async () => {
-    // UX proactiva con `validarValorResidual` (§13). El Principal se deriva acá
-    // de precio_venta/descuento/cuota_inicial/modo, sin duplicar el motor real.
+  it('no calcula el principal en el cliente para validar el valor residual', async () => {
+    // Auditoría T8.1 (C3): había un aviso proactivo acá que derivaba el
+    // `principal` en el cliente (con el IGV 1.18 a mano) — es el cálculo de
+    // negocio que el plan manda ESCALAR, no implementar. Se eliminó: la
+    // validación autoritativa del backend (400 VALIDACION) es la única fuente
+    // de verdad. Este test fija que un valor residual absurdo no dispara
+    // ningún aviso local — si alguien reintroduce el cálculo, este test no lo
+    // detecta por sí solo, pero documenta la decisión para que no se repita
+    // sin pasar por el arquitecto.
     const user = userEvent.setup()
     renderConProviders(
       <FormularioParametros modoEditable onSubmit={vi.fn()} etiquetaAccion="Calcular" />,
@@ -105,8 +111,8 @@ describe('FormularioParametros', () => {
     await user.tab()
 
     expect(
-      await screen.findByText(/el valor residual debe ser menor que el principal/i),
-    ).toBeInTheDocument()
+      screen.queryByText(/el valor residual debe ser menor que el principal/i),
+    ).not.toBeInTheDocument()
   })
 
   it('llama a onSubmit con los valores del formulario al enviar', async () => {

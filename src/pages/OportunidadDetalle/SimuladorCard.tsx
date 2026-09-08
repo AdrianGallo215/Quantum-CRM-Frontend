@@ -173,6 +173,16 @@ function Contenido({ oportunidad }: { oportunidad: Oportunidad }) {
           <p className="text-body-md text-on-surface-variant italic">
             Cuota final: se calcula y confirma al guardar — no se edita manualmente aquí.
           </p>
+
+          {/*
+            Auditoría T8.1 (C5): K27 (`plan-04-mapa-vistas-simulaciones.md`)
+            describe §5.2 como "formulario + cronograma + guardar", pero esta
+            card, igual que el mockup H0 aprobado, no muestra `<CronogramaTabla/>`
+            tras guardar — el vendedor lo ve entrando al detalle de la
+            simulación desde el módulo. Decisión explícita: se deja así por
+            ahora, documentado para evaluar en una sesión futura si conviene
+            mostrarlo acá también (evitaría el salto de pantalla).
+          */}
         </>
       )}
 

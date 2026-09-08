@@ -125,7 +125,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
       const nueva = await bifurcar.mutateAsync(bifurcacionPendiente)
       message.success('Se guardó como una nueva simulación')
       setBifurcacionPendiente(null)
-      navigate(`${RUTA_SIMULACIONES}/${nueva.id}`)
+      void navigate(`${RUTA_SIMULACIONES}/${nueva.id}`)
     } catch (e) {
       message.error(mensajeDeError(e, 'No se pudo guardar como nueva simulación'))
     }
@@ -168,7 +168,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
     try {
       await eliminar.mutateAsync({ id: simulacion.id, idOportunidad: simulacion.id_oportunidad })
       message.success('Simulación eliminada')
-      navigate(RUTA_SIMULACIONES)
+      void navigate(RUTA_SIMULACIONES)
     } catch (e) {
       message.error(mensajeDeError(e, 'No se pudo eliminar la simulación'))
     }

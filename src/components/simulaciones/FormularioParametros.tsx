@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Alert, Button, Form, InputNumber, Select } from 'antd'
 import { extraerApiError, mensajeDeError } from '@/api/client'
-import { DEFAULTS_SIMULACION, validarCuotaInicial, validarValorResidual } from '@/utils/simulaciones'
+import { DEFAULTS_SIMULACION, validarCuotaInicial } from '@/utils/simulaciones'
 import type { ModoSimulacion } from '@/types/enums'
 import type { CrearSimulacionInput } from '@/types/simulacion'
 
@@ -109,11 +109,9 @@ export function FormularioParametros({
     ),
   }
 
-  const modo = Form.useWatch('modo', form)
   const precioVenta = Form.useWatch('precio_venta', form)
   const descuento = Form.useWatch('descuento', form)
   const cuotaInicial = Form.useWatch('cuota_inicial', form)
-  const valorResidual = Form.useWatch('valor_residual', form)
 
   // UX proactiva para evitar el round-trip. La validación AUTORITATIVA es la
   // del backend y hay que manejar su 400 igual (CLAUDE.md regla 7, encargo §7.6).
@@ -122,18 +120,14 @@ export function FormularioParametros({
       ? validarCuotaInicial(cuotaInicial, precioVenta, descuento ?? 0)
       : null
 
-  // UX proactiva para evitar el round-trip (mismo comentario de arriba). El
-  // Principal depende del modo (reglas §3.2-§3.4): acá se deriva de los
-  // mismos campos del formulario, sin duplicar el motor de cálculo del
-  // backend (que sigue siendo la fuente de verdad para el cronograma real).
-  const avisoValorResidual = (() => {
-    if (!precioVenta || valorResidual === null || valorResidual === undefined) return null
-    const pvEfectivo = precioVenta * (1 - (descuento ?? 0) / 100)
-    const ci = cuotaInicial ?? 0
-    const principal =
-      modo === 'credito_directo' ? pvEfectivo - ci : pvEfectivo / 1.18 - ci / 1.18
-    return validarValorResidual(valorResidual, principal)
-  })()
+  // Auditoría T8.1 (C3): había acá un aviso proactivo de `valor_residual` que
+  // calculaba el `principal` en el cliente (con el IGV 1.18 a mano) para
+  // poder llamar a `validarValorResidual`. Es exactamente el caso que las
+  // reglas globales del plan mandan ESCALAR ("el frontend nunca calcula...
+  // si te parece que hace falta calcular algo → ESCALAR") y no se escaló.
+  // Decisión del arquitecto: se elimina el aviso proactivo. La validación
+  // autoritativa del backend (`400 VALIDACION` con `error.field`, manejada
+  // más abajo) sigue siendo la única fuente de verdad para esta regla.
 
   const handleSubmit = async (valores: ValoresFormulario) => {
     setErrorGeneral(null)
@@ -221,12 +215,7 @@ export function FormularioParametros({
               (reglas §7.6, `formatoTea`). */}
           <InputNumber style={{ width: '100%' }} min={0} max={200} precision={2} suffix="%" />
         </Form.Item>
-        <Form.Item
-          name="valor_residual"
-          label="Valor residual"
-          validateStatus={avisoValorResidual ? 'warning' : undefined}
-          help={avisoValorResidual ?? undefined}
-        >
+        <Form.Item name="valor_residual" label="Valor residual">
           <InputNumber style={{ width: '100%' }} min={0} precision={2} prefix="$" />
         </Form.Item>
       </div>
