@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { inicioApi } from '@/api/inicio'
 import { prospeccionApi } from '@/api/prospeccion'
 import { reportesApi } from '@/api/reportes'
+import { descargarBlob } from '@/utils/descargaArchivos'
 import type { ReporteFiltros } from '@/types'
 import { qk } from './queryKeys'
 
@@ -62,5 +63,13 @@ export function useReporteDescuentos(f: ReporteFiltros, enabled = true) {
     queryKey: [...qk.reportes, 'descuentos', f],
     queryFn: () => reportesApi.descuentos(f),
     enabled,
+  })
+}
+
+/** Descarga el Excel de gestión comercial y dispara el guardado en el navegador al terminar. */
+export function useExportarComercial() {
+  return useMutation({
+    mutationFn: (f?: ReporteFiltros) => reportesApi.exportarComercial(f),
+    onSuccess: ({ blob, nombreArchivo }) => descargarBlob(blob, nombreArchivo),
   })
 }

@@ -3,8 +3,9 @@ import { Alert, App, Pagination, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import { useEliminarOportunidad, useOportunidades } from '@/hooks/useOportunidades'
+import { useExportarComercial } from '@/hooks/usePantallas'
 import { mensajeDeError } from '@/api/client'
-import { useAuthStore, ROLES_ADMIN, ROLES_APOYO, tieneRol } from '@/store/authStore'
+import { useAuthStore, ROLES_ADMIN, ROLES_APOYO, ROLES_REPORTES, tieneRol } from '@/store/authStore'
 import type { EstadoOportunidad, Oportunidad } from '@/types'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { unidadesTotales } from '@/utils/oportunidades'
@@ -22,8 +23,11 @@ const COLUMNAS: { estado: EstadoOportunidad; titulo: string; borde: string }[] =
 const POR_PAGINA = 100
 
 export function PipelinePage() {
+  const { message } = App.useApp()
   const empleado = useAuthStore((s) => s.empleado)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
+  const puedeExportar = tieneRol(empleado, ROLES_REPORTES)
+  const exportar = useExportarComercial()
   const [mostrarCerradas, setMostrarCerradas] = useState(false)
   const [modalNueva, setModalNueva] = useState(false)
   const [vista, setVista] = useState<'kanban' | 'tabla'>('kanban')
@@ -89,6 +93,18 @@ export function PipelinePage() {
             <span className="material-symbols-outlined">filter_list</span>
             {mostrarCerradas ? 'Ocultar cerradas' : 'Mostrar cerradas'}
           </button>
+          {puedeExportar && (
+            <button
+              className="flex items-center gap-2 bg-white border border-outline-variant px-5 py-2.5 rounded-pill text-on-surface hover:bg-surface transition-all font-medium text-body-sm disabled:opacity-40"
+              disabled={exportar.isPending}
+              onClick={() =>
+                exportar.mutate(undefined, { onError: (e) => message.error(mensajeDeError(e)) })
+              }
+            >
+              <span className="material-symbols-outlined">download</span>
+              {exportar.isPending ? 'Exportando…' : 'Exportar gestión comercial'}
+            </button>
+          )}
           {!esRolDeApoyo && (
             <button
               className="flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-pill hover:bg-brand-primary/90 transition-all font-bold text-body-sm shadow-lg shadow-brand-primary/20"
