@@ -93,7 +93,7 @@ export function CalculadoraPage() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <Typography.Title level={3}>Calculadora Financiera</Typography.Title>
       <Typography.Paragraph type="secondary">
         Cálculo efímero: no queda guardado hasta que lo enlaces a una oportunidad.

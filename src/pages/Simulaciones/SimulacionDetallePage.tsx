@@ -175,6 +175,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
   }
 
   return (
+    <div className="page-container">  
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <Space align="center">
@@ -321,6 +322,7 @@ function Contenido({ simulacion }: { simulacion: Simulacion }) {
           )
         )}
       </Modal>
+    </div>
     </div>
   )
 }

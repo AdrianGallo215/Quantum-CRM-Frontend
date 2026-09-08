@@ -59,96 +59,98 @@ export function SimulacionesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <Typography.Title level={3} style={{ margin: 0 }}>
-          Simulaciones
-        </Typography.Title>
-        <Button type="primary" onClick={() => setModalNuevaAbierto(true)}>
-          Nueva simulación
-        </Button>
-      </div>
+    <div className="page-container">
+        <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <Typography.Title level={3} style={{ margin: 0 }}>
+            Simulaciones
+          </Typography.Title>
+          <Button type="primary" onClick={() => setModalNuevaAbierto(true)}>
+            Nueva simulación
+          </Button>
+        </div>
 
-      <Space wrap size="middle">
-        <InputNumber
-          aria-label="Ítem (ID)"
-          placeholder="Ítem (ID)"
-          min={1}
-          value={idOportunidadItem ?? undefined}
-          onChange={(v) => setIdOportunidadItem(typeof v === 'number' ? v : null)}
-        />
-        <Select
-          aria-label="Modelo"
-          placeholder="Modelo"
-          allowClear
-          showSearch
-          optionFilterProp="label"
-          style={{ minWidth: 180 }}
-          loading={modelos.isLoading}
-          value={idModelo ?? undefined}
-          onChange={(v: number | undefined) => setIdModelo(v ?? null)}
-          options={(modelos.data ?? []).map((m) => ({ value: m.id, label: m.codigo }))}
-        />
-        <Select
-          aria-label="Modo"
-          placeholder="Modo"
-          allowClear
-          style={{ minWidth: 160 }}
-          value={modo ?? undefined}
-          onChange={(v: ModoSimulacion | undefined) => setModo(v ?? null)}
-          options={[
-            { value: 'leasing', label: 'Leasing' },
-            { value: 'credito_directo', label: 'Crédito Directo' },
-          ]}
-        />
-      </Space>
+        <Space wrap size="middle">
+          <InputNumber
+            aria-label="Ítem (ID)"
+            placeholder="Ítem (ID)"
+            min={1}
+            value={idOportunidadItem ?? undefined}
+            onChange={(v) => setIdOportunidadItem(typeof v === 'number' ? v : null)}
+          />
+          <Select
+            aria-label="Modelo"
+            placeholder="Modelo"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            style={{ minWidth: 180 }}
+            loading={modelos.isLoading}
+            value={idModelo ?? undefined}
+            onChange={(v: number | undefined) => setIdModelo(v ?? null)}
+            options={(modelos.data ?? []).map((m) => ({ value: m.id, label: m.codigo }))}
+          />
+          <Select
+            aria-label="Modo"
+            placeholder="Modo"
+            allowClear
+            style={{ minWidth: 160 }}
+            value={modo ?? undefined}
+            onChange={(v: ModoSimulacion | undefined) => setModo(v ?? null)}
+            options={[
+              { value: 'leasing', label: 'Leasing' },
+              { value: 'credito_directo', label: 'Crédito Directo' },
+            ]}
+          />
+        </Space>
 
-      {listado.isLoading && <Cargando />}
-      {listado.isError && (
-        <ErrorCarga error={listado.error} onReintentar={() => void listado.refetch()} />
-      )}
+        {listado.isLoading && <Cargando />}
+        {listado.isError && (
+          <ErrorCarga error={listado.error} onReintentar={() => void listado.refetch()} />
+        )}
 
-      {!listado.isLoading && !listado.isError && simulaciones.length === 0 && (
-        <Empty description="No hay simulaciones con estos filtros" />
-      )}
+        {!listado.isLoading && !listado.isError && simulaciones.length === 0 && (
+          <Empty description="No hay simulaciones con estos filtros" />
+        )}
 
-      {!listado.isLoading &&
-        !listado.isError &&
-        Array.from(grupos.entries()).map(([idOportunidad, filas]) => (
-          <div key={idOportunidad} className="flex flex-col gap-3">
-            <Link to={`/oportunidades/${idOportunidad}`} className="text-title-sm font-semibold">
-              Oportunidad #{idOportunidad}
-            </Link>
+        {!listado.isLoading &&
+          !listado.isError &&
+          Array.from(grupos.entries()).map(([idOportunidad, filas]) => (
+            <div key={idOportunidad} className="flex flex-col gap-3">
+              <Link to={`/oportunidades/${idOportunidad}`} className="text-title-sm font-semibold">
+                Oportunidad #{idOportunidad}
+              </Link>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filas.map((s) => (
+                  <TarjetaSimulacion
+                    key={s.id}
+                    simulacion={s}
+                    onMarcarPrincipal={(id) => void handleMarcarPrincipal(id)}
+                    marcandoPrincipal={marcarPrincipal.isPending && marcarPrincipal.variables === s.id}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+
+        {!listado.isLoading && !listado.isError && huerfanas.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <Typography.Title level={5} style={{ margin: 0 }}>
+              Sin vincular
+            </Typography.Title>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filas.map((s) => (
-                <TarjetaSimulacion
-                  key={s.id}
-                  simulacion={s}
-                  onMarcarPrincipal={(id) => void handleMarcarPrincipal(id)}
-                  marcandoPrincipal={marcarPrincipal.isPending && marcarPrincipal.variables === s.id}
-                />
+              {huerfanas.map((s) => (
+                <TarjetaSimulacion key={s.id} simulacion={s} />
               ))}
             </div>
           </div>
-        ))}
+        )}
 
-      {!listado.isLoading && !listado.isError && huerfanas.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            Sin vincular
-          </Typography.Title>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {huerfanas.map((s) => (
-              <TarjetaSimulacion key={s.id} simulacion={s} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <ModalNuevaSimulacion
-        open={modalNuevaAbierto}
-        onClose={() => setModalNuevaAbierto(false)}
-      />
+        <ModalNuevaSimulacion
+          open={modalNuevaAbierto}
+          onClose={() => setModalNuevaAbierto(false)}
+        />
+      </div>
     </div>
   )
 }
