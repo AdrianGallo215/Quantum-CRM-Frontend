@@ -5,6 +5,8 @@ import {
   ROLES_SOLICITANTES,
   tieneRol,
 } from '@/store/authStore'
+import { puedeVerModuloSimulaciones, puedeUsarCalculadora } from '@/utils/simulacionPermisos'
+import { RUTA_CALCULADORA, RUTA_SIMULACIONES } from '@/router/rutas'
 
 export interface NavItem {
   to: string
@@ -39,6 +41,15 @@ export function useNavItems(): NavItem[] {
   }
   if (tieneRol(empleado, ROLES_SOLICITANTES)) {
     items.push({ to: '/solicitudes', icono: 'approval', label: 'Solicitudes' })
+  }
+  // El vendedor NO entra al módulo pero SÍ a la Calculadora: es el único
+  // módulo del CRM con este reparto (matriz_permisos.md §2.15). La decisión
+  // vive en `simulacionPermisos`, no acá — ver Plan 03 D11.
+  if (puedeVerModuloSimulaciones(empleado)) {
+    items.push({ to: RUTA_SIMULACIONES, icono: 'calculate', label: 'Simulaciones' })
+  }
+  if (puedeUsarCalculadora(empleado)) {
+    items.push({ to: RUTA_CALCULADORA, icono: 'percent', label: 'Calculadora' })
   }
   return items
 }

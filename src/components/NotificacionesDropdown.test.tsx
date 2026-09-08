@@ -77,12 +77,11 @@ describe('NotificacionesDropdown', () => {
     expect(navegar).not.toHaveBeenCalledWith(expect.stringContaining('undefined'))
   })
 
-  it('marca leída una notificación de simulación sin navegar a una ruta inexistente', async () => {
-    // Regresión B3 (auditoría T7.1): el backend agregó entidad_tipo: 'simulacion'
-    // (contrato §26, changelog 2026-09-07) y el Record que resolvía la ruta no lo
-    // cubría — indexar una clave ausente producía navigate('/undefined/87'). El
-    // módulo de Simulaciones todavía no tiene ruta propia, así que lo correcto es
-    // no navegar, no adivinar.
+  it('lleva una notificación de simulación a /simulaciones/:id', async () => {
+    // Plan 05, T2.2 (D31): al existir la ruta `/simulaciones/:id`, se cierra el
+    // TODO de D20 (Plan 03) — la entidad `simulacion` ya no vuelve `null` en
+    // `rutaDeNotificacion`, navega de verdad. Reemplaza la regresión B3
+    // (auditoría T7.1), que fijaba el comportamiento anterior de "no navegar".
     servidorMock.use(
       http.get(`${BASE_API}/notificaciones/no-leidas/count`, () =>
         HttpResponse.json({ data: { count: 1 }, meta: null, error: null }),
@@ -102,6 +101,6 @@ describe('NotificacionesDropdown', () => {
       await screen.findByText('Tu simulación se eliminará en 3 días si no la enlazas a una oportunidad'),
     )
 
-    await waitFor(() => expect(navegar).not.toHaveBeenCalled())
+    await waitFor(() => expect(navegar).toHaveBeenCalledWith('/simulaciones/87'))
   })
 })

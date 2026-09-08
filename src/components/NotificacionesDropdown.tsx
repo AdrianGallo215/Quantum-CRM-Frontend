@@ -26,8 +26,12 @@ import type { Notificacion } from '@/types'
  *
  * `solicitud` y `meta_venta` devuelven `null` a propósito: su destino depende
  * del rol (gerencia vs jdv) y se resuelve aparte en `irANotificacion`.
- * `simulacion` devuelve `null` porque el módulo de Simulaciones todavía no
- * tiene ruta propia — mejor no navegar que mandar a una ruta inexistente.
+ *
+ * `simulacion` navega a `/simulaciones/:id` (Plan 05, T2.2, D31): la ruta ya
+ * existe — aunque hoy monte el placeholder `EnConstruccionPage` hasta que
+ * T5.1 entregue `SimulacionDetallePage` — y está protegida por `RequireRol`
+ * con los mismos roles de `puedeVerModuloSimulaciones`, así que a quien no
+ * puede entrar el guard lo manda a `SinAcceso`, no a un 404 del router.
  */
 function rutaDeNotificacion(n: Notificacion): string | null {
   switch (n.entidad_tipo) {
@@ -39,7 +43,7 @@ function rutaDeNotificacion(n: Notificacion): string | null {
     case 'meta_venta':
       return null
     case 'simulacion':
-      return null
+      return `/simulaciones/${n.entidad_id}`
   }
 }
 
