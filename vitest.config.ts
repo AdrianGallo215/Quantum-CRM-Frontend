@@ -14,6 +14,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // Auditoría T8.1 (C2): los tests de página encadenan varias queries de
+    // TanStack Query (oportunidad → ítem → cronograma) y algunos rozan los
+    // 10s incluso en verde — el default de 5s los hace flaky según la carga
+    // de la máquina. Sin este margen, `247 passed` no era reproducible.
+    testTimeout: 20_000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

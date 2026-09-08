@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { App, Button, DatePicker, Input, Modal, Select } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { mensajeDeError } from '@/api/client'
@@ -8,7 +8,7 @@ import { formatoFechaHora, iniciales, nombreCompleto } from '@/utils/formato'
 import { CampoEditable } from './CampoEditable'
 import { EmpleadoMultiSelect, EmpleadoSelect } from './EmpleadoSelect'
 
-type ContactoOpcion = { id: number; nombres: string; apellidos: string }
+type ContactoOpcion = { id: number; nombres: string; apellidos: string; tlf_1?: string | null }
 
 interface Props {
   /** Tarea a mostrar; `null` mantiene el modal cerrado */
@@ -40,6 +40,55 @@ function mismoConjunto(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false
   const setB = new Set(b)
   return a.every((x) => setB.has(x))
+}
+
+/** Renderiza líneas "1. …" / "- …" como listas reales; el resto como párrafos. */
+function formatearDescripcion(texto: string) {
+  if (!texto.trim()) return '—'
+  const bloques: ReactNode[] = []
+  let items: string[] = []
+  let tipo: 'ol' | 'ul' | null = null
+
+  const cerrarLista = () => {
+    if (items.length === 0) return
+    const props = { className: tipo === 'ol' ? 'list-decimal pl-5' : 'list-disc pl-5' }
+    bloques.push(
+      tipo === 'ol' ? (
+        <ol key={bloques.length} {...props}>
+          {items.map((it, i) => (
+            <li key={i}>{it}</li>
+          ))}
+        </ol>
+      ) : (
+        <ul key={bloques.length} {...props}>
+          {items.map((it, i) => (
+            <li key={i}>{it}</li>
+          ))}
+        </ul>
+      ),
+    )
+    items = []
+    tipo = null
+  }
+
+  texto.split('\n').forEach((linea) => {
+    const numerado = linea.match(/^\s*\d+[.)]\s+(.*)/)
+    const viñeta = linea.match(/^\s*[-*]\s+(.*)/)
+    if (numerado) {
+      if (tipo !== 'ol') cerrarLista()
+      tipo = 'ol'
+      items.push(numerado[1] ?? '')
+    } else if (viñeta) {
+      if (tipo !== 'ul') cerrarLista()
+      tipo = 'ul'
+      items.push(viñeta[1] ?? '')
+    } else {
+      cerrarLista()
+      if (linea.trim()) bloques.push(<p key={bloques.length}>{linea}</p>)
+    }
+  })
+  cerrarLista()
+  return <div className="space-y-1">{bloques}</div>
 }
 
 /**
@@ -129,6 +178,14 @@ export function TareaDetalleModal({
   const buscarEmpleado = (id: number): EmpleadoResumen | null =>
     empleados.find((e) => e.id === id) ?? (tarea.colaboradores ?? []).find((c) => c.id === id) ?? null
 
+  const contactoMostrado = (() => {
+    if (!borrador.id_contacto) return '—'
+    const c = contactos?.find((c) => c.id === borrador.id_contacto)
+    const nombre = c ? nombreCompleto(c) : nombreCompleto(tarea.contacto)
+    const telefono = c?.tlf_1
+    return telefono ? `${nombre} · ${telefono}` : nombre
+  })()
+
   return (
     <Modal
       title={`Tarea ID-${tarea.id}`}
@@ -206,13 +263,7 @@ export function TareaDetalleModal({
           editable={puedeEditarContacto}
           enEdicion={editando.id_contacto}
           onToggle={() => toggle('id_contacto')}
-          display={
-            borrador.id_contacto
-              ? (contactos?.find((c) => c.id === borrador.id_contacto)
-                  ? nombreCompleto(contactos.find((c) => c.id === borrador.id_contacto))
-                  : nombreCompleto(tarea.contacto))
-              : '—'
-          }
+          display={contactoMostrado}
           edit={
             <Select
               autoFocus
@@ -286,7 +337,7 @@ export function TareaDetalleModal({
           editable={esPendiente}
           enEdicion={editando.descripcion}
           onToggle={() => toggle('descripcion')}
-          display={borrador.descripcion || '—'}
+          display={formatearDescripcion(borrador.descripcion)}
           edit={
             <Input.TextArea
               autoFocus

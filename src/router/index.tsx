@@ -66,8 +66,16 @@ const GerenciaPage = lazy(() =>
 const SolicitudesPage = lazy(() =>
   import('@/pages/Solicitudes/SolicitudesPage').then((m) => ({ default: m.SolicitudesPage })),
 )
-const EnConstruccionPage = lazy(() =>
-  import('@/pages/EnConstruccion/EnConstruccionPage').then((m) => ({ default: m.EnConstruccionPage })),
+const CalculadoraPage = lazy(() =>
+  import('@/pages/Calculadora/CalculadoraPage').then((m) => ({ default: m.CalculadoraPage })),
+)
+const SimulacionesPage = lazy(() =>
+  import('@/pages/Simulaciones/SimulacionesPage').then((m) => ({ default: m.SimulacionesPage })),
+)
+const SimulacionDetallePage = lazy(() =>
+  import('@/pages/Simulaciones/SimulacionDetallePage').then((m) => ({
+    default: m.SimulacionDetallePage,
+  })),
 )
 
 /**
@@ -139,18 +147,12 @@ export function AppRouter() {
               </RequireRol>
             }
           />
-          {/*
-            Plan 05, T2.2 (resolución H0): SimulacionesPage, SimulacionDetallePage
-            y CalculadoraPage (T3.1/T5.1) están bloqueadas por el hito de diseño
-            pendiente. Las tres rutas ya quedan cableadas contra el mismo
-            placeholder — cuando esas páginas existan, se reemplaza únicamente
-            el `lazy(() => import(...))` de cada una.
-          */}
+          {/* Plan 05, T5.1: SimulacionesPage y SimulacionDetallePage ya entregadas. */}
           <Route
             path={RUTA_SIMULACIONES}
             element={
               <RequireRol roles={ROLES_MODULO_SIMULACIONES}>
-                <EnConstruccionPage titulo="Módulo Simulaciones" />
+                <SimulacionesPage />
               </RequireRol>
             }
           />
@@ -158,7 +160,7 @@ export function AppRouter() {
             path={`${RUTA_SIMULACIONES}/:id`}
             element={
               <RequireRol roles={ROLES_MODULO_SIMULACIONES}>
-                <EnConstruccionPage titulo="Detalle de Simulación" />
+                <SimulacionDetallePage />
               </RequireRol>
             }
           />
@@ -166,7 +168,7 @@ export function AppRouter() {
             path={RUTA_CALCULADORA}
             element={
               <RequireRol roles={ROLES_CALCULADORA}>
-                <EnConstruccionPage titulo="Calculadora Financiera" />
+                <CalculadoraPage />
               </RequireRol>
             }
           />

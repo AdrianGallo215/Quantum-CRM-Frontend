@@ -1,0 +1,120 @@
+/**
+ * Hoja de impresión de la propuesta financiera (Plan 04, D27 · encargo §5.6).
+ *
+ * El PDF se genera con `window.print()` y esta hoja — NO con una librería:
+ *
+ *  - `jspdf` + `html2canvas` (~600 KB) rasteriza: el texto deja de ser
+ *    seleccionable y se ve borroso al hacer zoom o al imprimir de verdad.
+ *  - `react-pdf` / `pdfmake` (~400 KB) da buena fidelidad pero obliga a duplicar
+ *    todo el layout en un DSL propio, que se desincroniza del componente.
+ *  - `window.print()` cuesta 0 KB, sale vectorial y seleccionable, y el diálogo
+ *    nativo del navegador ofrece "Guardar como PDF".
+ *
+ * Eso cumple el requisito literal de §5.6 —"se genera y descarga on demand [...]
+ * NO se almacena"—: el archivo lo escribe el usuario donde quiera, la app no lo
+ * guarda ni lo registra en ningún lado, y no hay endpoint que lo haga.
+ *
+ * Coste aceptado: el nombre del archivo lo propone el navegador, no la app.
+ *
+ * Se importa desde `PropuestaFinanciera.tsx` para que viaje con el chunk de la
+ * propuesta y no con el CSS global.
+ */
+
+@media print {
+  /**
+   * Auditoría T8.1 (C3): ocultar por clase (`.no-imprimir` en cada elemento de
+   * cromo) es frágil — depende de que CADA sidebar/topbar/FAB futuro se
+   * acuerde de llevarla, y hoy `AppLayout.tsx` no la lleva en ninguno. Se
+   * invierte la estrategia: se oculta TODO el árbol y se revela solo la
+   * propuesta, que además puede estar montada dentro de un `<Modal>` de AntD
+   * (sobre la página viva, no reemplazándola) — por eso hace falta ocultar
+   * también lo que quede fuera del modal.
+   */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .propuesta-impresa,
+  .propuesta-impresa * {
+    visibility: visible !important;
+  }
+
+  .propuesta-impresa {
+    position: absolute;
+    inset: 0;
+  }
+
+  /**
+   * Dentro de la propia propuesta, lo que es cromo de la aplicación y no del
+   * documento (el botón "Descargar PDF"). `!important` porque compite con las
+   * utilidades de Tailwind y con los estilos inline de Ant Design.
+   */
+  .no-imprimir,
+  .no-imprimir *,
+  .ant-drawer,
+  .ant-modal-mask,
+  .ant-message,
+  .ant-notification {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* La propuesta ocupa la hoja entera: sin anchos de columna ni scroll interno. */
+  .propuesta-impresa {
+    max-width: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  /**
+   * El cronograma vive en un contenedor con scroll acotado (K32). En pantalla eso
+   * es correcto; impreso recortaría las filas que quedan fuera del alto máximo.
+   */
+  .propuesta-impresa .cronograma-scroll,
+  .propuesta-impresa [data-testid='cronograma-scroll'] {
+    max-height: none !important;
+    overflow: visible !important;
+    border: 0 !important;
+  }
+
+  /* 49 filas cruzan páginas: que ninguna se parta por la mitad y que el
+     encabezado se repita en cada página. */
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* El sticky del encabezado no tiene sentido en papel y descoloca la impresión. */
+  thead th {
+    position: static !important;
+  }
+
+  /* Bloques que no deberían quedar cortados entre dos páginas. */
+  .propuesta-encabezado,
+  .propuesta-resumen,
+  .propuesta-pie {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Los fondos de color no se imprimen por defecto; el balloon destacado sí debe
+     verse en el papel. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
