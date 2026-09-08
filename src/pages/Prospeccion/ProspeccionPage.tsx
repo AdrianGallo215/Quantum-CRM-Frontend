@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Pagination, Tooltip } from 'antd'
+import { App, Pagination, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
-import { useProspeccion } from '@/hooks/usePantallas'
-import { useAuthStore, ROLES_APOYO, tieneRol } from '@/store/authStore'
+import { useExportarComercial, useProspeccion } from '@/hooks/usePantallas'
+import { mensajeDeError } from '@/api/client'
+import { useAuthStore, ROLES_APOYO, ROLES_REPORTES, tieneRol } from '@/store/authStore'
 import type { ProspeccionItem } from '@/types'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { NuevaOportunidadModal } from '@/components/NuevaOportunidadModal'
@@ -15,9 +16,12 @@ const requiereAccion = (i: ProspeccionItem) =>
   i.lista_para_convertir || (i.checkpoints_completados === 0 && i.dias_sin_actividad > 14)
 
 export function ProspeccionPage() {
+  const { message } = App.useApp()
   const navigate = useNavigate()
   const empleado = useAuthStore((s) => s.empleado)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
+  const puedeExportar = tieneRol(empleado, ROLES_REPORTES)
+  const exportar = useExportarComercial()
   const [pagina, setPagina] = useState(1)
   const prospeccion = useProspeccion(pagina)
   const [convertir, setConvertir] = useState<ProspeccionItem | null>(null)
@@ -90,6 +94,18 @@ export function ProspeccionPage() {
                 <span className="material-symbols-outlined">refresh</span>
                 {prospeccion.isFetching ? 'Actualizando…' : 'Actualizar'}
               </button>
+              {puedeExportar && (
+                <button
+                  className="flex items-center gap-2 px-4 py-2 text-primary font-medium hover:bg-secondary-container rounded-full transition-colors disabled:opacity-40"
+                  disabled={exportar.isPending}
+                  onClick={() =>
+                    exportar.mutate(undefined, { onError: (e) => message.error(mensajeDeError(e)) })
+                  }
+                >
+                  <span className="material-symbols-outlined">download</span>
+                  {exportar.isPending ? 'Exportando…' : 'Exportar gestión comercial'}
+                </button>
+              )}
             </div>
           </section>
 
