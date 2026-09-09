@@ -56,7 +56,7 @@ export function formatoTea(valor: string): string {
  * Helper propio, separado de `formatoMonto`: nunca usar `formatoMonto` para este campo.
  */
 export function formatoTasa(valor: string): string {
-  const n = Number(valor)*100
+  const n = Number(valor)
   if (Number.isNaN(n)) return '—'
   return `${n.toFixed(6)}%`
 }

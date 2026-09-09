@@ -9,6 +9,7 @@ import {
   RUTA_INICIO,
   RUTA_LOGIN,
   RUTA_SIMULACIONES,
+  RUTA_HISTORIAL_ACTIVIDADES,
 } from './rutas'
 import {
   ROLES_ADMIN,
@@ -58,6 +59,11 @@ const ReportesPage = lazy(() =>
 )
 const ActividadesPage = lazy(() =>
   import('@/pages/Actividades/ActividadesPage').then((m) => ({ default: m.ActividadesPage })),
+)
+const HistorialActividadesPage = lazy(() =>
+  import('@/pages/Actividades/HistorialActividadesPage').then((m) => ({
+    default: m.HistorialActividadesPage,
+  })),
 )
 const AdminPage = lazy(() => import('@/pages/Admin/AdminPage').then((m) => ({ default: m.AdminPage })))
 const GerenciaPage = lazy(() =>
@@ -111,6 +117,9 @@ export function AppRouter() {
           <Route path="/prospeccion" element={<ProspeccionPage />} />
           <Route path="/cartera" element={<CarteraPage />} />
           <Route path="/actividades" element={<ActividadesPage />} />
+          {/* Sin RequireRol a propósito (D2): cualquier rol puede ver SU historial. Lo
+              que se restringe por rol es el selector de empleado, no la pantalla. */}
+          <Route path={RUTA_HISTORIAL_ACTIVIDADES} element={<HistorialActividadesPage />} />
           <Route path="/empresas/:id" element={<EmpresaDetallePage />} />
           <Route path="/oportunidades/:id" element={<OportunidadDetallePage />} />
           <Route path="/contactos" element={<ContactosPage />} />

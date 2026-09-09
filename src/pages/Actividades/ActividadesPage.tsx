@@ -18,6 +18,7 @@ import { iniciales, nombreCompleto } from '@/utils/formato'
 import { Cargando, ErrorCarga } from '@/components/Estados'
 import { TareaDetalleModal } from '@/components/TareaDetalleModal'
 import { CrearTareaModal } from '@/components/CrearTareaModal'
+import { RUTA_HISTORIAL_ACTIVIDADES } from '@/router/rutas'
 
 /** Pantalla de actividades según el prototipo gestión_de_actividades (paleta teal) */
 export function ActividadesPage() {
@@ -41,11 +42,23 @@ export function ActividadesPage() {
   return (
     <div className="proto-teal bg-surface min-h-full font-body-md text-body-md text-on-background">
       <div className="p-4 md:p-8 max-w-container-max mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface">Gestión de Actividades</h1>
-          <p className="text-text-muted">
-            Tareas del vendedor y eventos operativos externos en seguimiento.
-          </p>
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface">Gestión de Actividades</h1>
+            <p className="text-text-muted">
+              Tareas del vendedor y eventos operativos externos en seguimiento.
+            </p>
+          </div>
+          {/* Entrada al historial unificado (Plan 06, D3): no se añadió al menú
+              de navegación — es una vista secundaria de esta sección. */}
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 border border-border-subtle rounded-lg text-primary font-bold hover:bg-surface-container transition-colors"
+            onClick={() => navigate(RUTA_HISTORIAL_ACTIVIDADES)}
+          >
+            <span className="material-symbols-outlined text-[18px]">history</span>
+            Ver historial
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">

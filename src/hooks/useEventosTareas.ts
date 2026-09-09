@@ -28,6 +28,10 @@ function invalidarEventos(qc: ReturnType<typeof useQueryClient>, idOportunidad: 
     qk.oportunidades,
     qk.inicio,
     qk.prospeccion,
+    // Editar un evento escribe filas en `actividad_auditoria` y puede cambiar su
+    // fila del historial unificado. Sin esto, el panel de Cambios abierto sigue
+    // mostrando el historial previo a la edición (CLAUDE.md regla 4).
+    qk.actividades,
   )
 }
 
@@ -78,7 +82,7 @@ export function useEventosDeEmpresa(idEmpresa: number) {
 }
 
 function invalidarEventosEmpresa(qc: ReturnType<typeof useQueryClient>, idEmpresa: number) {
-  invalidar(qc, qk.empresaEventos(idEmpresa), qk.empresa(idEmpresa), qk.prospeccion, qk.inicio)
+  invalidar(qc, qk.empresaEventos(idEmpresa), qk.empresa(idEmpresa), qk.prospeccion, qk.inicio, qk.actividades)
 }
 
 export function useCrearEventoEmpresa(idEmpresa: number) {
@@ -127,7 +131,7 @@ export function useTareas(filtros?: TareasFiltros, enabled = true) {
 }
 
 function invalidarTareas(qc: ReturnType<typeof useQueryClient>, idOportunidad?: number | null) {
-  invalidar(qc, qk.tareas, qk.inicio, qk.prospeccion, qk.oportunidades)
+  invalidar(qc, qk.tareas, qk.inicio, qk.prospeccion, qk.oportunidades, qk.actividades)
   if (idOportunidad) invalidar(qc, qk.oportunidad(idOportunidad))
 }
 

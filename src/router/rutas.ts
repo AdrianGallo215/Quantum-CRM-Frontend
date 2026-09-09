@@ -12,3 +12,9 @@ export const RUTA_INICIO = '/'
 // olvide en la otra.
 export const RUTA_SIMULACIONES = '/simulaciones'
 export const RUTA_CALCULADORA = '/calculadora'
+
+/**
+ * Historial unificado de actividades (Plan 06). Se referencia desde
+ * `router/index.tsx` y desde el botón de `ActividadesPage`, por eso vive acá.
+ */
+export const RUTA_HISTORIAL_ACTIVIDADES = '/actividades/historial'
