@@ -246,7 +246,7 @@ describe('PropiedadesCard', () => {
     )
 
     const porUnidad = await screen.findByRole('group', { name: /cuota mensual por unidad/i })
-    const total = screen.getByRole('group', { name: /cuota mensual total/i })
+    const total = screen.getByRole('group', { name: /cuota total de la op/i })
 
     expect(porUnidad).toHaveTextContent('2,172.06')
     expect(total).toHaveTextContent('17,376.48')

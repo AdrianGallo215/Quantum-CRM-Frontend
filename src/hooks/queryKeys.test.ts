@@ -75,4 +75,18 @@ describe('qk — jerarquía de prefijos', () => {
     expect(esPrefijoDe(qk.empresas, qk.oportunidad(5))).toBe(false)
     expect(esPrefijoDe(qk.empresa(5), qk.empresa(6))).toBe(false)
   })
+
+  it('los comentarios y la auditoría cuelgan del árbol de actividades', () => {
+    // Es lo que permite que crear un comentario invalide de una sola vez la
+    // lista de comentarios Y el contador `comentarios` del historial.
+    expect(esPrefijoDe(qk.actividades, qk.actividadComentarios('tarea', 42))).toBe(true)
+    expect(esPrefijoDe(qk.actividades, qk.actividadAuditoria('tarea', 42))).toBe(true)
+  })
+
+  it('tarea 42 y evento 42 no comparten key: son secuencias de ID independientes', () => {
+    // Sin el `tipo` en la key, los comentarios del evento 42 servirían del cache
+    // de la tarea 42 y la ficha mostraría comentarios de otra actividad.
+    expect(esPrefijoDe(qk.actividadComentarios('tarea', 42), qk.actividadComentarios('evento', 42))).toBe(false)
+    expect(esPrefijoDe(qk.actividadComentarios('tarea', 42), qk.actividadAuditoria('tarea', 42))).toBe(false)
+  })
 })

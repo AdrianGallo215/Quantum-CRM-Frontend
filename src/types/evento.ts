@@ -16,6 +16,16 @@ export interface Evento {
   /** Pendiente en backend — ver docs/solicitud-backend-eventos-empresa.md */
   es_hito_prospeccion?: boolean
   etapa_asociada?: EstadoOportunidad | null
+  /**
+   * Añadidos por el backend en el PR #16 (informe §12). Son ADITIVOS: los
+   * endpoints existentes que devuelven EventoDto ahora los incluyen.
+   *
+   * Opcionales a propósito (D12): el repo construye objetos `Evento` en tests y
+   * en código que no los traen. Declararlos obligatorios rompería el type-check
+   * en archivos que esta tarea no toca.
+   */
+  created_by?: number
+  created_at?: string
 }
 
 export interface EventosDeOportunidad {

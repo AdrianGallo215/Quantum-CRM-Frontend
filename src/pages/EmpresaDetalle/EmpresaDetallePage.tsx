@@ -22,6 +22,7 @@ import {
 import { useEmpleadosSeleccionables, useVendedoresAsignables } from '@/hooks/useCatalogos'
 import { codigoDeError, extraerApiError, mensajeDeError } from '@/api/client'
 import { urlSegura } from '@/utils/url'
+import { RUTA_HISTORIAL_ACTIVIDADES } from '@/router/rutas'
 import {
   useAuthStore,
   ROLES_ADMIN,
@@ -216,6 +217,13 @@ function Contenido({ empresa }: { empresa: Empresa }) {
                 Eliminar empresa
               </button>
             )}
+            <button
+              className="btn-circular px-6 py-2 border border-outline-variant text-primary font-bold hover:bg-surface-container-low transition-colors flex items-center gap-2"
+              onClick={() => navigate(`${RUTA_HISTORIAL_ACTIVIDADES}?id_empresa=${empresa.id}`)}
+            >
+              <span className="material-symbols-outlined text-[18px]">history</span>
+              Ver historial
+            </button>
           </div>
         </div>
 

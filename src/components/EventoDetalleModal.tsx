@@ -6,6 +6,7 @@ import type { ActualizarEventoInput, Evento } from '@/types'
 import { etiquetaEtapa } from '@/utils/etiquetas'
 import { formatoFecha } from '@/utils/formato'
 import { CampoEditable } from './CampoEditable'
+import { PanelComentarios } from './actividades/PanelComentarios'
 
 const ETIQUETA_ESTADO_EVENTO: Record<Evento['estado'], string> = {
   pendiente: 'Pendiente',
@@ -182,6 +183,11 @@ export function EventoDetalleModal({ evento, onClose, onSave, guardando, irADeta
             />
           }
         />
+      </div>
+
+      <div className="mt-6 border-t border-border-subtle pt-4">
+        <h4 className="text-label-md text-on-surface-variant uppercase mb-3">Seguimiento</h4>
+        <PanelComentarios tipo="evento" id={evento.id} />
       </div>
     </Modal>
   )

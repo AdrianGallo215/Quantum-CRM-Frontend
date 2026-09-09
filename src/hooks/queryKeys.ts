@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query'
-import type { TipoEntidadArchivo } from '@/types'
+import type { TipoActividad, TipoEntidadArchivo } from '@/types'
 
 /**
  * Query keys jerárquicas — la invalidación por prefijo cubre todas las variantes
@@ -24,6 +24,20 @@ export const qk = {
   oportunidadLog: (id: number) => ['oportunidades', 'detalle', id, 'log'] as const,
   oportunidadEventos: (id: number) => ['oportunidades', 'detalle', id, 'eventos'] as const,
   tareas: ['tareas'] as const,
+  /**
+   * Módulo de actividades (historial unificado + comentarios + auditoría).
+   * Sigue el invariante de arriba: comentarios y auditoría cuelgan del árbol
+   * `actividades`, así que `invalidar(qc, qk.actividades)` los arrastra a los dos.
+   *
+   * El `tipo` va DENTRO de la key, antes del id: los IDs de tareas y de eventos
+   * son secuencias independientes y sin el discriminante la tarea 42 y el evento
+   * 42 compartirían entrada de cache.
+   */
+  actividades: ['actividades'] as const,
+  actividadComentarios: (tipo: TipoActividad, id: number) =>
+    ['actividades', 'detalle', tipo, id, 'comentarios'] as const,
+  actividadAuditoria: (tipo: TipoActividad, id: number) =>
+    ['actividades', 'detalle', tipo, id, 'auditoria'] as const,
   empleados: ['empleados'] as const,
   financiadoras: ['financiadoras'] as const,
   modelos: ['modelos'] as const,

@@ -100,7 +100,7 @@ describe('CuotaOportunidad', () => {
     // El ítem vale 2172.06 (una unidad); la raíz 17376.48 (toda la operación).
     renderConProviders(<CuotaOportunidad oportunidad={CON_CUOTAS} />)
 
-    const total = screen.getByRole('group', { name: /cuota mensual total/i })
+    const total = screen.getByRole('group', { name: /cuota total de la op/i })
     expect(total).toHaveTextContent('17,376.48')
     expect(total).not.toHaveTextContent('2,172.06')
 

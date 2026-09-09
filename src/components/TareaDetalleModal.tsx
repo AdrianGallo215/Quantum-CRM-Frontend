@@ -7,6 +7,7 @@ import { ETIQUETA_ESTADO_ACCION, ETIQUETA_TIPO_ACCION } from '@/utils/etiquetas'
 import { formatoFechaHora, iniciales, nombreCompleto } from '@/utils/formato'
 import { CampoEditable } from './CampoEditable'
 import { EmpleadoMultiSelect, EmpleadoSelect } from './EmpleadoSelect'
+import { PanelComentarios } from './actividades/PanelComentarios'
 
 type ContactoOpcion = { id: number; nombres: string; apellidos: string; tlf_1?: string | null }
 
@@ -350,6 +351,13 @@ export function TareaDetalleModal({
             />
           }
         />
+      </div>
+
+      {/* Comentarios de seguimiento (Plan 06). Append-only y separados de
+          `descripcion`: nunca la sobrescriben (informe §1). */}
+      <div className="mt-6 border-t border-border-subtle pt-4">
+        <h4 className="text-label-md text-on-surface-variant uppercase mb-3">Seguimiento</h4>
+        <PanelComentarios tipo="tarea" id={tarea.id} />
       </div>
     </Modal>
   )

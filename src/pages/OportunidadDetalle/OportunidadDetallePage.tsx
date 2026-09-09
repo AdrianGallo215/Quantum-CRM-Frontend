@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { App, Input, Modal } from 'antd'
 import dayjs from 'dayjs'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useCambiarEstadoOportunidad, useOportunidad } from '@/hooks/useOportunidades'
+import { RUTA_HISTORIAL_ACTIVIDADES } from '@/router/rutas'
 import { mensajeDeError } from '@/api/client'
 import { useAuthStore, ROLES_FACTURA, ROLES_APOYO, tieneRol } from '@/store/authStore'
 import { ETAPAS_PIPELINE, type EstadoOportunidad, type OportunidadDetalle } from '@/types'
@@ -40,6 +41,7 @@ export function OportunidadDetallePage() {
 
 function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
   const { message, notification } = App.useApp()
+  const navigate = useNavigate()
   const empleado = useAuthStore((s) => s.empleado)
   const puedeFacturar = tieneRol(empleado, ROLES_FACTURA)
   const esRolDeApoyo = tieneRol(empleado, ROLES_APOYO)
@@ -110,8 +112,15 @@ function Contenido({ oportunidad: o }: { oportunidad: OportunidadDetalle }) {
               <EtiquetaModelos items={o.items} /> × {unidadesTotales(o.items)} —{' '}
               {o.empresa.razon_social}
             </h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <PropiedadesCard.BotonEditar oportunidad={o} />
+              <button
+                className="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-primary font-bold hover:bg-surface-container transition-colors"
+                onClick={() => navigate(`${RUTA_HISTORIAL_ACTIVIDADES}?id_oportunidad=${o.id}`)}
+              >
+                <span className="material-symbols-outlined text-[18px]">history</span>
+                Ver historial
+              </button>
             </div>
           </div>
         </div>
